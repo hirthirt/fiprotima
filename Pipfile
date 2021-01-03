@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+
+[packages]
+sqlalchemy = "*"
+tcl = "*"
+tksheet = "*"
+tkcalendar = "*"
+python-dateutil = "*"
+lz4 = "*"
+
+[requires]
+python_version = "3.8"

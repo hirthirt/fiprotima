@@ -1,0 +1,4 @@
+SQLAlchemy~=1.3.17
+tkcalendar~=1.6.1
+tksheet~=4.8.5
+python-dateutil~=2.8.1
