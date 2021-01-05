@@ -1,5 +1,4 @@
 from data_source.json.addons import AddonsHandler
-from data_source.json.search import SearchHandler
 from importlib import import_module
 
 
@@ -14,7 +13,6 @@ class DataSourcesJSON:
         source_names = []
 
         source_names.append(["data_source.json.addons", "AddonsHandler"])
-        source_names.append(["data_source.json.search", "SearchHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]
