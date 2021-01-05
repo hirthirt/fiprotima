@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from tksheet import Sheet
 
 from ui.tk_ui.enterdate_dialog import EnterDateTimeDialog
-from ui.tk_ui.filepaths_dialog import FilePathDialog
+from ui.tk_ui.profile_dialog import ProfileSelectionDialog
 
 import controller as control
 
@@ -305,7 +305,7 @@ class MainWindow(Tk):
 
     def popup_get_config(self) -> bool:
         """Open popup to user to enter paths and apply to config"""
-        dialog = FilePathDialog(self)
+        dialog = ProfileSelectionDialog(self)
         if not dialog.return_state:
             return False
 

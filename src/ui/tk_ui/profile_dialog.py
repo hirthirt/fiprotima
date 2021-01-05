@@ -1,12 +1,14 @@
 import os
 import sys
+import configparser
 
 from tkinter import *
 from tkinter import messagebox, filedialog
 from ui.tk_ui.customdialog import CustomDialog
+from config import configuration
 
 
-class FilePathDialog(CustomDialog):
+class ProfileSelectionDialog(CustomDialog):
     """Dialog for user to enter profile and/or config path"""
 
     return_state: bool = False
@@ -20,27 +22,42 @@ class FilePathDialog(CustomDialog):
     def body(self, master):
         self.resizable(False, False)
 
-        Label(master, text="Firefox Profil-Pfad").grid(row=0, sticky=W)
-        Label(master, text="Firefox Cache-Pfad").grid(row=2, sticky=W)
+        button_firefox  = Button(master, text="Firefox", command=lambda: self.select_firefox(master) )
+        button_chrome  = Button(master, text="Chrome", state=DISABLED, command=self.select_chrome )
+        button_edge  = Button(master, text="Edge", state=DISABLED, command=self.select_edge )
 
-        self.profile_entry = Entry(
-            master, textvariable=self.profile_path, width=80, disabledforeground="black"
-        )
-        self.profile_entry.config(state=DISABLED)
+        button_firefox.grid(row=0, column=0, padx=10, pady=10)
+        button_chrome.grid(row=0, column=1, padx=10, pady=10)
+        button_edge.grid(row=0, column=2, padx=10, pady=10)
 
-        self.cache_entry = Entry(
-            master, textvariable=self.cache_path, width=80, disabledforeground="black"
-        )
-        self.cache_entry.config(state=DISABLED)
+        
 
-        button_profile = Button(master, text="Profil-Ordner", command=self.open_profile_dialog)
-        button_cache = Button(master, text="Cache-Ordner", command=self.open_cache_dialog)
 
-        self.profile_entry.grid(row=1, column=0, columnspan=2)
-        self.cache_entry.grid(row=3, column=0, columnspan=2)
-        button_profile.grid(row=1, column=2)
-        button_cache.grid(row=3, column=2)
-        return self.profile_entry  # initial focus
+    def select_firefox(self, master):
+        for widget in master.winfo_children():
+            widget.destroy()
+        profile_dict = {}
+        config_parser = configparser.ConfigParser()
+        path = "C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/"
+        config_parser.read(path + "profiles.ini")
+        for section in config_parser.sections():
+            if "Profile" in section:
+                profile_dict.update({ section : { "Name" : config_parser[section].get("Name"), "Path" : path + config_parser[section].get("Path") } })
+        print(profile_dict)
+
+        profile = StringVar()
+        i = 0
+        for x in profile_dict:
+            Radiobutton(master, text=profile_dict[x]["Name"], variable=profile, value=profile_dict[x]["Path"]).grid(row=i, column=0)
+            i += 1
+        
+        return
+
+    def select_chrome(self):
+        return
+
+    def select_edge(self):
+        return
 
     def open_path_dialog(self, variable, entry):
         """Opens tkinters ask-for-directory dialog"""
