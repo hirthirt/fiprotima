@@ -41,7 +41,10 @@ class ProfileSelectionDialog(CustomDialog):
 
         controller.set_browser("Firefox")
         config_parser = configparser.ConfigParser()
-        path = "C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/"
+        if configuration.current_os == "Windows":
+            path = "C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/"
+        elif configuration.current_os == "Linux":
+            path = "/home/" + configuration.current_username + "/.mozilla/firefox/"
         config_parser.read(path + "profiles.ini")
 
         i = 0
@@ -102,8 +105,8 @@ class ProfileSelectionDialog(CustomDialog):
                 self.profile_path.set("C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/" + self.profile_name.get())
                 self.cache_path.set("C:/Users/" + configuration.current_username  + "/AppData/Local/Mozilla/Firefox/" + self.profile_name.get())
             elif configuration.current_os == "Linux":
-                self.profile_path.set("/home/" + configuration.current_username + "/.mozilla/" + self.profile_name.get())
-                self.cache_path.set("C:/Users/" + configuration.current_username  + "/AppData/Local/Mozilla/Firefox/" + self.profile_name.get())
+                self.profile_path.set("/home/" + configuration.current_username + "/.mozilla/firefox/" + self.profile_name.get())
+                self.cache_path.set("/home/" + configuration.current_username  + "/.cache/mozilla/firefox/" + self.profile_name.get())
 
 
         elif configuration.current_browser == "Chrome":
