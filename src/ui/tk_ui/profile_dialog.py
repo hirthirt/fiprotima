@@ -6,6 +6,7 @@ from tkinter import *
 from tkinter import messagebox, filedialog
 from ui.tk_ui.customdialog import CustomDialog
 from config import configuration
+import controller
 
 
 class ProfileSelectionDialog(CustomDialog):
@@ -16,6 +17,7 @@ class ProfileSelectionDialog(CustomDialog):
     def __init__(self, parent, title=None):
         self.profile_path = StringVar(value="")
         self.cache_path = StringVar(value="")
+        self.profile_name = StringVar(value="")
 
         super().__init__(parent, title)
 
@@ -36,21 +38,18 @@ class ProfileSelectionDialog(CustomDialog):
     def select_firefox(self, master):
         for widget in master.winfo_children():
             widget.destroy()
-        profile_dict = {}
+
+        controller.set_browser("Firefox")
         config_parser = configparser.ConfigParser()
         path = "C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/"
         config_parser.read(path + "profiles.ini")
+
+        i = 0
         for section in config_parser.sections():
             if "Profile" in section:
-                profile_dict.update({ section : { "Name" : config_parser[section].get("Name"), "Path" : path + config_parser[section].get("Path") } })
-        print(profile_dict)
-
-        profile = StringVar()
-        i = 0
-        for x in profile_dict:
-            Radiobutton(master, text=profile_dict[x]["Name"], variable=profile, value=profile_dict[x]["Path"]).grid(row=i, column=0)
-            i += 1
-        
+                Radiobutton(master, text=config_parser[section].get("Name"), variable=self.profile_name, value=config_parser[section].get("Path")).grid(row=i, column=0)
+                self.profile_name.set(config_parser[section].get("Name"))
+                i += 1
         return
 
     def select_chrome(self):
@@ -81,6 +80,9 @@ class ProfileSelectionDialog(CustomDialog):
 
     def ok(self, event=None):
         """Overridig ok method because cancel-method kills the program"""
+
+        self.set_paths()
+
         if not self.validate():
             self.initial_focus.focus_set()  # put focus back
             return
@@ -93,6 +95,22 @@ class ProfileSelectionDialog(CustomDialog):
 
         self.parent.focus_set()
         self.destroy()
+
+    def set_paths(self):
+        if configuration.current_browser == "Firefox":
+            if configuration.current_os == "Windows":
+                self.profile_path.set("C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/" + self.profile_name.get())
+                self.cache_path.set("C:/Users/" + configuration.current_username  + "/AppData/Local/Mozilla/Firefox/" + self.profile_name.get())
+            elif configuration.current_os == "Linux":
+                self.profile_path.set("/home/" + configuration.current_username + "/.mozilla/" + self.profile_name.get())
+                self.cache_path.set("C:/Users/" + configuration.current_username  + "/AppData/Local/Mozilla/Firefox/" + self.profile_name.get())
+
+
+        elif configuration.current_browser == "Chrome":
+            pass
+
+        elif configuration.current_browser == "Edge":
+            pass
 
     def validate(self) -> bool:
         """Check if at least one path was entered and if paths are valid paths in system"""
