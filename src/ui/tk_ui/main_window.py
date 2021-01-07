@@ -5,6 +5,12 @@ from tkinter import messagebox
 from dateutil.relativedelta import relativedelta
 from tksheet import Sheet
 
+from ui.tk_ui.menu import MainMenu
+from ui.tk_ui.toolbar import Toolbar
+from ui.tk_ui.dataview import Dataview
+from ui.tk_ui.console import Console
+from ui.tk_ui.info import Info
+from ui.tk_ui.profile_frame import Profileframe
 from ui.tk_ui.enterdate_dialog import EnterDateTimeDialog
 from ui.tk_ui.profile_dialog import ProfileSelectionDialog
 
@@ -38,11 +44,12 @@ class MainWindow(Tk):
     def __init__(self):
         Tk.__init__(self)
         self.title("FiProTiMa")
-        self.protocol("WM_DELETE_WINDOW", self.popup_close_app)
+        #self.protocol("WM_DELETE_WINDOW", self.popup_close_app)
 
         # Main Window
         self.body()
 
+        """
         # Get Paths from user
         if not self.popup_get_config():
             self.close()
@@ -58,10 +65,30 @@ class MainWindow(Tk):
 
         for sheet in self.sheets:
             sheet.pack(fill=BOTH, expand=1)
+        """
 
     # GUI
     def body(self):
         """Build body of main window"""
+
+        menu = MainMenu(self)
+        toolbar = Toolbar(self)
+        profile = Profileframe(self)
+        dateview = Dataview(self)
+        console = Console(self)
+        info = Info(self)
+        
+        self.config(menu=menu)
+        toolbar.grid(row=0, column=0, columnspan=2, sticky="we")
+        profile.grid(row=1, column=0, sticky="eswn")
+        dateview.grid(row=1, column=1, sticky="eswn")
+        console.grid(row=2, column=0, sticky="eswn")
+        info.grid(row=2, column=1, sticky="eswn")
+
+        console.insert_message("Fertig geladen...")
+        console.insert_message("Legen Sie los!")
+
+        """
         main_separator = Frame(self, height=2, bd=1, relief=SUNKEN)
 
         # Button Bar
@@ -80,9 +107,11 @@ class MainWindow(Tk):
         frame_buttons.pack(side=TOP, anchor=NW)
         main_separator.pack(fill=X, padx=5, pady=5)
         self.frame_table.pack(side=BOTTOM, anchor=S, fill=BOTH, expand=1)
+        """
 
+"""
     def button_bar(self, master):
-        """Build buttons and add them to the button frame"""
+        #Build buttons and add them to the button frame
         master.grid_columnconfigure(0, weight=1)
         master.grid_rowconfigure(0, weight=1)
 
@@ -108,7 +137,7 @@ class MainWindow(Tk):
 
     # Dialogs
     def popup_edit_all_cells(self, *args):
-        """Open popup-dialog for user to enter date, apply to all tables"""
+        #Open popup-dialog for user to enter date, apply to all tables
         dialog = EnterDateTimeDialog(self)
         row = 0
         col = 0
@@ -198,7 +227,7 @@ class MainWindow(Tk):
                 self.sheets[i].set_sheet_data(self.table_data[i][1:], verify=True, redraw=False)
 
     def popup_edit_single_cell(self, *args):
-        """Open popup-dialog for user to enter date, apply only to marked rows or cells in single table"""
+        #Open popup-dialog for user to enter date, apply only to marked rows or cells in single table
 
         # Get active table
         active_tab = self.tabs_bar.index(self.tabs_bar.select())
@@ -304,7 +333,7 @@ class MainWindow(Tk):
             sheet.set_all_cell_sizes_to_text()
 
     def popup_get_config(self) -> bool:
-        """Open popup to user to enter paths and apply to config"""
+        #Open popup to user to enter paths and apply to config
         dialog = ProfileSelectionDialog(self)
         if not dialog.return_state:
             return False
@@ -316,7 +345,7 @@ class MainWindow(Tk):
         return True
 
     def popup_switch_config(self):
-        """If user wants to switch config, clear data, open dialog, apply config and rebuild main window tables"""
+        #If user wants to switch config, clear data, open dialog, apply config and rebuild main window tables
         quitbox = messagebox.askokcancel(
             title="Verzeichnis ändern?",
             message="Wollen Sie die Verzeichnisse ändern? Nicht gespeicherte Änderungen gehen verloren!",
@@ -353,7 +382,7 @@ class MainWindow(Tk):
                 self.close()
 
     def popup_close_app(self):
-        """Confirm, if user wants to close program"""
+        #Confirm, if user wants to close program
         quitbox = messagebox.askokcancel(
             title="Anwendung beenden",
             message="Anwendung beenden? Nicht gespeicherte Änderungen gehen verloren!",
@@ -363,7 +392,7 @@ class MainWindow(Tk):
 
     # Functions, interacting with controller
     def get_data(self):
-        """Fetches data from controller, prepares tables and fill those tables with data"""
+        #Fetches data from controller, prepares tables and fill those tables with data
         control.init()
 
         self.data_lists = control.get_data_lists()
@@ -383,14 +412,14 @@ class MainWindow(Tk):
         self.fill_table()
 
     def submit(self):
-        """Send signal to controller to save data"""
+        #Send signal to controller to save data
         active_tab = self.tabs_bar.index(self.tabs_bar.select())
         name = self.table_names[active_tab]
         control.save()
         self.dehightlight_sheet()
 
     def cancel(self):
-        """Send signal to controller to rollback data"""
+        #end signal to controller to rollback data
         active_tab = self.tabs_bar.index(self.tabs_bar.select())
         name = self.table_names[active_tab]
 
@@ -402,7 +431,7 @@ class MainWindow(Tk):
         self.dehightlight_sheet()
 
     def close(self):
-        """Close the main window and program"""
+        #Close the main window and program
         control.undo()
         control.close()
         self.destroy()
@@ -410,7 +439,7 @@ class MainWindow(Tk):
 
     # Functions, interaction with GUI
     def fill_tab_content(self, master):
-        """Create tabs and tables and add them to notebool"""
+        #Create tabs and tables and add them to notebool
         for i, name in enumerate(self.table_names):
             frame = ttk.Frame(master)
             master.add(frame, text=name)
@@ -435,15 +464,16 @@ class MainWindow(Tk):
             self.sheets[i].bind("<Double-Button-1>", self.popup_edit_single_cell)
 
     def fill_table(self):
-        """Fill tables with data"""
+        #Fill tables with data
         for i, list_ in enumerate(self.data_lists):
             for j, obj in enumerate(list_, start=1):
                 self.table_data[i][j] = obj.get_value_list()
 
     def dehightlight_sheet(self):
-        """Remove all highlights from table"""
+        #Remove all highlights from table
         active_tab = self.tabs_bar.index(self.tabs_bar.select())
         self.sheets[active_tab].dehighlight_cells(row="all")
         self.sheets[active_tab].set_sheet_data(
             self.table_data[active_tab][1:], verify=True,
         )
+"""
