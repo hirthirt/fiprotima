@@ -1,12 +1,15 @@
 import os
 import sys
+import configparser
 
 from tkinter import *
 from tkinter import messagebox, filedialog
 from ui.tk_ui.customdialog import CustomDialog
+from config import configuration
+import controller
 
 
-class FilePathDialog(CustomDialog):
+class ProfileSelectionDialog(CustomDialog):
     """Dialog for user to enter profile and/or config path"""
 
     return_state: bool = False
@@ -14,33 +17,49 @@ class FilePathDialog(CustomDialog):
     def __init__(self, parent, title=None):
         self.profile_path = StringVar(value="")
         self.cache_path = StringVar(value="")
+        self.profile_name = StringVar(value="")
 
         super().__init__(parent, title)
 
     def body(self, master):
         self.resizable(False, False)
 
-        Label(master, text="Firefox Profil-Pfad").grid(row=0, sticky=W)
-        Label(master, text="Firefox Cache-Pfad").grid(row=2, sticky=W)
+        button_firefox  = Button(master, text="Firefox", command=lambda: self.select_firefox(master) )
+        button_chrome  = Button(master, text="Chrome", state=DISABLED, command=self.select_chrome )
+        button_edge  = Button(master, text="Edge", state=DISABLED, command=self.select_edge )
 
-        self.profile_entry = Entry(
-            master, textvariable=self.profile_path, width=80, disabledforeground="black"
-        )
-        self.profile_entry.config(state=DISABLED)
+        button_firefox.grid(row=0, column=0, padx=10, pady=10)
+        button_chrome.grid(row=0, column=1, padx=10, pady=10)
+        button_edge.grid(row=0, column=2, padx=10, pady=10)
 
-        self.cache_entry = Entry(
-            master, textvariable=self.cache_path, width=80, disabledforeground="black"
-        )
-        self.cache_entry.config(state=DISABLED)
+        
 
-        button_profile = Button(master, text="Profil-Ordner", command=self.open_profile_dialog)
-        button_cache = Button(master, text="Cache-Ordner", command=self.open_cache_dialog)
 
-        self.profile_entry.grid(row=1, column=0, columnspan=2)
-        self.cache_entry.grid(row=3, column=0, columnspan=2)
-        button_profile.grid(row=1, column=2)
-        button_cache.grid(row=3, column=2)
-        return self.profile_entry  # initial focus
+    def select_firefox(self, master):
+        for widget in master.winfo_children():
+            widget.destroy()
+
+        controller.set_browser("Firefox")
+        config_parser = configparser.ConfigParser()
+        if configuration.current_os == "Windows":
+            path = "C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/"
+        elif configuration.current_os == "Linux":
+            path = "/home/" + configuration.current_username + "/.mozilla/firefox/"
+        config_parser.read(path + "profiles.ini")
+
+        i = 0
+        for section in config_parser.sections():
+            if "Profile" in section:
+                Radiobutton(master, text=config_parser[section].get("Name"), variable=self.profile_name, value=config_parser[section].get("Path")).grid(row=i, column=0)
+                self.profile_name.set(config_parser[section].get("Name"))
+                i += 1
+        return
+
+    def select_chrome(self):
+        return
+
+    def select_edge(self):
+        return
 
     def open_path_dialog(self, variable, entry):
         """Opens tkinters ask-for-directory dialog"""
@@ -64,6 +83,9 @@ class FilePathDialog(CustomDialog):
 
     def ok(self, event=None):
         """Overridig ok method because cancel-method kills the program"""
+
+        self.set_paths()
+
         if not self.validate():
             self.initial_focus.focus_set()  # put focus back
             return
@@ -76,6 +98,22 @@ class FilePathDialog(CustomDialog):
 
         self.parent.focus_set()
         self.destroy()
+
+    def set_paths(self):
+        if configuration.current_browser == "Firefox":
+            if configuration.current_os == "Windows":
+                self.profile_path.set("C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/" + self.profile_name.get())
+                self.cache_path.set("C:/Users/" + configuration.current_username  + "/AppData/Local/Mozilla/Firefox/" + self.profile_name.get())
+            elif configuration.current_os == "Linux":
+                self.profile_path.set("/home/" + configuration.current_username + "/.mozilla/firefox/" + self.profile_name.get())
+                self.cache_path.set("/home/" + configuration.current_username  + "/.cache/mozilla/firefox/" + self.profile_name.get())
+
+
+        elif configuration.current_browser == "Chrome":
+            pass
+
+        elif configuration.current_browser == "Edge":
+            pass
 
     def validate(self) -> bool:
         """Check if at least one path was entered and if paths are valid paths in system"""

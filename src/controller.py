@@ -1,4 +1,4 @@
-from config import set_cache_path, set_profile_path, configuration
+from config import set_cache_path, set_profile_path, set_current_os, set_current_username, set_current_browser, configuration
 from data_source import DataSources
 
 source: DataSources = None
@@ -60,3 +60,12 @@ def close():
 def set_paths(profile_path: str, cache_path: str):
     set_profile_path(profile_path)
     set_cache_path(cache_path)
+
+def set_os(os: str):
+    set_current_os(os)
+
+def set_username(username: str):
+    set_current_username(username)
+
+def set_browser(browser: str):
+    set_current_browser(browser)
