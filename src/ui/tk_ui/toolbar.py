@@ -11,4 +11,4 @@ class Toolbar(tk.Frame):
     def body(self):
 
         exitButton = tk.Button(self, text="Beenden", relief=tk.FLAT, command=self.parent.quit)
-        exitButton.pack(side=tk.LEFT, padx=2, pady=2)
+        exitButton.pack(side=tk.LEFT, padx=2, pady=2, fill="both")

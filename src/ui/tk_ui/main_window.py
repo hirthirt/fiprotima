@@ -7,10 +7,8 @@ from tksheet import Sheet
 
 from ui.tk_ui.menu import MainMenu
 from ui.tk_ui.toolbar import Toolbar
-from ui.tk_ui.dataview import Dataview
-from ui.tk_ui.console import Console
-from ui.tk_ui.info import Info
-from ui.tk_ui.profile_frame import Profileframe
+from ui.tk_ui.sidebar import SideBar
+from ui.tk_ui.content import Content
 from ui.tk_ui.enterdate_dialog import EnterDateTimeDialog
 from ui.tk_ui.profile_dialog import ProfileSelectionDialog
 
@@ -44,7 +42,12 @@ class MainWindow(Tk):
     def __init__(self):
         Tk.__init__(self)
         self.title("FiProTiMa")
+        self.geometry("800x600")
         #self.protocol("WM_DELETE_WINDOW", self.popup_close_app)
+        self.menu = None
+        self.toolbar = None
+        self.sidebar = None
+        self.content = None
 
         # Main Window
         self.body()
@@ -71,43 +74,20 @@ class MainWindow(Tk):
     def body(self):
         """Build body of main window"""
 
-        menu = MainMenu(self)
-        toolbar = Toolbar(self)
-        profile = Profileframe(self)
-        dateview = Dataview(self)
-        console = Console(self)
-        info = Info(self)
+        self.menu = MainMenu(self)
+        self.toolbar = Toolbar(self)
+        self.sidebar = SideBar(self)
+        self.content = Content(self)
         
-        self.config(menu=menu)
-        toolbar.grid(row=0, column=0, columnspan=2, sticky="we")
-        profile.grid(row=1, column=0, sticky="eswn")
-        dateview.grid(row=1, column=1, sticky="eswn")
-        console.grid(row=2, column=0, sticky="eswn")
-        info.grid(row=2, column=1, sticky="eswn")
+        self.config(menu=self.menu)
+        self.toolbar.grid(row=0, column=0, columnspan=2, sticky="we")
+        self.sidebar.grid(row=1, column=0, sticky="ns")
+        self.content.grid(row=1, column=1, sticky="wens")
 
-        console.insert_message("Fertig geladen...")
-        console.insert_message("Legen Sie los!")
+        self.sidebar.insert_message("Fertig geladen...")
+        self.sidebar.insert_message("Legen Sie los!")
 
-        """
-        main_separator = Frame(self, height=2, bd=1, relief=SUNKEN)
-
-        # Button Bar
-        frame_buttons = Frame(self)
-        self.button_bar(frame_buttons)
-
-        # Main Frame
-        self.frame_table = Frame(self, borderwidth=1)
-        self.frame_table.grid_columnconfigure(0, weight=1)
-        self.frame_table.grid_rowconfigure(0, weight=1)
-
-        # Tabs
-        self.tabs_bar = ttk.Notebook(self.frame_table)
-
-        # Build main window
-        frame_buttons.pack(side=TOP, anchor=NW)
-        main_separator.pack(fill=X, padx=5, pady=5)
-        self.frame_table.pack(side=BOTTOM, anchor=S, fill=BOTH, expand=1)
-        """
+ 
 
 """
     def button_bar(self, master):
