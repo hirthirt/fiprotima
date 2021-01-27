@@ -1,5 +1,6 @@
 import os
 import configparser
+import json
 
 import tkinter as tk
 from tkinter import ttk
@@ -17,7 +18,7 @@ class SideBar(tk.Frame):
         self.profiledict = {}
 
         self.body()
-        self.fillProfiles()
+        self.insert_profiles_to_treeview()
 
     def body(self):
 
@@ -36,8 +37,20 @@ class SideBar(tk.Frame):
         subbutton.pack(fill="both")
         self.console.pack(side=tk.BOTTOM, fill="x")
 
-    #Load existing profiles into treeview
-    def fillProfiles(self):
+
+    def insert_profiles_to_treeview(self):
+        self.search_profiles()
+        for browser in self.profiledict:
+            parent = self.tree.insert('', "end",  text=browser)
+            for profile in self.profiledict[browser]:
+                self.tree.insert(parent, "end", text=profile) 
+        
+
+
+
+    #This searches for installations of Firefox, Edge and Chrome
+    #Then stores the profiles of them to the profiledict
+    def search_profiles(self):
         firepath = None
         firecachepath = None
         chromepath = None
@@ -49,8 +62,8 @@ class SideBar(tk.Frame):
         if configuration.current_os == "Windows":
             firepath = "C:/Users/" + configuration.current_username + "/AppData/Roaming/Mozilla/Firefox/"
             firecachepath = "C:/Users/" + configuration.current_username  + "/AppData/Local/Mozilla/Firefox/"
-            edgepath = "C:/Users/" + configuration.current_username + "/AppData/Local/Microsoft/Edge/User Data"
-            chromepath = "C:/Users/" + configuration.current_username + "/AppData/Local/Google/Chrome/User Data"
+            edgepath = "C:/Users/" + configuration.current_username + "/AppData/Local/Microsoft/Edge/User Data/"
+            chromepath = "C:/Users/" + configuration.current_username + "/AppData/Local/Google/Chrome/User Data/"
         elif configuration.current_os == "Linux":
             firepath = "/home/" + configuration.current_username + "/.mozilla/firefox/"
             firecachepath = "/home/" + configuration.current_username  + "/.cache/mozilla/firefox/"
@@ -60,7 +73,7 @@ class SideBar(tk.Frame):
         elif configuration.current_os == "Darwin":
             firepath = "Users/" + configuration.current_username + "/Library/Application Support/Firefox/"
             firecachepath = "Users/" + configuration.current_username + "/Library/Caches/Firefox/"
-            chromepath = "Users/" + configuration.current_username + "/Library/Application Support/Google/Chrome"
+            chromepath = "Users/" + configuration.current_username + "/Library/Application Support/Google/Chrome/"
             edgepath = ""
         else:
             self.insert_message("Kein kompatibles OS gefunden!")
@@ -82,23 +95,46 @@ class SideBar(tk.Frame):
             self.insert_message("Firefox scheint nicht installiert zu sein!")
             pass
 
-
         if os.path.exists(chromepath):
+            self.profiledict["Chrome"] = {}
             for file in os.listdir(chromepath):
                 if ("Profile" in file) or ("Default" in file):
-                    print(os.path.join("/mydir", file))
+                    path = chromepath + file 
+                    if os.path.isfile(path + "/Preferences"):
+                        data = json.load(open(path + "/Preferences", "r"))
+                        if data["profile"]["name"]:
+                            self.profiledict["Chrome"][data["profile"]["name"]] = path
+                        else:
+                            self.profiledict["Chrome"][file] = path
+                    else:
+                        self.insert_message("Preferences-Datei wurde nicht gefunden!")
+            if not self.profiledict["Chrome"]:
+                self.insert_message("Keine Profile für Chrome gefunden")
         else:
             self.insert_message("Chrome scheint nicht installiert zu sein!")
             pass
 
         if os.path.exists(edgepath):
-            pass
+            self.profiledict["Edge"] = {}
+            for file in os.listdir(edgepath):
+                if ("Profile" in file) or ("Default" in file):
+                    path = edgepath + file 
+                    if os.path.isfile(path + "/Preferences"):
+                        data = json.load(open(path + "/Preferences", "r"))
+                        if data["profile"]["name"]:
+                            self.profiledict["Edge"][data["profile"]["name"]] = path
+                        else:
+                            self.profiledict["Edge"][file] = path
+                    else:
+                        self.insert_message("Preferences-Datei wurde nicht gefunden!")
+            if not self.profiledict["Edge"]:
+                self.insert_message("Keine Profile für Edge gefunden")
         else:
             self.insert_message("Edge scheint nicht installiert zu sein!")
             pass
-        
-        print(self.profiledict)
     
+
+
     # Insert a message into the console
     def insert_message(self, message):
         message += "\n"
