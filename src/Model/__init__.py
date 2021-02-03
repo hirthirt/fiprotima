@@ -6,13 +6,14 @@ class Model:
 
     def __init__(self):
         self.profiledict = {}
+        self.profilemodel = None
 
     
-    
+
+
     #This searches for installations of Firefox, Edge and Chrome
     #Then stores the profiles of them to the profiledict
     def search_profiles(self, current_username, current_os):
-        print(current_username, current_os)
         firepath = None
         firecachepath = None
         chromepath = None

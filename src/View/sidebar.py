@@ -16,6 +16,7 @@ class SideBar(tk.Frame):
         self.console = None
 
         self.body()
+        self.insert_profiles_to_treeview()
 
     def body(self):
 
@@ -36,6 +37,9 @@ class SideBar(tk.Frame):
 
 
     def insert_profiles_to_treeview(self):
+        for child in self.tree.get_children():
+            self.tree.delete(child)
+
         profiles = self.parent.controller.load_profiles()
         if profiles:
             for browser in profiles:

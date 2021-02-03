@@ -9,10 +9,12 @@ class Controller:
 
     def __init__(self):
         self.config = Config()
-        self.model = Model()
-        self.view = View(self)
         self.config.set_current_username(getpass.getuser())
         self.config.set_current_os(platform.system())
+
+        self.model = Model()
+        self.view = View(self)
+
 
     def main(self):
         self.view.main()
@@ -23,5 +25,4 @@ class Controller:
         if messages:
             for message in messages:
                 self.view.sidebar.insert_message(message)
-        print(profiledict)
         return profiledict
