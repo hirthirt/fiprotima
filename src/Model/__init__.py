@@ -2,6 +2,8 @@ import os
 import configparser
 import json
 
+from Model.FirefoxModel import FirefoxModel
+
 class Model:
 
     def __init__(self):
@@ -9,6 +11,30 @@ class Model:
         self.profilemodel = None
 
     
+    def load_profile(self, browser, name):
+        if browser == "Firefox":
+            messages = []
+            profile_path = self.profiledict[browser][name][0]
+            cache_path = self.profiledict[browser][name][1]
+            try:
+                self.profilemodel = FirefoxModel(profile_path, cache_path)
+            except:
+                self.profilemodel = None
+                messages.append("Firefox Daten konnten nicht geladen werden!")
+            if self.profilemodel:
+                messages.append("Profildaten erfolgreich geladen!")
+                return self.profilemodel.get_data(), messages
+            else:
+                return None, messages
+
+        elif browser == "Edge":
+            messages = []
+            messages.append("Das Laden eines Edge-Profil ist aktuell nicht möglich!")
+            return None, messages
+        elif browser == "Chrome":
+            messages = []
+            messages.append("Das Laden eines Chrome-Profil ist aktuell nicht möglich!")
+            return None, messages
 
 
     #This searches for installations of Firefox, Edge and Chrome

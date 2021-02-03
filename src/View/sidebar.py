@@ -24,7 +24,7 @@ class SideBar(tk.Frame):
         self.tree = ttk.Treeview(self)
 
         # Load Profile Button
-        subbutton = tk.Button(self, text="Laden", relief=tk.FLAT, width=30)
+        subbutton = tk.Button(self, text="Laden", relief=tk.FLAT, width=30, command=self.load_profile)
 
         # Console
         self.console = tk.Text(self, width=30, height=5)
@@ -35,6 +35,25 @@ class SideBar(tk.Frame):
         subbutton.pack(fill="both")
         self.console.pack(side=tk.BOTTOM, fill="x")
 
+
+    def load_profile(self):
+        selected = self.tree.focus()
+        parent = self.tree.parent(selected)
+        if self.tree.item(selected)["text"] in ["Firefox", "Chrome", "Edge"]:
+            self.insert_message("Bitte Profil auswählen!")
+            return
+        if selected and parent and self.tree.item(selected):
+            browser = self.tree.item(parent)["text"]
+            profile_name = self.tree.item(selected)["text"]
+            data = self.parent.controller.load_profile(browser, profile_name)
+            types = []
+            for x in data:
+                for y in x:
+                    if type(y) not in types:
+                        print(type(y))
+                    types.append(type(y))
+            print(self.tree.item(selected))
+            print(self.tree.item(parent))
 
     def insert_profiles_to_treeview(self):
         for child in self.tree.get_children():

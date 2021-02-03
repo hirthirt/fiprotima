@@ -26,3 +26,10 @@ class Controller:
             for message in messages:
                 self.view.sidebar.insert_message(message)
         return profiledict
+
+    def load_profile(self, browser, name):
+        data, messages = self.model.load_profile(browser,name)
+        if messages:
+            for message in messages:
+                self.view.sidebar.insert_message(message)
+        return data
