@@ -3,7 +3,7 @@ from importlib import import_module
 
 class DataSourcesSQLite:
     def __init__(self, profile_path: str, cache_path: str):
-        self.sources = []
+        self.sources = {}
         source_names = []
 
         # Create list of module names and handlers, that we need
@@ -31,14 +31,19 @@ class DataSourcesSQLite:
                     % (module_name, class_name, e)
                 )
                 continue
-            self.sources.append(instance)
+            self.sources[class_name] = instance
 
     def get_data(self):
         """Collect data from hanlders"""
         data = []
         for source in self.sources:
-            data.append(source.get_all_id_ordered())
+            data.append(self.sources[source].get_all_id_ordered())
 
+        return data
+    
+    def get_history(self):
+        """ Collect just the history data """
+        data = self.sources["HistoryVisitHandler"].get_history_tree()
         return data
 
     def get_data_header(self):

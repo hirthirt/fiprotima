@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+from datetime import datetime
 
 class Content(tk.Frame):
 
@@ -9,9 +10,9 @@ class Content(tk.Frame):
         self.parent = parent
         self.dataview = None
         self.info = None
+        self.dataview_mode = "history"
 
         self.body()
-        self.fillData()
 
 
     def body(self):
@@ -44,15 +45,33 @@ class Content(tk.Frame):
                                             padx = 30, 
                                             pady = 30) 
 
-    def fillData(self):
-        
+    def fillHistroyData(self, history_data):
+        for child in self.dataview.get_children():
+            self.dataview.delete(child)
 
-        self.dataview['columns'] = ('size', 'modified')
-        self.dataview.column('size', width=50, anchor='center')
-        self.dataview.heading('size', text='Size')
-        self.dataview.heading('modified', text='Modified')
+        self.dataview["columns"]=("id","visit","l_visit","object")
+        self.dataview["displaycolumns"] = ("id","visit","l_visit")
+        self.dataview.heading("#0",text="URL",anchor=tk.W)
+        self.dataview.heading("id", text="ID",anchor=tk.W)
+        self.dataview.heading("visit", text="Besucht",anchor=tk.W)
+        self.dataview.heading("l_visit", text="Letzter Besuch",anchor=tk.W)
 
-        self.dataview.insert('', 0, 'apps', text='Applications', values=("127KB", "Yesterday"))
-        self.dataview.insert('', 'end', 'widgets', text='Widgets', values=("12KB", "Last week"))
-        self.dataview.insert('', 'end', text='Canvas', values=('25KB Today'))
-        self.dataview.insert('apps', 'end', text='Browser', values=('115KB Yesterday'))
+        for entry in history_data:
+            v_date = None
+            lv_date = None
+            for attr in entry.attr_list:
+                if attr.name == "Zuletzt besucht":
+                    lv_date = attr.value.strftime("%d.%m.%Y %H:%M")
+                elif attr.name == "Besucht am":
+                    v_date = attr.value.strftime("%d.%m.%Y %H:%M")
+            parent = self.dataview.insert("", "end",  text=entry.place.url, values=(entry.id,v_date,lv_date, entry))
+            if history_data[entry]:
+                for sube in history_data[entry]:
+                    v_date = None
+                    lv_date = None
+                    for attr in entry.attr_list:
+                        if attr.name == "Zuletzt besucht":
+                            lv_date = attr.value.strftime("%d.%m.%Y %H:%M")
+                        elif attr.name == "Besucht am":
+                            v_date = attr.value.strftime("%d.%m.%Y %H:%M")
+                    self.dataview.insert(parent, "end",  text=sube.place.url, values=(sube.id,v_date,lv_date, sube))

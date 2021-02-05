@@ -35,8 +35,9 @@ class HistoryVisit(BaseSession, BaseSQLiteClass):
 
     id = Column("id", Integer, primary_key=True)
     place_id = Column("place_id", Integer, ForeignKey("moz_places.id"))
-    place = relationship("Place")
+    from_visit = Column("from_visit", Integer)
     visit_timestamp = Column("visit_date", Integer)  # Micro
+    place = relationship("Place")
 
     @orm.reconstructor
     def init(self):
@@ -120,6 +121,17 @@ class HistoryVisitHandler(PlacesHandler):
         query = self.session.query(HistoryVisit).order_by(HistoryVisit.id)
         return query.all()
 
+    def get_history_tree(self):
+        histroy_tree = {}
+        history = self.get_all_id_ordered()
+        for entry in history:
+            if entry.from_visit == 0:
+                histroy_tree[entry] = []
+            else:
+                for tree_entry in histroy_tree:
+                    if entry.from_visit == tree_entry.id or entry.from_visit in [sube.id for sube in histroy_tree[tree_entry]]:
+                        histroy_tree[tree_entry].append(entry)
+        return histroy_tree
 
 class BookmarkHandler(PlacesHandler):
     name = "Lesezeichen"

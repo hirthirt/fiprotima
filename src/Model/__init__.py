@@ -23,7 +23,7 @@ class Model:
                 messages.append("Firefox Daten konnten nicht geladen werden!")
             if self.profilemodel:
                 messages.append("Profildaten erfolgreich geladen!")
-                return self.profilemodel.get_data(), messages
+                return self.profilemodel.get_history(), messages
             else:
                 return None, messages
 

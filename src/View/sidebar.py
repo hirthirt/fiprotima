@@ -46,14 +46,7 @@ class SideBar(tk.Frame):
             browser = self.tree.item(parent)["text"]
             profile_name = self.tree.item(selected)["text"]
             data = self.parent.controller.load_profile(browser, profile_name)
-            types = []
-            for x in data:
-                for y in x:
-                    if type(y) not in types:
-                        print(type(y))
-                    types.append(type(y))
-            print(self.tree.item(selected))
-            print(self.tree.item(parent))
+            self.parent.content.fillHistroyData(data)
 
     def insert_profiles_to_treeview(self):
         for child in self.tree.get_children():

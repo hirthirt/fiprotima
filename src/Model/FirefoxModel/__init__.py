@@ -12,20 +12,23 @@ class FirefoxModel:
             cache_path = profile_path
 
         self.data_list = []
-        self.sources = []
+        self.sources = {}
 
-        self.sources.append(DataSourcesSQLite(profile_path, cache_path))
-        self.sources.append(DataSourcesJSON(profile_path, cache_path))
-        self.sources.append(DataSourcesCache(cache_path, cache_path))
+        self.sources["SQLite"] = DataSourcesSQLite(profile_path, cache_path)
+        self.sources["JSON"] = DataSourcesJSON(profile_path, cache_path)
+        self.sources["Cache"] = DataSourcesCache(cache_path, cache_path)
 
         #
 
     def get_data(self):
         for source in self.sources:
-            for data_list in source.get_data():
+            for data_list in self.sources[source].get_data():
                 self.data_list.append(data_list)
 
         return self.data_list
+    
+    def get_history(self):
+        return self.sources["SQLite"].get_history()
 
     def get_data_header(self):
         data_header = []
