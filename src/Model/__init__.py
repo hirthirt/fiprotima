@@ -4,6 +4,7 @@ import json
 
 from Model.FirefoxModel import FirefoxModel
 from Model.EdgeModel import EdgeModel
+from Model.ChromeModel import ChromeModel
 
 class Model:
 
@@ -42,8 +43,17 @@ class Model:
                 return None, messages
         elif browser == "Chrome":
             messages = []
-            messages.append("Das Laden eines Chrome-Profil ist aktuell nicht möglich!")
-            return None, messages
+            profile_path = self.profiledict[browser][name]
+            try:
+                self.profilemodel = ChromeModel(profile_path)
+            except:
+                self.profilemodel = None
+                messages.append("Edge Daten konnente nicht geladen werden!")
+            if self.profilemodel:
+                messages.append("Profildaten erfolgreich geladen")
+                return self.profilemodel.get_history(), messages
+            else:
+                return None, messages
 
 
     #This searches for installations of Firefox, Edge and Chrome
