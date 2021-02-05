@@ -33,3 +33,6 @@ class Controller:
             for message in messages:
                 self.view.sidebar.insert_message(message)
         return data
+
+
+# TODO: Implement LoggerClass to log events directly to text console

@@ -3,6 +3,7 @@ import configparser
 import json
 
 from Model.FirefoxModel import FirefoxModel
+from Model.EdgeModel import EdgeModel
 
 class Model:
 
@@ -26,11 +27,19 @@ class Model:
                 return self.profilemodel.get_history(), messages
             else:
                 return None, messages
-
         elif browser == "Edge":
             messages = []
-            messages.append("Das Laden eines Edge-Profil ist aktuell nicht möglich!")
-            return None, messages
+            profile_path = self.profiledict[browser][name]
+            try:
+                self.profilemodel = EdgeModel(profile_path)
+            except:
+                self.profilemodel = None
+                messages.append("Edge Daten konnente nicht geladen werden!")
+            if self.profilemodel:
+                messages.append("Profildaten erfolgreich geladen")
+                return self.profilemodel.get_history(), messages
+            else:
+                return None, messages
         elif browser == "Chrome":
             messages = []
             messages.append("Das Laden eines Chrome-Profil ist aktuell nicht möglich!")

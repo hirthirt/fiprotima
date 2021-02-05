@@ -17,7 +17,10 @@ class Content(tk.Frame):
 
     def body(self):
         # Treeview for main data
-        self.dataview = ttk.Treeview(self, height=15)
+        style = ttk.Style()
+        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
+        style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
+        self.dataview = ttk.Treeview(self, height=15, style="mystyle.Treeview")
 
         tabControl = ttk.Notebook(self) 
   
@@ -64,7 +67,7 @@ class Content(tk.Frame):
                     lv_date = attr.value.strftime("%d.%m.%Y %H:%M")
                 elif attr.name == "Besucht am":
                     v_date = attr.value.strftime("%d.%m.%Y %H:%M")
-            parent = self.dataview.insert("", "end",  text=entry.place.url, values=(entry.id,v_date,lv_date, entry))
+            parent = self.dataview.insert("", "end",  text=entry.place.url, tags=("bg"), values=(entry.id,v_date,lv_date, entry))
             if history_data[entry]:
                 for sube in history_data[entry]:
                     v_date = None
@@ -75,3 +78,5 @@ class Content(tk.Frame):
                         elif attr.name == "Besucht am":
                             v_date = attr.value.strftime("%d.%m.%Y %H:%M")
                     self.dataview.insert(parent, "end",  text=sube.place.url, values=(sube.id,v_date,lv_date, sube))
+        
+        self.dataview.tag_configure('bg', background='#DFDFDF')
