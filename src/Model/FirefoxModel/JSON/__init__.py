@@ -8,7 +8,7 @@ class DataSourcesJSON:
 
     def __init__(self, profile_path: str, cache_path: str):
         path = self.pre_path + profile_path + self.post_path
-        self.sources = []
+        self.sources = {}
 
         source_names = []
 
@@ -28,12 +28,12 @@ class DataSourcesJSON:
                     % (module_name, class_name, e)
                 )
                 continue
-            self.sources.append(instance)
+            self.sources[class_name] = instance
 
     def get_data(self):
-        data = []
+        data = {}
         for source in self.sources:
-            data.append(source.get_all_id_ordered())
+            data[source] = self.sources[source].get_all_id_ordered()
 
         return data
 

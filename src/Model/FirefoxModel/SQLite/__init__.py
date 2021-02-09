@@ -35,9 +35,9 @@ class DataSourcesSQLite:
 
     def get_data(self):
         """Collect data from hanlders"""
-        data = []
+        data = {}
         for source in self.sources:
-            data.append(self.sources[source].get_all_id_ordered())
+            data[source] = self.sources[source].get_all_id_ordered()
 
         return data
     

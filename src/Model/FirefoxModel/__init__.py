@@ -11,24 +11,44 @@ class FirefoxModel:
         if cache_path is None:
             cache_path = profile_path
 
-        self.data_list = []
         self.sources = {}
 
         self.sources["SQLite"] = DataSourcesSQLite(profile_path, cache_path)
         self.sources["JSON"] = DataSourcesJSON(profile_path, cache_path)
-        self.sources["Cache"] = DataSourcesCache(cache_path, cache_path)
+        #self.sources["Cache"] = DataSourcesCache(cache_path, cache_path)
 
+        self.data_dict = self.get_data()
         #
 
     def get_data(self):
+        data_dict = {}
         for source in self.sources:
-            for data_list in self.sources[source].get_data():
-                self.data_list.append(data_list)
-
-        return self.data_list
+            data_dict.update(self.sources[source].get_data())
+        return data_dict
     
     def get_history(self):
-        return self.sources["SQLite"].get_history()
+        return self.data_dict["HistoryVisitHandler"]
+
+    def get_additional_info(self, sitename):
+        data_dict = {
+            "Cookies" : [],
+            "Favicons" : [],
+            "Permissions" : [],
+        }
+        for cookie in self.data_dict["CookieHandler"]:
+            if sitename in cookie.host:
+                data_dict["Cookies"].append(cookie)
+
+        for favico in self.data_dict["FaviconsHandler"]:
+            if sitename in favico.icon_url:
+                data_dict["Favicons"].append(favico)
+
+        for perm in self.data_dict["PermissionHandler"]:
+            if sitename in perm.origin:
+                data_dict["Permissions"].append(perm)
+        
+        return data_dict
+        
 
     def get_data_header(self):
         data_header = []
