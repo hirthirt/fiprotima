@@ -35,8 +35,16 @@ class Controller:
                 self.view.sidebar.insert_message(message)
         return data
 
+    def get_history(self):
+        data = self.model.get_history()
+        return data
+
     def get_additional_info(self, sitename):
         data = self.model.get_additional_info(sitename)
+        return data
+
+    def get_form_history(self):
+        data = self.model.get_form_history()
         return data
 
 

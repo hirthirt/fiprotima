@@ -48,7 +48,10 @@ class BaseAttribute:
 
         if type_ == DT_SEC:
             self.timestamp = int(value)
-            self.value = datetime.utcfromtimestamp(self.timestamp)
+            try:
+                self.value = datetime.fromtimestamp(0) + timedelta(seconds=self.timestamp)
+            except:
+                self.value = datetime.fromtimestamp(0) + timedelta(seconds=self.timestamp/1000)
         elif type_ in (DT_MICRO, DT_MILLI_ZEROED_MICRO):
             self.timestamp = int(value)
             self.value = microseconds_to_datetime(self.timestamp)

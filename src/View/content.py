@@ -10,8 +10,9 @@ class Content(tk.Frame):
         tk.Frame.__init__(self, width=200, height=150)
         self.parent = parent
         self.dataview = None
-        self.tabControl = None
+        self.tab_control = None
         self.info = None
+        self.style = None
         self.dataview_mode = "history"
 
         self.body()
@@ -19,24 +20,23 @@ class Content(tk.Frame):
 
     def body(self):
         # Treeview for main data
-        style = ttk.Style()
-        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
-        style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
+        self.style = ttk.Style()
+        self.style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
+        self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
         self.dataview = ttk.Treeview(self, height=20, style="mystyle.Treeview")
-        self.dataview.bind('<ButtonRelease-1>', self.click_column)
 
-        self.tabControl = ttk.Notebook(self) 
+        self.tab_control = ttk.Notebook(self) 
 
 
 
         self.dataview.pack(expand=True, fill="both")
-        self.tabControl.pack(side=tk.BOTTOM, expand=True, fill="both") 
+        self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both") 
         
 
-
+    # On right-click load all the additional infos for the given website
     def click_column(self, a):
-        for tab in self.tabControl.tabs():
-            self.tabControl.forget(tab)
+        for tab in self.tab_control.tabs():
+            self.tab_control.forget(tab)
 
         item = self.dataview.item(self.dataview.focus())
         parsed_uri = urlparse(item["text"])
@@ -49,8 +49,8 @@ class Content(tk.Frame):
 
         for info in infos:
             if infos[info]:
-                tab = ttk.Frame(self.tabControl)
-                self.tabControl.add(tab, text=info) 
+                tab = ttk.Frame(self.tab_control)
+                self.tab_control.add(tab, text=info) 
                 infoview = ttk.Treeview(tab)
                 headinglist = [attr.name for attr in infos[info][0].attr_list if infos[info]]
                 infoview["columns"] = tuple(headinglist[1:])
@@ -61,15 +61,60 @@ class Content(tk.Frame):
                     infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
                 infoview.pack(expand=True, fill="both")
             else:
-                tab = ttk.Frame(self.tabControl)
-                self.tabControl.add(tab, text=info)
+                tab = ttk.Frame(self.tab_control)
+                self.tab_control.add(tab, text=info)
                 text = "Es konnten keine Informationen gefunden werden!"
                 label = tk.Label(tab, text=text)
                 label.pack(expand=True, fill="both")
 
+
+    def change_data_view(self, data_view):
+        if self.dataview_mode == data_view:
+            return
+        if data_view == "addons":
+            pass
+        elif data_view == "inputhistory":
+            data = self.parent.controller.get_form_history()
+            if data:
+                self.fill_dataview(data, False)
+                self.dataview_mode = data_view
+        elif data_view == "history":
+            data = self.parent.controller.get_history()
+            print(data)
+            if data:
+                self.fillHistroyData(data)
+                self.dataview_mode = data_view
+
+
+    def fill_dataview(self, data, addi_infos):
+        self.dataview.pack_forget()
+        self.dataview = ttk.Treeview(self, height=20, style="mystyle.Treeview")
+        self.dataview.pack(expand=True, fill="both")
+
+        headinglist = [attr.name for attr in data[0].attr_list]
+        self.dataview["columns"] = tuple(headinglist[1:])
+        self.dataview.heading("#0",text=headinglist[0],anchor=tk.W)
+        for heading in headinglist[1:]:
+            self.dataview.heading(heading, text=heading, anchor=tk.W)
+        for item in data:
+            self.dataview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+
+        if not addi_infos:
+            text = "Es konnten keine Informationen gefunden werden!"
+            label = tk.Label(self.tab_control, text=text)
+            label.pack(expand=True, fill="both")
+
+    # Fill the Treeview with the data from the model
     def fillHistroyData(self, history_data):
+        self.dataview_mode="histroy"
         for child in self.dataview.get_children():
             self.dataview.delete(child)
+
+        self.tab_control.pack_forget()
+        self.tab_control = ttk.Notebook(self)
+        self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both") 
+        
+        self.dataview.bind('<ButtonRelease-1>', self.click_column)
 
         self.dataview["columns"]=("id","visit","l_visit","object")
         self.dataview["displaycolumns"] = ("visit","l_visit")

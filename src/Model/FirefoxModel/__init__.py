@@ -34,6 +34,7 @@ class FirefoxModel:
             "Cookies" : [],
             "Favicons" : [],
             "Permissions" : [],
+            "ContentPrefs" : []
         }
         for cookie in self.data_dict["CookieHandler"]:
             if sitename in cookie.host:
@@ -46,9 +47,15 @@ class FirefoxModel:
         for perm in self.data_dict["PermissionHandler"]:
             if sitename in perm.origin:
                 data_dict["Permissions"].append(perm)
+
+        for pref in self.data_dict["ContentPrefHandler"]:
+            if sitename in pref.group.name:
+                data_dict["ContentPrefs"].append(pref)
         
         return data_dict
-        
+
+    def get_form_history(self):
+        return self.data_dict["FormHistoryHandler"]
 
     def get_data_header(self):
         data_header = []
