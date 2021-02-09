@@ -10,7 +10,7 @@ class Model:
 
     def __init__(self):
         self.profiledict = {}
-        self.profilemodel = None
+        self.browsermodel = None
 
     
     def load_profile(self, browser, name):
@@ -19,42 +19,46 @@ class Model:
             profile_path = self.profiledict[browser][name][0]
             cache_path = self.profiledict[browser][name][1]
             try:
-                self.profilemodel = FirefoxModel(profile_path, cache_path)
+                self.browsermodel = FirefoxModel(profile_path, cache_path)
             except:
-                self.profilemodel = None
+                self.browsermodel = None
                 messages.append("Firefox Daten konnten nicht geladen werden!")
-            if self.profilemodel:
+            if self.browsermodel:
                 messages.append("Profildaten erfolgreich geladen!")
-                return self.profilemodel.get_history(), messages
+                return self.browsermodel.get_history(), messages
             else:
                 return None, messages
         elif browser == "Edge":
             messages = []
             profile_path = self.profiledict[browser][name]
             try:
-                self.profilemodel = EdgeModel(profile_path)
+                self.browsermodel = EdgeModel(profile_path)
             except:
-                self.profilemodel = None
+                self.browsermodel = None
                 messages.append("Edge Daten konnente nicht geladen werden!")
-            if self.profilemodel:
+            if self.browsermodel:
                 messages.append("Profildaten erfolgreich geladen")
-                return self.profilemodel.get_history(), messages
+                return self.browsermodel.get_history(), messages
             else:
                 return None, messages
         elif browser == "Chrome":
             messages = []
             profile_path = self.profiledict[browser][name]
             try:
-                self.profilemodel = ChromeModel(profile_path)
+                self.browsermodel = ChromeModel(profile_path)
             except:
-                self.profilemodel = None
+                self.browsermodel = None
                 messages.append("Edge Daten konnente nicht geladen werden!")
-            if self.profilemodel:
+            if self.browsermodel:
                 messages.append("Profildaten erfolgreich geladen")
-                return self.profilemodel.get_history(), messages
+                return self.browsermodel.get_history(), messages
             else:
                 return None, messages
 
+    # Get additional infos (cookies, permissions, etc.) for a given website
+    def get_additional_info(self, sitename):
+        data = self.browsermodel.get_additional_info(sitename)
+        return data
 
     #This searches for installations of Firefox, Edge and Chrome
     #Then stores the profiles of them to the profiledict

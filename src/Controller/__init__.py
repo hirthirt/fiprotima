@@ -34,5 +34,9 @@ class Controller:
                 self.view.sidebar.insert_message(message)
         return data
 
+    def get_additional_info(self, sitename):
+        data = self.model.get_additional_info(sitename)
+        return data
+
 
 # TODO: Implement LoggerClass to log events directly to text console

@@ -21,13 +21,13 @@ class SideBar(tk.Frame):
     def body(self):
 
         # Profile Treeview
-        self.tree = ttk.Treeview(self)
+        self.tree = ttk.Treeview(self, height=20)
 
         # Load Profile Button
         subbutton = tk.Button(self, text="Laden", relief=tk.FLAT, width=30, command=self.load_profile)
 
         # Console
-        self.console = tk.Text(self, width=30, height=5)
+        self.console = tk.Text(self, width=30)
         self.console.config(state=tk.DISABLED)
         
         # Pack Items

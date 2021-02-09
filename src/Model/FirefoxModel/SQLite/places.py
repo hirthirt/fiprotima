@@ -118,12 +118,8 @@ class HistoryVisitHandler(PlacesHandler):
     attr_names = [ID, URL, TITLE, LASTVISITED, VISITED]
 
     def get_all_id_ordered(self):
-        query = self.session.query(HistoryVisit).order_by(HistoryVisit.id)
-        return query.all()
-
-    def get_history_tree(self):
         histroy_tree = {}
-        history = self.get_all_id_ordered()
+        history = self.session.query(HistoryVisit).order_by(HistoryVisit.id).all()
         for entry in history:
             if entry.from_visit == 0:
                 histroy_tree[entry] = []
@@ -132,6 +128,7 @@ class HistoryVisitHandler(PlacesHandler):
                     if entry.from_visit == tree_entry.id or entry.from_visit in [sube.id for sube in histroy_tree[tree_entry]]:
                         histroy_tree[tree_entry].append(entry)
         return histroy_tree
+        
 
 class BookmarkHandler(PlacesHandler):
     name = "Lesezeichen"
