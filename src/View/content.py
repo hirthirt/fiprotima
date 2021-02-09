@@ -48,17 +48,24 @@ class Content(tk.Frame):
         infos = self.parent.controller.get_additional_info(sitename)
 
         for info in infos:
-            tab = ttk.Frame(self.tabControl)
-            self.tabControl.add(tab, text=info) 
-            infoview = ttk.Treeview(tab)
-            headinglist = [attr.name for attr in infos[info][0].attr_list]
-            infoview["columns"] = tuple(headinglist[1:])
-            infoview.heading("#0",text=headinglist[0],anchor=tk.W)
-            for heading in headinglist[1:]:
-                infoview.heading(heading, text=heading, anchor=tk.W)
-            for item in infos[info]:
-                infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
-            infoview.pack(expand=True, fill="both")
+            if infos[info]:
+                tab = ttk.Frame(self.tabControl)
+                self.tabControl.add(tab, text=info) 
+                infoview = ttk.Treeview(tab)
+                headinglist = [attr.name for attr in infos[info][0].attr_list if infos[info]]
+                infoview["columns"] = tuple(headinglist[1:])
+                infoview.heading("#0",text=headinglist[0],anchor=tk.W)
+                for heading in headinglist[1:]:
+                    infoview.heading(heading, text=heading, anchor=tk.W)
+                for item in infos[info]:
+                    infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+                infoview.pack(expand=True, fill="both")
+            else:
+                tab = ttk.Frame(self.tabControl)
+                self.tabControl.add(tab, text=info)
+                text = "Es konnten keine Informationen gefunden werden!"
+                label = tk.Label(tab, text=text)
+                label.pack(expand=True, fill="both")
 
     def fillHistroyData(self, history_data):
         for child in self.dataview.get_children():

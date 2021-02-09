@@ -14,6 +14,7 @@ class Controller:
 
         self.model = Model()
         self.view = View(self)
+        self.view.sidebar.insert_profiles_to_treeview()
 
 
     def main(self):

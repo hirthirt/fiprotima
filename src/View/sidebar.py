@@ -16,7 +16,6 @@ class SideBar(tk.Frame):
         self.console = None
 
         self.body()
-        self.insert_profiles_to_treeview()
 
     def body(self):
 
