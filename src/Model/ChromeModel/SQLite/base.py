@@ -20,6 +20,7 @@ DT_MILLI_ZEROED_MICRO = "datetime_milliseconds_zeroed_microseconds"
 DT_MILLI_OR_ZERO = "datetime_milliseconds_zero"
 DT_ZERO = "datetime_always_zero"
 DT_WEBKIT = "datetime_webkit"
+DT_STRING = "datetime_string"
 
 MILLI_FACTOR = 1000
 MICRO_FACTOR = 1000000
@@ -56,7 +57,10 @@ class BaseAttribute:
 
         if type_ == DT_SEC:
             self.timestamp = int(value)
-            self.value = datetime.utcfromtimestamp(self.timestamp)
+            try:
+                self.value = datetime.fromtimestamp(0) + timedelta(seconds=self.timestamp)
+            except:
+                self.value = datetime.fromtimestamp(0) + timedelta(seconds=self.timestamp/1000)
         elif type_ in (DT_MICRO, DT_MILLI_ZEROED_MICRO):
             self.timestamp = int(value)
             self.value = microseconds_to_datetime(self.timestamp)
@@ -82,6 +86,9 @@ class BaseAttribute:
         elif type_ == DT_WEBKIT:
             self.timestamp = int(value)
             self.value = webit_to_datetime(self.timestamp)
+        elif type_ == DT_STRING:
+            self.timestamp = value
+            self.value = datetime.strptime(value, "%a, %d %b %Y %H:%M:%S %Z")
 
     def date_to_timestamp(self):
         """Transforms datetime to timestamps"""

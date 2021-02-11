@@ -2,7 +2,7 @@ import os
 import os.path
 import struct
 
-from Model.FirefoxModel.Cache.base import (
+from Model.EdgeModel.Cache.base import (
     BaseCacheClass,
     BaseCacheHandler,
     BaseAttribute,

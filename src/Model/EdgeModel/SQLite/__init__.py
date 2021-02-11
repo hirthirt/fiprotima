@@ -7,14 +7,11 @@ class DataSourcesSQLite:
         source_names = []
 
         # Create list of module names and handlers, that we need
-        # TODO: Implement missing SQLiteHandlers for Edge
-        #source_names.append(["Model.EdgeModel.SQLite.content_prefs", "ContentPrefHandler"])
-        #source_names.append(["Model.EdgeModel.SQLite.cookie", "CookieHandler"])
-        #source_names.append(["Model.EdgeModel.SQLite.favicons", "FaviconsHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.cookie", "CookieHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.favicons", "FaviconsHandler"])
         #source_names.append(["Model.EdgeModel.SQLite.formhistory", "FormHistoryHandler"])
-        #source_names.append(["Model.EdgeModel.SQLite.permissions", "PermissionHandler"])
         source_names.append(["Model.EdgeModel.SQLite.history", "VisitsHandler"])
-        #source_names.append(["Model.EdgeModel.SQLite.history", "BookmarkHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.history", "DownloadHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]
@@ -36,15 +33,15 @@ class DataSourcesSQLite:
 
     def get_data(self):
         """Collect data from hanlders"""
-        data = []
+        data = {}
         for source in self.sources:
-            data.append(self.sources[source].get_all_id_ordered())
+            data[source] = self.sources[source].get_all_id_ordered()
 
         return data
     
     def get_history(self):
         """ Collect just the history data """
-        data = self.sources["VisitsHandler"].get_history_tree()
+        data = self.sources["HistoryVisitHandler"].get_history_tree()
         return data
 
     def get_data_header(self):

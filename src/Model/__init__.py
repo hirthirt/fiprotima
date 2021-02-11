@@ -61,7 +61,10 @@ class Model:
         return data
 
     def get_form_history(self):
-        data = self.browsermodel.get_form_history()
+        if self.browsermodel:
+            data = self.browsermodel.get_form_history()
+        else:
+            data = None
         return data
 
     def get_history(self):
@@ -71,6 +74,19 @@ class Model:
             data = None
         return data
 
+    def get_addons(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_addons()
+        else:
+            data = None
+        return data
+
+    def get_bookmarks(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_bookmarks()
+        else:
+            data = None
+        return data
 
     #This searches for installations of Firefox, Edge and Chrome
     #Then stores the profiles of them to the profiledict

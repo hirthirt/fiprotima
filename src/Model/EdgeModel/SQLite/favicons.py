@@ -1,60 +1,60 @@
 from sqlalchemy import Table, Column, Integer, String, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
-from Model.FirefoxModel.SQLite.base import *
-
-ID = "id"
-EXPIRYAT = "Ungueltig ab"
-URL = "Url"
-
-favicons_to_pages = Table(
-    "moz_icons_to_pages",
-    BaseSession.metadata,
-    Column("page_id", Integer, ForeignKey("moz_pages_w_icons.id")),
-    Column("icon_id", Integer, ForeignKey("moz_icons.id")),
+from Model.EdgeModel.SQLite.base import (
+    BaseSession,
+    BaseSQLiteClass,
+    BaseSQliteHandler,
+    BaseAttribute,
+    OTHER,
+    DT_MICRO,
+    DT_MILLI_ZEROED_MICRO,
+    DT_WEBKIT,
+    DT_STRING
 )
 
+ID = "id"
+LASTREQUESTED = "Zuletzt angefordert"
+LASTUPDATED = "Zuletzt geupdated"
+URL = "Url"
 
 class Favicon(BaseSession, BaseSQLiteClass):
-    __tablename__ = "moz_icons"
+    __tablename__ = "favicon_bitmaps"
 
     id = Column("id", Integer, primary_key=True)
-    expiry_timestamp = Column("expire_ms", Integer)
-    icon_url = Column("icon_url", String)
-    urls = relationship("FaviconPage", secondary=favicons_to_pages)
+    icon_id = Column("icon_id", Integer, ForeignKey("favicons.id"))
+    last_updated = Column("last_updated", Integer) #Webkit
+    last_requested = Column("last_requested", Integer) #Webkit
+    urls = relationship("FaviconUrls")
 
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
-
-        if len(self.urls) == 0:
-            self.attr_list.append(BaseAttribute(URL, OTHER, self.icon_url))
-        else:
-            self.attr_list.append(BaseAttribute(URL, OTHER, self.urls[0].page_url))
-        self.attr_list.append(BaseAttribute(EXPIRYAT, DT_MILLI, self.expiry_timestamp))
+        self.attr_list.append(BaseAttribute(URL, OTHER, self.urls.url))
+        self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))
+        self.attr_list.append(BaseAttribute(LASTREQUESTED, DT_WEBKIT, self.last_requested))
 
     def update(self):
         for attr in self.attr_list:
-            if attr.name == EXPIRYAT:
+            if attr.name == LASTUPDATED:
                 self.expiry_timestamp = attr.timestamp
 
 
-class FaviconPage(BaseSession, BaseSQLiteClass):
-    __tablename__ = "moz_pages_w_icons"
+class FaviconUrls(BaseSession, BaseSQLiteClass):
+    __tablename__ = "favicons"
     id = Column("id", Integer, primary_key=True)
-    page_url = Column("page_url", String)
+    url = Column("url", String)
 
 
 class FaviconsHandler(BaseSQliteHandler):
     name = "Favicons"
 
-    attr_names = [ID, URL, EXPIRYAT]
+    attr_names = [URL, LASTUPDATED, LASTREQUESTED]
 
     def __init__(
         self,
         profile_path: str,
-        file_name: str = "favicons.sqlite",
+        file_name: str = "Favicons",
         logging: bool = False,
     ):
         super().__init__(profile_path, file_name, logging)

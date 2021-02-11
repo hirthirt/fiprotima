@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, orm
 
-from Model.FirefoxModel.SQLite.base import *
+from Model.EdgeModel.SQLite.base import *
 
 ID = "ID"
 FIELDNAME = "Feldname"
@@ -21,7 +21,6 @@ class FormHistory(BaseSession, BaseSQLiteClass):
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(FIELDNAME, OTHER, self.field_name))
         self.attr_list.append(BaseAttribute(VALUE, OTHER, self.value))
         self.attr_list.append(

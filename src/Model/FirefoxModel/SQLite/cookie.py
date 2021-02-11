@@ -23,7 +23,6 @@ class Cookie(BaseSession, BaseSQLiteClass):
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(HOST, OTHER, self.host))
         self.attr_list.append(BaseAttribute(PATH, OTHER, self.path))
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_SEC, self.expiry_timestamp))

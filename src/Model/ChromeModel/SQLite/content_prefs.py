@@ -31,7 +31,6 @@ class ContentPref(BaseSession, BaseSQLiteClass):
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(HOST, OTHER, self.group.name))
         self.attr_list.append(BaseAttribute(SETTING, OTHER, self.setting.name))
         self.attr_list.append(BaseAttribute(VALUE, OTHER, self.value))

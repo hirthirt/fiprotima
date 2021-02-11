@@ -27,14 +27,23 @@ class FirefoxModel:
         return data_dict
     
     def get_history(self):
-        return self.data_dict["HistoryVisitHandler"]
+        histroy_tree = {}
+        for entry in self.data_dict["HistoryVisitHandler"]:
+            if entry.from_visit == 0:
+                histroy_tree[entry] = []
+            else:
+                for tree_entry in histroy_tree:
+                    if entry.from_visit == tree_entry.id or entry.from_visit in [sube.id for sube in histroy_tree[tree_entry]]:
+                        histroy_tree[tree_entry].append(entry)
+        return histroy_tree
 
     def get_additional_info(self, sitename):
         data_dict = {
             "Cookies" : [],
             "Favicons" : [],
             "Permissions" : [],
-            "ContentPrefs" : []
+            "ContentPrefs" : [],
+            "Downloads" : []
         }
         for cookie in self.data_dict["CookieHandler"]:
             if sitename in cookie.host:
@@ -51,11 +60,22 @@ class FirefoxModel:
         for pref in self.data_dict["ContentPrefHandler"]:
             if sitename in pref.group.name:
                 data_dict["ContentPrefs"].append(pref)
-        
+
+        for site in self.data_dict["HistoryVisitHandler"]:
+            for downl in self.data_dict["DownloadHandler"]:
+                if sitename in site.place.url and downl.place.id == site.place.id:
+                    data_dict["Downloads"].append(downl)
+
         return data_dict
 
     def get_form_history(self):
         return self.data_dict["FormHistoryHandler"]
+
+    def get_addons(self):
+        return self.data_dict["AddonsHandler"]
+
+    def get_bookmarks(self):
+        return self.data_dict["BookmarkHandler"]
 
     def get_data_header(self):
         data_header = []

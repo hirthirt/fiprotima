@@ -44,7 +44,6 @@ class HistoryVisit(BaseSession, BaseSQLiteClass):
     def init(self):
         self.attr_list = []
 
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
         self.attr_list.append(
@@ -76,7 +75,6 @@ class Bookmark(BaseSession, BaseSQLiteClass):
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.title))
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         if self.place.last_visited_timestamp is not None:
@@ -101,6 +99,41 @@ class Bookmark(BaseSession, BaseSQLiteClass):
 
         self.init()
 
+class Download(BaseSession, BaseSQLiteClass):
+    __tablename__ = "moz_annos"
+
+    id = Column("id", Integer, primary_key=True)
+    place_id = Column("place_id", Integer, ForeignKey("moz_places.id"))
+    place = relationship("Place")
+    anno_attribute_id = Column("anno_attribute_id", Integer, ForeignKey("moz_anno_attributes.id"))
+    attribute = relationship("DownloadType")
+    content = Column("content", String)
+    added_timestamp = Column("dateAdded", Integer)  # Micro-zero
+    last_modified_timestamp = Column("lastModified", Integer)  # Micro-zero
+
+    @orm.reconstructor
+    def init(self):
+        self.attr_list = []
+        self.attr_list.append(BaseAttribute(TITLE, OTHER, self.attribute.name))
+        self.attr_list.append(BaseAttribute("Inhalt", OTHER, self.content))
+        self.attr_list.append(BaseAttribute(ADDEDAT, DT_MILLI_ZEROED_MICRO, self.added_timestamp))
+        self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_MILLI_ZEROED_MICRO, self.last_modified_timestamp))
+
+    def update(self):
+        for attr in self.attr_list:
+            if attr.name == ADDEDAT:
+                self.added_timestamp = attr.timestamp
+            elif attr.name == LASTMODIFIED:
+                self.last_modified_timestamp = attr.timestamp
+
+        self.init()
+
+class DownloadType(BaseSession, BaseSQLiteClass):
+    __tablename__ = "moz_anno_attributes"
+
+    id = Column("id", Integer, primary_key=True)
+    name = Column("name", String)
+
 
 class PlacesHandler(BaseSQliteHandler):
     def __init__(
@@ -119,16 +152,8 @@ class HistoryVisitHandler(PlacesHandler):
     attr_names = [ID, URL, TITLE, LASTVISITED, VISITED]
 
     def get_all_id_ordered(self):
-        histroy_tree = {}
         history = self.session.query(HistoryVisit).order_by(HistoryVisit.id).all()
-        for entry in history:
-            if entry.from_visit == 0:
-                histroy_tree[entry] = []
-            else:
-                for tree_entry in histroy_tree:
-                    if entry.from_visit == tree_entry.id or entry.from_visit in [sube.id for sube in histroy_tree[tree_entry]]:
-                        histroy_tree[tree_entry].append(entry)
-        return histroy_tree
+        return history
         
 
 class BookmarkHandler(PlacesHandler):
@@ -138,4 +163,14 @@ class BookmarkHandler(PlacesHandler):
 
     def get_all_id_ordered(self):
         query = self.session.query(Bookmark).filter(Bookmark.type == 1).order_by(Bookmark.id)
+        return query.all()
+
+
+class DownloadHandler(PlacesHandler):
+    name = "Downloads"
+
+    attr_names = [TITLE, "Inhalt",ADDEDAT, LASTMODIFIED]
+
+    def get_all_id_ordered(self):
+        query = self.session.query(Download).order_by(Download.id)
         return query.all()

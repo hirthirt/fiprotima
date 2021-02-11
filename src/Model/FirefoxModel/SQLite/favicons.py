@@ -26,7 +26,6 @@ class Favicon(BaseSession, BaseSQLiteClass):
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
 
         if len(self.urls) == 0:
             self.attr_list.append(BaseAttribute(URL, OTHER, self.icon_url))

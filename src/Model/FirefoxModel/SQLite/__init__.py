@@ -14,6 +14,7 @@ class DataSourcesSQLite:
         source_names.append(["Model.FirefoxModel.SQLite.permissions", "PermissionHandler"])
         source_names.append(["Model.FirefoxModel.SQLite.places", "HistoryVisitHandler"])
         source_names.append(["Model.FirefoxModel.SQLite.places", "BookmarkHandler"])
+        source_names.append(["Model.FirefoxModel.SQLite.places", "DownloadHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]

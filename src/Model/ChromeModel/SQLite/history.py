@@ -9,7 +9,8 @@ from Model.ChromeModel.SQLite.base import (
     OTHER,
     DT_MICRO,
     DT_MILLI_ZEROED_MICRO,
-    DT_WEBKIT
+    DT_WEBKIT,
+    DT_STRING
 )
 
 ID = "ID"
@@ -20,15 +21,19 @@ LASTVISITEDNONE = "Zuletzt besucht (Null)"
 VISITED = "Besucht am"
 ADDEDAT = "Hinzugefügt am"
 LASTMODIFIED = "Geändert am"
+CONTENT = "Inhalt"
+FILE = "Datei"
+STARTTIME = "Startzeit"
+ENDTIME = "Endzeit"
 
 
-class Place(BaseSession, BaseSQLiteClass):
+class Urls(BaseSession, BaseSQLiteClass):
     __tablename__ = "urls"
 
     id = Column("id", Integer, primary_key=True)
     url = Column("url", String)
     title = Column("title", String)
-    last_visited_time = Column("last_visit_time", Integer)  # Webkit
+    last_visited_timestamp = Column("last_visit_time", Integer)  # Webkit
 
 
 class Visits(BaseSession, BaseSQLiteClass):
@@ -37,20 +42,19 @@ class Visits(BaseSession, BaseSQLiteClass):
     id = Column("id", Integer, primary_key=True)
     url_id = Column("url", Integer, ForeignKey("urls.id"))
     from_visit = Column("from_visit", Integer)
-    visit_time = Column("visit_time", Integer)  # WebKit
-    place = relationship("Place")
+    visit_timestamp = Column("visit_time", Integer)  # Webkit
+    place = relationship("Urls")
 
     @orm.reconstructor
     def init(self):
         self.attr_list = []
 
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
         self.attr_list.append(
-            BaseAttribute(LASTVISITED, DT_WEBKIT, self.place.last_visited_time)
+            BaseAttribute(LASTVISITED, DT_MICRO, self.place.last_visited_timestamp)
         )
-        self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_time))
+        self.attr_list.append(BaseAttribute(VISITED, DT_MICRO, self.visit_timestamp))
 
     def update(self):
         for attr in self.attr_list:
@@ -62,9 +66,37 @@ class Visits(BaseSession, BaseSQLiteClass):
         self.init()
 
 
+class Download(BaseSession, BaseSQLiteClass):
+    __tablename__ = "downloads"
+
+    id = Column("id", Integer, primary_key=True)
+    target_path = Column("target_path", String)
+    start_time = Column("start_time", Integer) #Webkit
+    end_time = Column("end_time", Integer) #Webit
+    last_modified = Column("last_modified", String) #Tue, 26 Jan 2021 13:11:34 GMT
+    referrer = Column("referrer", String)
+
+    @orm.reconstructor
+    def init(self):
+        self.attr_list = []
+        self.attr_list.append(BaseAttribute(FILE, OTHER, self.target_path))
+        self.attr_list.append(BaseAttribute(URL, OTHER, self.referrer))
+        self.attr_list.append(BaseAttribute(STARTTIME, DT_WEBKIT, self.start_time))
+        self.attr_list.append(BaseAttribute(ENDTIME, DT_WEBKIT, self.end_time))
+        self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_STRING, self.last_modified))
+
+    def update(self):
+        for attr in self.attr_list:
+            if attr.name == ADDEDAT:
+                self.added_timestamp = attr.timestamp
+            elif attr.name == LASTMODIFIED:
+                self.last_modified_timestamp = attr.timestamp
+
+        self.init()
 
 
-class PlacesHandler(BaseSQliteHandler):
+
+class HistoryHandler(BaseSQliteHandler):
     def __init__(
         self,
         profile_path: str,
@@ -74,24 +106,22 @@ class PlacesHandler(BaseSQliteHandler):
         super().__init__(profile_path, file_name, logging)
 
 
-class VisitsHandler(PlacesHandler):
-    name = "Visit"
+class VisitsHandler(HistoryHandler):
+    name = "Visits"
 
     attr_names = [ID, URL, TITLE, LASTVISITED, VISITED]
 
     def get_all_id_ordered(self):
-        query = self.session.query(Visits).order_by(Visits.id)
+        history = self.session.query(Visits).order_by(Visits.id).all()
+        return history
+        
+
+
+class DownloadHandler(HistoryHandler):
+    name = "Downloads"
+
+    attr_names = [FILE, URL, STARTTIME, ENDTIME, LASTMODIFIED]
+
+    def get_all_id_ordered(self):
+        query = self.session.query(Download).order_by(Download.id)
         return query.all()
-
-    def get_history_tree(self):
-        histroy_tree = {}
-        history = self.get_all_id_ordered()
-        for entry in history:
-            if entry.from_visit == 0:
-                histroy_tree[entry] = []
-            else:
-                for tree_entry in histroy_tree:
-                    if entry.from_visit == tree_entry.id or entry.from_visit in [sube.id for sube in histroy_tree[tree_entry]]:
-                        histroy_tree[tree_entry].append(entry)
-        return histroy_tree
-

@@ -1,7 +1,7 @@
 import os
 import struct
 
-from Model.FirefoxModel.Cache.base import BaseCacheClass, BaseCacheHandler
+from Model.EdgeModel.Cache.base import BaseCacheClass, BaseCacheHandler
 
 
 class IndexEntry(BaseCacheClass):

@@ -21,7 +21,6 @@ class Permission(BaseSession, BaseSQLiteClass):
     @orm.reconstructor
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(ORIGIN, OTHER, self.origin))
         self.attr_list.append(BaseAttribute(TYPE, OTHER, self.type))
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_MILLI_OR_ZERO, self.expiry_timestamp))

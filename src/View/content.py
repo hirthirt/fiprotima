@@ -23,14 +23,14 @@ class Content(tk.Frame):
         self.style = ttk.Style()
         self.style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
         self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
-        self.dataview = ttk.Treeview(self, height=20, style="mystyle.Treeview")
+        self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
 
         self.tab_control = ttk.Notebook(self) 
 
 
 
-        self.dataview.pack(expand=True, fill="both")
-        self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both") 
+        self.dataview.pack(fill="both")
+        self.tab_control.pack(side=tk.BOTTOM, fill="both", expand=True) 
         
 
     # On right-click load all the additional infos for the given website
@@ -71,25 +71,36 @@ class Content(tk.Frame):
     def change_data_view(self, data_view):
         if self.dataview_mode == data_view:
             return
-        if data_view == "addons":
-            pass
-        elif data_view == "inputhistory":
+        elif data_view == "formhistory":
             data = self.parent.controller.get_form_history()
             if data:
                 self.fill_dataview(data, False)
                 self.dataview_mode = data_view
         elif data_view == "history":
             data = self.parent.controller.get_history()
-            print(data)
             if data:
                 self.fillHistroyData(data)
+                self.dataview_mode = data_view
+        elif data_view == "addons":
+            data = self.parent.controller.get_addons()
+            if data:
+                self.fill_dataview(data, False)
+                self.dataview_mode = data_view
+        elif data_view == "bookmarks":
+            data = self.parent.controller.get_bookmarks()
+            if data:
+                self.fill_dataview(data, False)
                 self.dataview_mode = data_view
 
 
     def fill_dataview(self, data, addi_infos):
         self.dataview.pack_forget()
-        self.dataview = ttk.Treeview(self, height=20, style="mystyle.Treeview")
-        self.dataview.pack(expand=True, fill="both")
+        self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
+        self.dataview.pack(fill="both")
+
+        self.tab_control.pack_forget()
+        self.tab_control = ttk.Notebook(self)
+        self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both")
 
         headinglist = [attr.name for attr in data[0].attr_list]
         self.dataview["columns"] = tuple(headinglist[1:])
@@ -100,7 +111,7 @@ class Content(tk.Frame):
             self.dataview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
 
         if not addi_infos:
-            text = "Es konnten keine Informationen gefunden werden!"
+            text = "Zusätzliche Informationen nicht verfügbar!"
             label = tk.Label(self.tab_control, text=text)
             label.pack(expand=True, fill="both")
 
@@ -118,9 +129,9 @@ class Content(tk.Frame):
 
         self.dataview["columns"]=("id","visit","l_visit","object")
         self.dataview["displaycolumns"] = ("visit","l_visit")
-        self.dataview.column("#0", width=200, minwidth=120, stretch=tk.YES)
-        self.dataview.column("visit", width=100, minwidth=60, stretch=tk.YES)
-        self.dataview.column("l_visit", width=100, minwidth=60, stretch=tk.YES)
+        self.dataview.column("#0", width=700, minwidth=300, stretch=tk.YES)
+        self.dataview.column("visit", width=300, minwidth=100, stretch=tk.YES)
+        self.dataview.column("l_visit", width=300, minwidth=100, stretch=tk.YES)
         self.dataview.heading("#0",text="URL",anchor=tk.W)
         self.dataview.heading("id", text="ID",anchor=tk.W)
         self.dataview.heading("visit", text="Besucht",anchor=tk.W)

@@ -10,7 +10,7 @@ class View(tk.Tk):
 
     def __init__(self, controller):
         super().__init__()
-
+        self.geometry("1500x900")
         self.controller = controller
         self.menu = None
         self.toolbar = None
@@ -35,6 +35,3 @@ class View(tk.Tk):
         self.content.grid(row=1, column=1, sticky="wens")
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
-
-        self.sidebar.insert_message("Fertig geladen...")
-        self.sidebar.insert_message("Legen Sie los!")

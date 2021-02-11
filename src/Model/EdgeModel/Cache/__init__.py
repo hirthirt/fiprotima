@@ -1,13 +1,12 @@
-from Model.FirefoxModel.Cache.cache2entries import Cache2Handler
 from importlib import import_module
 
 
 class DataSourcesCache:
     def __init__(self, profile_path: str, cache_path: str):
-        self.sources = []
+        self.sources = {}
         source_names = []
 
-        source_names.append(["Model.FirefoxModel.Cache.cache2entries", "Cache2Handler"])
+        source_names.append(["Model.EdgeModel.Cache.cache2entries", "Cache2Handler"])
 
         for source_name in source_names:
             module_name = source_name[0]
@@ -23,12 +22,12 @@ class DataSourcesCache:
                     % (module_name, class_name, e)
                 )
                 continue
-            self.sources.append(instance)
+            self.sources[class_name] = instance
 
     def get_data(self):
-        data = []
+        data = {}
         for source in self.sources:
-            data.append(source.get_all_id_ordered())
+            data[source] = self.sources[source].get_all_id_ordered()
 
         return data
 

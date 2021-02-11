@@ -1,4 +1,3 @@
-from Model.FirefoxModel.JSON.addons import AddonsHandler
 from importlib import import_module
 
 
@@ -6,13 +5,13 @@ class DataSourcesJSON:
     pre_path = ""
     post_path = ""
 
-    def __init__(self, profile_path: str, cache_path: str):
+    def __init__(self, profile_path: str):
         path = self.pre_path + profile_path + self.post_path
-        self.sources = []
+        self.sources = {}
 
         source_names = []
 
-        source_names.append(["Model.FirefoxModel.JSON.addons", "AddonsHandler"])
+        source_names.append(["Model.ChromeModel.JSON.addons", "AddonsHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]
@@ -21,19 +20,19 @@ class DataSourcesJSON:
             try:
                 module = import_module(module_name)
                 Class_ = getattr(module, class_name)
-                instance = Class_(profile_path=profile_path, cache_path=cache_path)
+                instance = Class_(profile_path=profile_path)
             except Exception as e:
                 print(
                     "Fehler in Datenquelle JSON, Modul %s, Klasse %s: %s. Überspringe"
                     % (module_name, class_name, e)
                 )
                 continue
-            self.sources.append(instance)
+            self.sources[class_name] = instance
 
     def get_data(self):
-        data = []
+        data = {}
         for source in self.sources:
-            data.append(source.get_all_id_ordered())
+            data[source] = self.sources[source].get_all_id_ordered()
 
         return data
 

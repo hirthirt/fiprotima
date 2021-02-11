@@ -46,6 +46,14 @@ class Controller:
     def get_form_history(self):
         data = self.model.get_form_history()
         return data
+    
+    def get_addons(self):
+        data = self.model.get_addons()
+        return data
+    
+    def get_bookmarks(self):
+        data = self.model.get_bookmarks()
+        return data
 
 
 # TODO: Implement LoggerClass to log events directly to text console

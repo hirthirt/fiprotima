@@ -1,6 +1,6 @@
 import json
 
-from Model.FirefoxModel.JSON.base import (
+from Model.EdgeModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,
     BaseAttribute,
@@ -42,7 +42,7 @@ class AddonsHandler(BaseJSONHandler):
     json_all = dict
 
     def __init__(
-        self, profile_path: str, cache_path: str, file_name: str = "addons.json",
+        self, profile_path: str, file_name: str = "addons.json",
     ):
         super().__init__(profile_path, file_name)
 
