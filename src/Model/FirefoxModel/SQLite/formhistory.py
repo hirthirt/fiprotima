@@ -20,6 +20,7 @@ class FormHistory(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(FIELDNAME, OTHER, self.field_name))
         self.attr_list.append(BaseAttribute(VALUE, OTHER, self.value))
@@ -30,14 +31,26 @@ class FormHistory(BaseSession, BaseSQLiteClass):
             BaseAttribute(LASTUSED, DT_MILLI_ZEROED_MICRO, self.last_used_timestamp)
         )
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == FIRSTUSED:
-                self.first_used_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.first_used_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Formhistory für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTUSED:
-                self.last_used_timestamp = attr.timestamp
-
-        self.init()
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_used_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Formhistory für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class FormHistoryHandler(BaseSQliteHandler):

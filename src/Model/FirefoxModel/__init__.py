@@ -43,7 +43,8 @@ class FirefoxModel:
             "Favicons" : [],
             "Permissions" : [],
             "ContentPrefs" : [],
-            "Downloads" : []
+            "Downloads" : [],
+            "Logins" : []
         }
         for cookie in self.data_dict["CookieHandler"]:
             if sitename in cookie.host:
@@ -60,6 +61,10 @@ class FirefoxModel:
         for pref in self.data_dict["ContentPrefHandler"]:
             if sitename in pref.group.name:
                 data_dict["ContentPrefs"].append(pref)
+        
+        for login in self.data_dict["LoginsHandler"]:
+            if sitename in login.hostname:
+                data_dict["Logins"].append(login)
 
         for site in self.data_dict["HistoryVisitHandler"]:
             for downl in self.data_dict["DownloadHandler"]:
@@ -76,6 +81,33 @@ class FirefoxModel:
 
     def get_bookmarks(self):
         return self.data_dict["BookmarkHandler"]
+    
+    def get_extensions(self):
+        return self.data_dict["ExtensionsHandler"]
+    
+    def get_session(self):
+        return self.data_dict["WindowsHandler"]
+    
+    def get_session_info(self, window_id):
+        window = None
+        for windows in self.data_dict["WindowsHandler"]:
+            if windows.id == window_id:
+                window = windows
+        data_dict = {
+            "Tabs" : window.tabs,
+            "Session" : [window.session]
+        }
+        return data_dict
+    
+    def get_profile(self):
+        return self.data_dict["TimesHandler"]
+
+    def edit_all_data(self, delta):
+        for source in self.data_dict:
+            print(source)
+            for item in self.data_dict[source]:
+                print(item)
+                item.update(delta)
 
     def get_data_header(self):
         data_header = []

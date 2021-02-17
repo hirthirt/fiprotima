@@ -30,6 +30,7 @@ class ContentPref(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(HOST, OTHER, self.group.name))
         self.attr_list.append(BaseAttribute(SETTING, OTHER, self.setting.name))
@@ -38,12 +39,18 @@ class ContentPref(BaseSession, BaseSQLiteClass):
             (BaseAttribute(CREATEDAT, DT_SEC_DOT_MILLI, self.created_at_timestamp))
         )
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
-                self.created_at_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.created_at_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Extensions für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 
 class ContentPrefGroup(BaseSession, BaseSQLiteClass):

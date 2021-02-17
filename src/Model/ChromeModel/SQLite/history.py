@@ -52,9 +52,9 @@ class Visits(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
         self.attr_list.append(
-            BaseAttribute(LASTVISITED, DT_MICRO, self.place.last_visited_timestamp)
+            BaseAttribute(LASTVISITED, DT_WEBKIT, self.place.last_visited_timestamp)
         )
-        self.attr_list.append(BaseAttribute(VISITED, DT_MICRO, self.visit_timestamp))
+        self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_timestamp))
 
     def update(self):
         for attr in self.attr_list:

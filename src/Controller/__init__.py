@@ -1,5 +1,6 @@
 import getpass
 import platform
+import datetime
 
 from Config import Config
 from View import View
@@ -54,6 +55,32 @@ class Controller:
     def get_bookmarks(self):
         data = self.model.get_bookmarks()
         return data
+    
+    def get_extensions(self):
+        data = self.model.get_extensions()
+        return data
+    
+    def get_session(self):
+        data = self.model.get_session()
+        return data
 
+    def get_session_info(self, window_id):
+        data = self.model.get_session_info(window_id)
+        return data
+
+    def get_profile(self):
+        data = self.model.get_profile()
+        return data
+
+    def edit_all_data(self):
+        # Ask for timedelta with dialog, then change all data based on this timedelta
+        years = 20
+        months = 0
+        days = 0
+        minutes = 0
+        seconds = 0
+
+        delta = int(years*365.24*24*60*60) + int(months*30*24*60*60) + int(days*24*60*60) + int(minutes*60) + seconds
+        self.model.edit_all_data(delta)
 
 # TODO: Implement LoggerClass to log events directly to text console

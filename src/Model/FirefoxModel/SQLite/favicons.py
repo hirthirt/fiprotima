@@ -25,6 +25,7 @@ class Favicon(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
 
         if len(self.urls) == 0:
@@ -33,10 +34,17 @@ class Favicon(BaseSession, BaseSQLiteClass):
             self.attr_list.append(BaseAttribute(URL, OTHER, self.urls[0].page_url))
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_MILLI, self.expiry_timestamp))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
-                self.expiry_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.expiry_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Favicons für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class FaviconPage(BaseSession, BaseSQLiteClass):

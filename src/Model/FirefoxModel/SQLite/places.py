@@ -42,23 +42,36 @@ class HistoryVisit(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
-
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
+        self.attr_list.append(BaseAttribute(VISITED, DT_MICRO, self.visit_timestamp))
         self.attr_list.append(
             BaseAttribute(LASTVISITED, DT_MICRO, self.place.last_visited_timestamp)
         )
-        self.attr_list.append(BaseAttribute(VISITED, DT_MICRO, self.visit_timestamp))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
-                self.place.last_visited_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.place.last_visited_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in HistoryVisit für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == VISITED:
-                self.visit_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.visit_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in HistoryVisit für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 
 class Bookmark(BaseSession, BaseSQLiteClass):
@@ -74,30 +87,51 @@ class Bookmark(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.title))
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
+        self.attr_list.append(BaseAttribute(ADDEDAT, DT_MILLI_ZEROED_MICRO, self.added_timestamp))
         if self.place.last_visited_timestamp is not None:
             self.attr_list.append(
                 BaseAttribute(LASTVISITED, DT_MICRO, self.place.last_visited_timestamp)
             )
         else:
             self.attr_list.append(BaseAttribute(LASTVISITEDNONE, OTHER, "None"))
-        self.attr_list.append(BaseAttribute(ADDEDAT, DT_MILLI_ZEROED_MICRO, self.added_timestamp))
         self.attr_list.append(
             BaseAttribute(LASTMODIFIED, DT_MILLI_ZEROED_MICRO, self.last_modified_timestamp)
         )
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
-                self.place.last_visited_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.place.last_visited_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Bookmarks für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == ADDEDAT:
-                self.added_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.added_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Bookmarks für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTMODIFIED:
-                self.last_modified_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_modified_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Bookmarks für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 class Download(BaseSession, BaseSQLiteClass):
     __tablename__ = "moz_annos"
@@ -113,20 +147,34 @@ class Download(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.attribute.name))
         self.attr_list.append(BaseAttribute("Inhalt", OTHER, self.content))
         self.attr_list.append(BaseAttribute(ADDEDAT, DT_MILLI_ZEROED_MICRO, self.added_timestamp))
         self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_MILLI_ZEROED_MICRO, self.last_modified_timestamp))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == ADDEDAT:
-                self.added_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.added_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Download für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTMODIFIED:
-                self.last_modified_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_modified_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Download für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 class DownloadType(BaseSession, BaseSQLiteClass):
     __tablename__ = "moz_anno_attributes"

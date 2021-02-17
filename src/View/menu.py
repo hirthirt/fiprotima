@@ -16,7 +16,7 @@ class MainMenu(tk.Menu):
         editmenu = tk.Menu(self, tearoff=0)
         editmenu.add_command(label="Undo")
         editmenu.add_command(label="Löschen")
-        editmenu.add_command(label="Alle auswählen")
+        editmenu.add_command(label="Alle Daten editieren", command=self.parent.controller.edit_all_data)
         self.add_cascade(label="Bearbeiten", menu=editmenu)
 
         viewmenu = tk.Menu(self, tearoff=0)
@@ -24,9 +24,13 @@ class MainMenu(tk.Menu):
         viewmenu.add_command(label="Addons", command=lambda: self.parent.content.change_data_view("addons"))
         viewmenu.add_command(label="Formular-Historie", command=lambda: self.parent.content.change_data_view("formhistory"))
         viewmenu.add_command(label="Lesezeichen", command=lambda: self.parent.content.change_data_view("bookmarks"))
+        viewmenu.add_command(label="Extensions", command=lambda: self.parent.content.change_data_view("extensions"))
+        viewmenu.add_command(label="Session", command=lambda: self.parent.content.change_data_view("session"))
+        viewmenu.add_command(label="Profil", command=lambda: self.parent.content.change_data_view("profile"))
         self.add_cascade(label="Ansicht", menu=viewmenu)
 
         helpmenu = tk.Menu(self, tearoff=0)
         helpmenu.add_command(label="Hilfe")
         helpmenu.add_command(label="Über...")
         self.add_cascade(label="Hilfe", menu=helpmenu)
+

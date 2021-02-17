@@ -33,7 +33,6 @@ class CacheEntry(BaseCacheClass):
 
     def init(self):
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.i))
         self.attr_list.append(BaseAttribute(URL, OTHER, self.url))
         self.attr_list.append(BaseAttribute(LASTFETCHED, DT_SEC, self.last_fetched_timestamp))
         self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_SEC, self.last_modified_timestamp))

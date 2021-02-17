@@ -96,12 +96,12 @@ class BaseAttribute:
             milliseconds = int(microseconds / MILLI_FACTOR)
             self.timestamp = float(str(self.timestamp) + "." + str(milliseconds))
 
-    def set_date(self, date: datetime):
+    def change_date(self, delta):
         """Override value with datetime"""
         if self.type == OTHER:
             return
 
-        self.value = date
+        self.value = datetime.fromtimestamp(self.value.timestamp() - delta)
 
     def is_other(self):
         """Check if attribute is datetime or other type like string"""

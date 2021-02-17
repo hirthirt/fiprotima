@@ -22,15 +22,22 @@ class Addon(BaseJSONClass):
         self.init()
 
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(ID, OTHER, self.id))
         self.attr_list.append(BaseAttribute(NAME, OTHER, self.name))
         self.attr_list.append(BaseAttribute(UPDATEDATE, DT_SEC_ZEROED_MILLI, self.update_timestamp))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == UPDATEDATE:
-                self.update_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.update_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Addons für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class AddonsHandler(BaseJSONHandler):

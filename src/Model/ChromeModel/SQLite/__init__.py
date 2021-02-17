@@ -7,13 +7,14 @@ class DataSourcesSQLite:
         source_names = []
 
         # Create list of module names and handlers, that we need
-        #source_names.append(["Model.ChromeModel.SQLite.content_prefs", "ContentPrefHandler"])
         source_names.append(["Model.ChromeModel.SQLite.cookie", "CookieHandler"])
         source_names.append(["Model.ChromeModel.SQLite.favicons", "FaviconsHandler"])
-        #source_names.append(["Model.ChromeModel.SQLite.formhistory", "FormHistoryHandler"])
-        #source_names.append(["Model.ChromeModel.SQLite.permissions", "PermissionHandler"])
         source_names.append(["Model.ChromeModel.SQLite.history", "VisitsHandler"])
         source_names.append(["Model.ChromeModel.SQLite.history", "DownloadHandler"])
+        source_names.append(["Model.ChromeModel.SQLite.extensioncookies", "ExtensionCookiesHandler"])
+        source_names.append(["Model.ChromeModel.SQLite.mediahistory", "MediaHistoryHandler"])
+        source_names.append(["Model.ChromeModel.SQLite.webdata", "AutofillHandler"])
+        source_names.append(["Model.ChromeModel.SQLite.webdata", "KeywordHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]

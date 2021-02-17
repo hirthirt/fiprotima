@@ -85,11 +85,12 @@ class BaseAttribute:
             milliseconds = int(microseconds / MILLI_FACTOR)
             self.timestamp = float(str(self.timestamp) + "." + str(milliseconds))
 
-    def set_date(self, date: datetime):
+    def change_date(self, delta):
+        """Override value with datetime"""
         if self.type == OTHER:
             return
 
-        self.value = date
+        self.value = datetime.fromtimestamp(self.value.timestamp() - delta)
 
     def is_other(self):
         return self.type == OTHER or self.type == DT_ZERO
@@ -161,8 +162,9 @@ class BaseJSONHandler:
             mode = "w"
         if self.compressed:
             mode = mode + "b"
-
-        self.file_handle = open(self.path, mode)
+            self.file_handle = open(self.path, mode)
+        else:
+            self.file_handle = open(self.path, mode, encoding='utf-8')
 
     def read_file(self):
         if self.compressed:

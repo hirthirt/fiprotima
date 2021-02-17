@@ -20,22 +20,37 @@ class Permission(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(ORIGIN, OTHER, self.origin))
         self.attr_list.append(BaseAttribute(TYPE, OTHER, self.type))
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_MILLI_OR_ZERO, self.expiry_timestamp))
         self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_MILLI, self.modify_timestamp))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
                 if attr.type == DT_ZERO:
                     self.expiry_timestamp = 0
+                    self.is_date_changed = True
                 else:
-                    self.expiry_timestamp = attr.timestamp
+                    try:
+                        attr.change_date(delta)
+                        attr.date_to_timestamp()
+                        self.expiry_timestamp = attr.timestamp
+                    except:
+                        print("Fehler bei Update in Permissions für " + attr.name)
+                        continue
+                    self.is_date_changed = True
             elif attr.name == LASTMODIFIED:
-                self.modify_timestamp = attr.timestamp
-        self.init()
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.modify_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Permissions für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class PermissionHandler(BaseSQliteHandler):

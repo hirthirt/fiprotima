@@ -18,8 +18,9 @@ class Model:
             messages = []
             profile_path = self.profiledict[browser][name][0]
             cache_path = self.profiledict[browser][name][1]
+            self.browsermodel = FirefoxModel(profile_path, cache_path)
             try:
-                self.browsermodel = FirefoxModel(profile_path, cache_path)
+                pass
             except:
                 self.browsermodel = None
                 messages.append("Firefox Daten konnten nicht geladen werden!")
@@ -44,8 +45,9 @@ class Model:
         elif browser == "Chrome":
             messages = []
             profile_path = self.profiledict[browser][name]
+            self.browsermodel = ChromeModel(profile_path)
             try:
-                self.browsermodel = ChromeModel(profile_path)
+                pass
             except:
                 self.browsermodel = None
                 messages.append("Edge Daten konnente nicht geladen werden!")
@@ -87,6 +89,41 @@ class Model:
         else:
             data = None
         return data
+    
+    def get_extensions(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_extensions()
+        else:
+            data = None
+        return data
+    
+    def get_session(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_session()
+        else:
+            data = None
+        return data
+
+    def get_session_info(self, window_id):
+        if self.browsermodel:
+            data = self.browsermodel.get_session_info(window_id)
+        else:
+            data = None
+        return data
+    
+    def get_profile(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_profile()
+        else:
+            data = None
+        return data
+
+
+    def edit_all_data(self, delta):
+        if self.browsermodel:
+            self.browsermodel.edit_all_data(delta)
+        else:
+            print("Kein Profil ausgewählt!")
 
     #This searches for installations of Firefox, Edge and Chrome
     #Then stores the profiles of them to the profiledict

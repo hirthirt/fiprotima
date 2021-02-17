@@ -11,7 +11,7 @@ class DataSourcesJSON:
 
         source_names = []
 
-        source_names.append(["Model.ChromeModel.JSON.addons", "AddonsHandler"])
+        source_names.append(["Model.ChromeModel.JSON.preferences", "ProfileHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]

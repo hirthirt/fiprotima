@@ -22,23 +22,44 @@ class Cookie(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(HOST, OTHER, self.host))
         self.attr_list.append(BaseAttribute(PATH, OTHER, self.path))
+        self.attr_list.append(BaseAttribute(CREATEDAT, DT_MICRO, self.creation_timestamp))
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_SEC, self.expiry_timestamp))
         self.attr_list.append(BaseAttribute(LASTACCESSAT, DT_MICRO, self.last_accessed_timestamp))
-        self.attr_list.append(BaseAttribute(CREATEDAT, DT_MICRO, self.creation_timestamp))
-
-    def update(self):
+        
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
-                self.expiry_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.expiry_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Cookies für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTACCESSAT:
-                self.last_accessed_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_accessed_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Cookies für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == CREATEDAT:
-                self.creation_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.creation_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Cookies für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 
 class CookieHandler(BaseSQliteHandler):

@@ -15,7 +15,7 @@ class ChromeModel:
         #self.sources["Cache"] = DataSourcesCache(cache_path)
 
         self.data_dict = self.get_data()
-        #
+        
 
     def get_data(self):
         data_dict = {}
@@ -80,6 +80,9 @@ class ChromeModel:
                 data_header.append(header)
 
         return data_header
+
+    def get_profile(self):
+        return self.data_dict["ProfileHandler"]
 
     def get_names(self):
         name_list = []
