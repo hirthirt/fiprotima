@@ -44,33 +44,46 @@ class Controller:
         data = self.model.get_additional_info(sitename)
         return data
 
-    def get_form_history(self):
-        data = self.model.get_form_history()
-        return data
-    
-    def get_addons(self):
-        data = self.model.get_addons()
-        return data
-    
-    def get_bookmarks(self):
-        data = self.model.get_bookmarks()
-        return data
-    
-    def get_extensions(self):
-        data = self.model.get_extensions()
-        return data
-    
-    def get_session(self):
-        data = self.model.get_session()
-        return data
-
     def get_session_info(self, window_id):
         data = self.model.get_session_info(window_id)
         return data
 
-    def get_profile(self):
-        data = self.model.get_profile()
-        return data
+    def change_data_view(self, data_view):
+        if data_view == "formhistory":
+            data = self.model.get_form_history()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+        elif data_view == "history":
+            data = self.model.get_history()
+            if data:
+                self.view.content.fillHistroyData(data)
+                self.view.content.dataview_mode = data_view
+        elif data_view == "addons":
+            data = self.model.get_addons()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+        elif data_view == "bookmarks":
+            data = self.model.get_bookmarks()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+        elif data_view == "extensions":
+            data = self.model.get_extensions()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+        elif data_view == "session":
+            data = self.model.get_session()
+            if data:
+                self.view.content.fill_dataview(data, True)
+                self.view.content.dataview_mode = data_view
+        elif data_view == "profile":
+            data = self.model.get_profile()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
 
     def edit_all_data(self):
         # Ask for timedelta with dialog, then change all data based on this timedelta

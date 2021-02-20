@@ -89,47 +89,9 @@ class Content(tk.Frame):
                     text = "Es konnten keine Informationen gefunden werden!"
                     label = tk.Label(tab, text=text)
                     label.pack(expand=True, fill="both")
-
-
-    def change_data_view(self, data_view):
-        if self.dataview_mode == data_view:
-            return
-        elif data_view == "formhistory":
-            data = self.parent.controller.get_form_history()
-            if data:
-                self.fill_dataview(data, False)
-                self.dataview_mode = data_view
-        elif data_view == "history":
-            data = self.parent.controller.get_history()
-            if data:
-                self.fillHistroyData(data)
-                self.dataview_mode = data_view
-        elif data_view == "addons":
-            data = self.parent.controller.get_addons()
-            if data:
-                self.fill_dataview(data, False)
-                self.dataview_mode = data_view
-        elif data_view == "bookmarks":
-            data = self.parent.controller.get_bookmarks()
-            if data:
-                self.fill_dataview(data, False)
-                self.dataview_mode = data_view
-        elif data_view == "extensions":
-            data = self.parent.controller.get_extensions()
-            if data:
-                self.fill_dataview(data, False)
-                self.dataview_mode = data_view
-        elif data_view == "session":
-            data = self.parent.controller.get_session()
-            if data:
-                self.fill_dataview(data, True)
-                self.dataview_mode = data_view
-        elif data_view == "profile":
-            data = self.parent.controller.get_profile()
-            if data:
-                self.fill_dataview(data, True)
-                self.dataview_mode = data_view
-
+    
+    def fill_info_section(self.date):
+        
 
     def fill_dataview(self, data, addi_infos):
         self.dataview.pack_forget()
