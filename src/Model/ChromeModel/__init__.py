@@ -34,33 +34,25 @@ class ChromeModel:
                         histroy_tree[tree_entry].append(entry)
         return histroy_tree
 
-    def get_additional_info(self, sitename):
-        data_dict = {
-            "Cookies" : [],
-            "Favicons" : [],
-            #"Permissions" : [],
-            "ContentPrefs" : [],
-            "Downloads" : []
-        }
-        for cookie in self.data_dict["CookieHandler"]:
-            if sitename in cookie.host:
-                data_dict["Cookies"].append(cookie)
+    def get_additional_info(self, data_type, identifier):
+        if data_type == "history":
+            data_dict = {
+                "Cookies" : [],
+                "Favicons" : [],
+                "ContentPrefs" : [],
+                "Downloads" : []
+            }
+            for cookie in self.data_dict["CookieHandler"]:
+                if sitename in cookie.host:
+                    data_dict["Cookies"].append(cookie)
 
-        for favico in self.data_dict["FaviconsHandler"]:
-            if sitename in favico.urls.url:
-                data_dict["Favicons"].append(favico)
+            for favico in self.data_dict["FaviconsHandler"]:
+                if sitename in favico.urls.url:
+                    data_dict["Favicons"].append(favico)
 
-        #for perm in self.data_dict["PermissionHandler"]:
-        #    if sitename in perm.origin:
-        #        data_dict["Permissions"].append(perm)
-
-        #for pref in self.data_dict["ContentPrefHandler"]:
-        #    if sitename in pref.group.name:
-        #        data_dict["ContentPrefs"].append(pref)
-
-        for downl in self.data_dict["DownloadHandler"]:
-            if sitename in downl.referrer:
-                data_dict["Downloads"].append(downl)
+            for downl in self.data_dict["DownloadHandler"]:
+                if sitename in downl.referrer:
+                    data_dict["Downloads"].append(downl)
 
         return data_dict
 

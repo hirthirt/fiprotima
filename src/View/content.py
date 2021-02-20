@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 
 from datetime import datetime
-from urllib.parse import urlparse
 
 class Content(tk.Frame):
 
@@ -33,57 +32,22 @@ class Content(tk.Frame):
         self.tab_control.pack(side=tk.BOTTOM, fill="both", expand=True) 
         
 
-    # On right-click load all the additional infos for the given website
-    def click_column(self, a):
+    # Receives additional data and builds tabs and treeviews to show it
+    def fill_info_section(self, data):
         for tab in self.tab_control.tabs():
             self.tab_control.forget(tab)
 
-        if self.dataview_mode == "history":
-            item = self.dataview.item(self.dataview.focus())
-            parsed_uri = urlparse(item["text"])
-            split = parsed_uri.hostname.split(".")
-            if len(split) > 2:
-                sitename = split[1]
-            else:
-                sitename = split[0]
-            infos = self.parent.controller.get_additional_info(sitename)
-
-            for info in infos:
-                if infos[info]:
+        for info in data:
+                if data[info]:
                     tab = ttk.Frame(self.tab_control)
                     self.tab_control.add(tab, text=info) 
                     infoview = ttk.Treeview(tab)
-                    headinglist = [attr.name for attr in infos[info][0].attr_list if infos[info]]
+                    headinglist = [attr.name for attr in data[info][0].attr_list if data[info]]
                     infoview["columns"] = tuple(headinglist[1:])
                     infoview.heading("#0",text=headinglist[0],anchor=tk.W)
                     for heading in headinglist[1:]:
                         infoview.heading(heading, text=heading, anchor=tk.W)
-                    for item in infos[info]:
-                        insert = infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
-                        if item.is_date_changed:
-                            infoview.item(insert, tags=("edited"))
-                    infoview.tag_configure('edited', background='green')
-                    infoview.pack(expand=True, fill="both")
-                else:
-                    tab = ttk.Frame(self.tab_control)
-                    self.tab_control.add(tab, text=info)
-                    text = "Es konnten keine Informationen gefunden werden!"
-                    label = tk.Label(tab, text=text)
-                    label.pack(expand=True, fill="both")
-        elif self.dataview_mode == "session":
-            item = self.dataview.item(self.dataview.focus())
-            infos = self.parent.controller.get_session_info(item["values"][-1])
-            for info in infos:
-                if infos[info]:
-                    tab = ttk.Frame(self.tab_control)
-                    self.tab_control.add(tab, text=info) 
-                    infoview = ttk.Treeview(tab)
-                    headinglist = [attr.name for attr in infos[info][0].attr_list if infos[info]]
-                    infoview["columns"] = tuple(headinglist[1:])
-                    infoview.heading("#0",text=headinglist[0],anchor=tk.W)
-                    for heading in headinglist[1:]:
-                        infoview.heading(heading, text=heading, anchor=tk.W)
-                    for item in infos[info]:
+                    for item in data[info]:
                         insert = infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
                         if item.is_date_changed:
                             infoview.item(insert, tags=("edited"))
@@ -95,10 +59,8 @@ class Content(tk.Frame):
                     text = "Es konnten keine Informationen gefunden werden!"
                     label = tk.Label(tab, text=text)
                     label.pack(expand=True, fill="both")
-    
-    def fill_info_section(self.date):
         
-
+    # Receives data and inserts it into the main treeview (dataview)
     def fill_dataview(self, data, addi_infos):
         self.dataview.pack_forget()
         self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
@@ -109,6 +71,7 @@ class Content(tk.Frame):
         self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both")
 
         headinglist = [attr.name for attr in data[0].attr_list]
+        headinglist.append("data_name")
         headinglist.append("id")
         self.dataview["columns"] = tuple(headinglist[1:])
         self.dataview["displaycolumns"] = tuple(headinglist[1:-1])
@@ -116,12 +79,16 @@ class Content(tk.Frame):
         for heading in headinglist[1:]:
             self.dataview.heading(heading, text=heading, anchor=tk.W)
         for item in data:
+            print(item.__class__.__name__)
             values = [attr.value for attr in item.attr_list[1:]]
             try:
+                values.append(str(item.__class__.__name__) + "Handler")
                 values.append(item.id)
             except:
+                values.append("None")
                 values.append(0)
             insert = self.dataview.insert("", "end",  text=item.attr_list[0].value, values=tuple(values))
+            print(self.dataview.item(insert))
             if item.is_date_changed:
                 self.dataview.item(insert, tags=("edited"))
         self.dataview.tag_configure('edited', background='green')
@@ -130,9 +97,9 @@ class Content(tk.Frame):
             label = tk.Label(self.tab_control, text=text)
             label.pack(expand=True, fill="both")
         else:
-            self.dataview.bind('<Double-1>', self.click_column)
+            self.dataview.bind('<Double-1>', self.parent.controller.load_additional_info)
 
-    # Fill the Treeview with the data from the model
+    # Fill the main treeview (dataview) with history data. Extra method to load dependencies correctly
     def fillHistroyData(self, history_data):
         self.dataview_mode="history"
         for child in self.dataview.get_children():
@@ -147,7 +114,7 @@ class Content(tk.Frame):
         self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both") 
         
 
-        self.dataview["columns"]=("visit","l_visit","id")
+        self.dataview["columns"]=("visit","l_visit", "data_name", "id")
         self.dataview["displaycolumns"] = ("visit","l_visit")
         self.dataview.column("#0", width=700, minwidth=300, stretch=tk.YES)
         self.dataview.column("visit", width=300, minwidth=100, stretch=tk.YES)
@@ -164,7 +131,7 @@ class Content(tk.Frame):
                     lv_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
                 elif attr.name == "Besucht am":
                     v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
-            parent = self.dataview.insert("", "end",  text=entry.place.url, tags=("bg"), values=(v_date,lv_date, entry.id))
+            parent = self.dataview.insert("", "end",  text=entry.place.url, tags=("bg"), values=(v_date, lv_date, str(entry.__class__.__name__) + "Handler", entry.id))
             if entry.is_date_changed:
                             self.dataview.item(parent, tags=("edited"))               
             if history_data[entry]:
@@ -176,9 +143,9 @@ class Content(tk.Frame):
                             lv_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
                         elif attr.name == "Besucht am":
                             v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
-                    child = self.dataview.insert(parent, "end",  text=sube.place.url, values=(v_date,lv_date, sube.id))
+                    child = self.dataview.insert(parent, "end",  text=sube.place.url, values=(v_date,lv_date, str(entry.__class__.__name__) + "Handler", sube.id))
                     if entry.is_date_changed:
                             self.dataview.item(child, tags=("edited")) 
-        self.dataview.bind('<Double-1>', self.click_column)
+        self.dataview.bind('<Double-1>', self.parent.controller.load_additional_info)
         self.dataview.tag_configure('bg', background='#DFDFDF')
         self.dataview.tag_configure('edited', background='green')

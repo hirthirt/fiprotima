@@ -9,7 +9,7 @@ class DataSourcesSQLite:
         # Create list of module names and handlers, that we need
         source_names.append(["Model.FirefoxModel.SQLite.content_prefs", "ContentPrefHandler"])
         source_names.append(["Model.FirefoxModel.SQLite.cookie", "CookieHandler"])
-        source_names.append(["Model.FirefoxModel.SQLite.favicons", "FaviconsHandler"])
+        source_names.append(["Model.FirefoxModel.SQLite.favicons", "FaviconHandler"])
         source_names.append(["Model.FirefoxModel.SQLite.formhistory", "FormHistoryHandler"])
         source_names.append(["Model.FirefoxModel.SQLite.permissions", "PermissionHandler"])
         source_names.append(["Model.FirefoxModel.SQLite.places", "HistoryVisitHandler"])
@@ -40,11 +40,6 @@ class DataSourcesSQLite:
         for source in self.sources:
             data[source] = self.sources[source].get_all_id_ordered()
 
-        return data
-    
-    def get_history(self):
-        """ Collect just the history data """
-        data = self.sources["HistoryVisitHandler"].get_history_tree()
         return data
 
     def get_data_header(self):
@@ -84,4 +79,4 @@ class DataSourcesSQLite:
     def close(self):
         """Close all connections"""
         for source in self.sources:
-            source.close()
+            self.sources[source].close()

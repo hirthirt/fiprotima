@@ -14,7 +14,7 @@ class DataSourcesJSON:
         source_names.append(["Model.FirefoxModel.JSON.addons", "AddonsHandler"])
         source_names.append(["Model.FirefoxModel.JSON.logins", "LoginsHandler"])
         source_names.append(["Model.FirefoxModel.JSON.extensions", "ExtensionsHandler"])
-        source_names.append(["Model.FirefoxModel.JSON.sessionstore", "WindowsHandler"])
+        source_names.append(["Model.FirefoxModel.JSON.sessionstore", "WindowHandler"])
         source_names.append(["Model.FirefoxModel.JSON.times", "TimesHandler"])
 
         for source_name in source_names:
@@ -72,4 +72,4 @@ class DataSourcesJSON:
 
     def close(self):
         for source in self.sources:
-            source.close()
+            self.sources[source].close()

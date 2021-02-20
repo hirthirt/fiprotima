@@ -3,12 +3,13 @@ class Config:
 
     def __init__(self, profile_path=None, cache_path=None,
                  current_username=None, current_os=None,
-                 current_browser=None):
+                 current_browser=None, startup_history_last_time=None):
         self.profile_path = profile_path
         self.cache_path = cache_path
         self.current_username = current_username
         self.current_os = current_os
         self.current_browser = current_browser
+        self.startup_history_last_time = startup_history_last_time
 
 
 
@@ -27,3 +28,6 @@ class Config:
 
     def set_current_browser(self, current_browser: str):
         self.current_browser = current_browser
+
+    def set_startup_history_last_time(self, startup_history_last_time):
+        self.startup_history_last_time = startup_history_last_time

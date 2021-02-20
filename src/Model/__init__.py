@@ -1,6 +1,10 @@
 import os
 import configparser
 import json
+import time
+from datetime import datetime, timedelta
+from win32file import CreateFile, SetFileTime, GetFileTime, CloseHandle
+from win32file import GENERIC_WRITE, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, FILE_SHARE_WRITE
 
 from Model.FirefoxModel import FirefoxModel
 from Model.EdgeModel import EdgeModel
@@ -13,12 +17,13 @@ class Model:
         self.browsermodel = None
 
     
-    def load_profile(self, browser, name):
+    def load_profile(self, browser, name, config):
         if browser == "Firefox":
             messages = []
-            profile_path = self.profiledict[browser][name][0]
-            cache_path = self.profiledict[browser][name][1]
-            self.browsermodel = FirefoxModel(profile_path, cache_path)
+            config.set_profile_path(self.profiledict[browser][name][0])
+            config.set_cache_path(self.profiledict[browser][name][1])
+            self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
+            config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             try:
                 pass
             except:
@@ -31,9 +36,9 @@ class Model:
                 return None, messages
         elif browser == "Edge":
             messages = []
-            profile_path = self.profiledict[browser][name]
+            config.profile_path = self.profiledict[browser][name]
             try:
-                self.browsermodel = EdgeModel(profile_path)
+                self.browsermodel = EdgeModel(config.profile_path)
             except:
                 self.browsermodel = None
                 messages.append("Edge Daten konnente nicht geladen werden!")
@@ -44,8 +49,8 @@ class Model:
                 return None, messages
         elif browser == "Chrome":
             messages = []
-            profile_path = self.profiledict[browser][name]
-            self.browsermodel = ChromeModel(profile_path)
+            config.set_profile_path(self.profiledict[browser][name])
+            self.browsermodel = ChromeModel(config.profile_path)
             try:
                 pass
             except:
@@ -58,8 +63,8 @@ class Model:
                 return None, messages
 
     # Get additional infos (cookies, permissions, etc.) for a given website
-    def get_additional_info(self, sitename):
-        data = self.browsermodel.get_additional_info(sitename)
+    def get_additional_info(self, data_type, indentifier):
+        data = self.browsermodel.get_additional_info(data_type, indentifier)
         return data
 
     def get_form_history(self):
@@ -118,12 +123,53 @@ class Model:
             data = None
         return data
 
-
     def edit_all_data(self, delta):
         if self.browsermodel:
             self.browsermodel.edit_all_data(delta)
         else:
             print("Kein Profil ausgewählt!")
+
+    def edit_selected_data(self, delta, selection):
+        if self.browsermodel:
+            self.browsermodel.edit_selected_data(delta, selection)
+        else:
+            print("Kein Profil ausgewählt!")
+
+
+
+    def change_filesystem_time(self, config):
+        self.browsermodel.close()
+        now_history_last_time = self.browsermodel.get_history_last_time()
+        paths = [config.profile_path]
+        if config.cache_path:
+            paths.append(config.cache_path)
+
+        if config.current_os == "Windows":
+            time = datetime(year=2021, month=1, day=1)
+            delta = config.startup_history_last_time.timestamp()-now_history_last_time.timestamp()
+
+            def setTime(path, delta):
+                fh = CreateFile(path, GENERIC_WRITE, FILE_SHARE_WRITE, None, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0)
+                cTime, aTime, mTime = GetFileTime(fh)
+                cTime = datetime.fromtimestamp(cTime.timestamp() - delta)
+                aTime = datetime.fromtimestamp(aTime.timestamp() - delta)
+                mTime = datetime.fromtimestamp(mTime.timestamp() - delta)
+                SetFileTime(fh, cTime, aTime, mTime)
+                CloseHandle(fh)
+
+            for path in paths:
+                for root, dir, files in os.walk(path):
+                    for d in dir:
+                        path = os.path.join(root, d)
+                        setTime(path, delta)
+                    for f in files:
+                        path = os.path.join(root, f)
+                        setTime(path, delta)
+
+            self.browsermodel.get_data()
+
+
+
 
     #This searches for installations of Firefox, Edge and Chrome
     #Then stores the profiles of them to the profiledict

@@ -53,7 +53,7 @@ class FaviconPage(BaseSession, BaseSQLiteClass):
     page_url = Column("page_url", String)
 
 
-class FaviconsHandler(BaseSQliteHandler):
+class FaviconHandler(BaseSQliteHandler):
     name = "Favicons"
 
     attr_names = [ID, URL, EXPIRYAT]

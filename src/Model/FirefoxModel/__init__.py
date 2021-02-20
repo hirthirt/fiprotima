@@ -2,6 +2,8 @@ from Model.FirefoxModel.JSON import DataSourcesJSON
 from Model.FirefoxModel.SQLite import DataSourcesSQLite
 from Model.FirefoxModel.Cache import DataSourcesCache
 
+from Model.FirefoxModel.SQLite.places import VISITED
+
 class FirefoxModel:
 
     def __init__(self, profile_path: str = None, cache_path: str = None):
@@ -37,39 +39,61 @@ class FirefoxModel:
                         histroy_tree[tree_entry].append(entry)
         return histroy_tree
 
-    def get_additional_info(self, sitename):
-        data_dict = {
-            "Cookies" : [],
-            "Favicons" : [],
-            "Permissions" : [],
-            "ContentPrefs" : [],
-            "Downloads" : [],
-            "Logins" : []
-        }
-        for cookie in self.data_dict["CookieHandler"]:
-            if sitename in cookie.host:
-                data_dict["Cookies"].append(cookie)
-
-        for favico in self.data_dict["FaviconsHandler"]:
-            if sitename in favico.icon_url:
-                data_dict["Favicons"].append(favico)
-
-        for perm in self.data_dict["PermissionHandler"]:
-            if sitename in perm.origin:
-                data_dict["Permissions"].append(perm)
-
-        for pref in self.data_dict["ContentPrefHandler"]:
-            if sitename in pref.group.name:
-                data_dict["ContentPrefs"].append(pref)
+    def get_history_last_time(self):
+        history_last_time = None#
+        last_history_item = self.data_dict["HistoryVisitHandler"][-1]
+        for attr in last_history_item.attr_list:
+            if attr.name == VISITED:
+                history_last_time = attr.value
         
-        for login in self.data_dict["LoginsHandler"]:
-            if sitename in login.hostname:
-                data_dict["Logins"].append(login)
+        return history_last_time
 
-        for site in self.data_dict["HistoryVisitHandler"]:
-            for downl in self.data_dict["DownloadHandler"]:
-                if sitename in site.place.url and downl.place.id == site.place.id:
-                    data_dict["Downloads"].append(downl)
+
+    
+    def get_additional_info(self, data_type, identifier):
+        if data_type == "history":
+            data_dict = {
+                "Cookies" : [],
+                "Favicons" : [],
+                "Permissions" : [],
+                "ContentPrefs" : [],
+                "Downloads" : [],
+                "Logins" : []
+            }
+            for cookie in self.data_dict["CookieHandler"]:
+                if identifier in cookie.host:
+                    data_dict["Cookies"].append(cookie)
+
+            for favico in self.data_dict["FaviconHandler"]:
+                if identifier in favico.icon_url:
+                    data_dict["Favicons"].append(favico)
+
+            for perm in self.data_dict["PermissionHandler"]:
+                if identifier in perm.origin:
+                    data_dict["Permissions"].append(perm)
+
+            for pref in self.data_dict["ContentPrefHandler"]:
+                if identifier in pref.group.name:
+                    data_dict["ContentPrefs"].append(pref)
+            
+            for login in self.data_dict["LoginsHandler"]:
+                if identifier in login.hostname:
+                    data_dict["Logins"].append(login)
+
+            for site in self.data_dict["HistoryVisitHandler"]:
+                for downl in self.data_dict["DownloadHandler"]:
+                    if identifier in site.place.url and downl.place.id == site.place.id:
+                        data_dict["Downloads"].append(downl)
+        
+        elif data_type == "session":
+            window = None
+            for windows in self.data_dict["WindowsHandler"]:
+                if windows.id == identifier:
+                    window = windows
+            data_dict = {
+                "Tabs" : window.tabs,
+                "Session" : [window.session]
+            }
 
         return data_dict
 
@@ -88,26 +112,19 @@ class FirefoxModel:
     def get_session(self):
         return self.data_dict["WindowsHandler"]
     
-    def get_session_info(self, window_id):
-        window = None
-        for windows in self.data_dict["WindowsHandler"]:
-            if windows.id == window_id:
-                window = windows
-        data_dict = {
-            "Tabs" : window.tabs,
-            "Session" : [window.session]
-        }
-        return data_dict
-    
     def get_profile(self):
         return self.data_dict["TimesHandler"]
 
     def edit_all_data(self, delta):
         for source in self.data_dict:
-            print(source)
             for item in self.data_dict[source]:
-                print(item)
                 item.update(delta)
+
+    def edit_selected_data(self, delta, selection):
+        for selected in selection:
+            for item in self.data_dict[selected[0]]:
+                if item.id == selected[1]:
+                    item.update(delta)
 
     def get_data_header(self):
         data_header = []
@@ -142,4 +159,4 @@ class FirefoxModel:
 
     def close(self):
         for source in self.sources:
-            source.close()
+            self.sources[source].close()
