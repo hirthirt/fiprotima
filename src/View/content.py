@@ -59,7 +59,10 @@ class Content(tk.Frame):
                     for heading in headinglist[1:]:
                         infoview.heading(heading, text=heading, anchor=tk.W)
                     for item in infos[info]:
-                        infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+                        insert = infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+                        if item.is_date_changed:
+                            infoview.item(insert, tags=("edited"))
+                    infoview.tag_configure('edited', background='green')
                     infoview.pack(expand=True, fill="both")
                 else:
                     tab = ttk.Frame(self.tab_control)
@@ -81,7 +84,10 @@ class Content(tk.Frame):
                     for heading in headinglist[1:]:
                         infoview.heading(heading, text=heading, anchor=tk.W)
                     for item in infos[info]:
-                        infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+                        insert = infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+                        if item.is_date_changed:
+                            infoview.item(insert, tags=("edited"))
+                    infoview.tag_configure('edited', background='green') 
                     infoview.pack(expand=True, fill="both")
                 else:
                     tab = ttk.Frame(self.tab_control)
@@ -118,7 +124,6 @@ class Content(tk.Frame):
             insert = self.dataview.insert("", "end",  text=item.attr_list[0].value, values=tuple(values))
             if item.is_date_changed:
                 self.dataview.item(insert, tags=("edited"))
-                print(self.dataview.item(insert, "tags"))
         self.dataview.tag_configure('edited', background='green')
         if not addi_infos:
             text = "Zusätzliche Informationen nicht verfügbar!"
@@ -156,19 +161,24 @@ class Content(tk.Frame):
             lv_date = None
             for attr in entry.attr_list:
                 if attr.name == "Zuletzt besucht":
-                    lv_date = attr.value.strftime("%d.%m.%Y %H:%M")
+                    lv_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
                 elif attr.name == "Besucht am":
-                    v_date = attr.value.strftime("%d.%m.%Y %H:%M")
+                    v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
             parent = self.dataview.insert("", "end",  text=entry.place.url, tags=("bg"), values=(v_date,lv_date, entry.id))
+            if entry.is_date_changed:
+                            self.dataview.item(parent, tags=("edited"))               
             if history_data[entry]:
                 for sube in history_data[entry]:
                     v_date = None
                     lv_date = None
-                    for attr in entry.attr_list:
+                    for attr in sube.attr_list:
                         if attr.name == "Zuletzt besucht":
-                            lv_date = attr.value.strftime("%d.%m.%Y %H:%M")
+                            lv_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
                         elif attr.name == "Besucht am":
-                            v_date = attr.value.strftime("%d.%m.%Y %H:%M")
-                    self.dataview.insert(parent, "end",  text=sube.place.url, values=(v_date,lv_date, sube.id))
+                            v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
+                    child = self.dataview.insert(parent, "end",  text=sube.place.url, values=(v_date,lv_date, sube.id))
+                    if entry.is_date_changed:
+                            self.dataview.item(child, tags=("edited")) 
         self.dataview.bind('<Double-1>', self.click_column)
         self.dataview.tag_configure('bg', background='#DFDFDF')
+        self.dataview.tag_configure('edited', background='green')

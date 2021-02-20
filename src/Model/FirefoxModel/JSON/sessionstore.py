@@ -47,8 +47,8 @@ class Window(BaseJSONClass):
                     continue
                 self.is_date_changed = True
         for tab in self.tabs:
-            tab.update()
-        self.session.update()
+            tab.update(delta)
+        self.session.update(delta)
 
 
 class Tab(BaseJSONClass):
