@@ -53,23 +53,36 @@ class DataSourcesJSON:
         return name_list
 
     def rollback(self, name):
-        if name is None:
-            for source in self.sources:
-                source.rollback()
+        """Undo changes for only one source or all"""
+        if name:
+            try:
+                self.sources[name].rollback()
+            except:
+                print("Fehler beim speichern von: " + str(name))
         else:
             for source in self.sources:
-                if source.name == name:
-                    source.rollback()
+                try:
+                    self.sources[source].rollback()
+                except:
+                    print("Fehler beim Speichern von: "  + str(source))
+
 
     def commit(self, name):
-        if name is None:
-            for source in self.sources:
-                source.commit()
+        """Save changes for only one source or all"""
+        if name:
+            try:
+                self.sources[name].commit()
+            except:
+                print("Fehler beim speichern von: " + str(name))
         else:
             for source in self.sources:
-                if source.name == name:
-                    source.commit()
+                self.sources[source].commit()
+                try:
+                    pass
+                except:
+                    print("Fehler beim Speichern von: "  + str(source))
 
     def close(self):
+        """Close all connections"""
         for source in self.sources:
             self.sources[source].close()

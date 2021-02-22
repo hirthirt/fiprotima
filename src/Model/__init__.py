@@ -1,7 +1,7 @@
 import os
 import configparser
 import json
-import time
+from time import sleep
 from datetime import datetime, timedelta
 from win32file import CreateFile, SetFileTime, GetFileTime, CloseHandle
 from win32file import GENERIC_WRITE, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, FILE_SHARE_WRITE
@@ -21,11 +21,10 @@ class Model:
         if browser == "Firefox":
             messages = []
             config.set_profile_path(self.profiledict[browser][name][0])
-            config.set_cache_path(self.profiledict[browser][name][1])
-            self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
-            config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
+            config.set_cache_path(self.profiledict[browser][name][1]) 
             try:
-                pass
+                self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
+                config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             except:
                 self.browsermodel = None
                 messages.append("Firefox Daten konnten nicht geladen werden!")
@@ -39,6 +38,7 @@ class Model:
             config.profile_path = self.profiledict[browser][name]
             try:
                 self.browsermodel = EdgeModel(config.profile_path)
+                config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             except:
                 self.browsermodel = None
                 messages.append("Edge Daten konnente nicht geladen werden!")
@@ -51,11 +51,12 @@ class Model:
             messages = []
             config.set_profile_path(self.profiledict[browser][name])
             self.browsermodel = ChromeModel(config.profile_path)
+            config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             try:
                 pass
             except:
                 self.browsermodel = None
-                messages.append("Edge Daten konnente nicht geladen werden!")
+                messages.append("Chrome Daten konnente nicht geladen werden!")
             if self.browsermodel:
                 messages.append("Profildaten erfolgreich geladen")
                 return self.browsermodel.get_history(), messages
@@ -142,17 +143,23 @@ class Model:
         else:
             print("Kein Profil ausgewählt!")
 
-
+    def commit(self, name: str = None):
+        if self.browsermodel:
+            self.browsermodel.commit(name)
+        else:
+            print("Kein Profil ausgewählt!")
 
     def change_filesystem_time(self, config):
         self.browsermodel.close()
+        sleep(1)
         now_history_last_time = self.browsermodel.get_history_last_time()
+        if not now_history_last_time:
+            print("Konnte keine History finden")
         paths = [config.profile_path]
         if config.cache_path:
             paths.append(config.cache_path)
 
         if config.current_os == "Windows":
-            time = datetime(year=2021, month=1, day=1)
             delta = config.startup_history_last_time.timestamp()-now_history_last_time.timestamp()
 
             def setTime(path, delta):
@@ -168,10 +175,16 @@ class Model:
                 for root, dir, files in os.walk(path):
                     for d in dir:
                         path = os.path.join(root, d)
-                        setTime(path, delta)
+                        try:
+                            setTime(path, delta)
+                        except:
+                            print("Datei " + path + " konnten nicht editiert werden!")
                     for f in files:
                         path = os.path.join(root, f)
-                        setTime(path, delta)
+                        try:
+                            setTime(path, delta)
+                        except:
+                            print("Datei " + path + " konnten nicht editiert werden!")
 
             self.browsermodel.get_data()
 
@@ -230,7 +243,7 @@ class Model:
         if os.path.exists(chromepath):
             self.profiledict["Chrome"] = {}
             for file in os.listdir(chromepath):
-                if ("Profile" in file) or ("Default" in file):
+                if ("Profile " in file) or ("Default" in file):
                     path = chromepath + file 
                     if os.path.isfile(path + "/Preferences"):
                         data = json.load(open(path + "/Preferences", "r"))
@@ -249,7 +262,7 @@ class Model:
         if os.path.exists(edgepath):
             self.profiledict["Edge"] = {}
             for file in os.listdir(edgepath):
-                if ("Profile" in file) or ("Default" in file):
+                if ("Profile " in file) or ("Default" in file):
                     path = edgepath + file 
                     if os.path.isfile(path + "/Preferences"):
                         data = json.load(open(path + "/Preferences", "r"))

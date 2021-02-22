@@ -100,11 +100,11 @@ class LoginsHandler(BaseJSONHandler):
 
     def commit(self):
         json_logins = self.json_all["logins"]
-        for id, json_login in enumerate(json_logins):
-            json_login["timeCreated"] = self.logins[id].created_timestamp
-            json_login["timeLastUsed"] = self.logins[id].lastused_timestamp
-            json_login["timePaswordChanged"] = self.logins[id].lastpasschange_timestamp
-
+        for login in self.logins:
+            json_logins[login.id]["timeCreated"] = login.created_timestamp
+            json_logins[login.id]["timeLastUsed"] = login.lastused_timestamp
+            json_logins[login.id]["timePasswordChanged"] = login.lastpasschange_timestamp
+        
         self.json_all["logins"] = json_logins
 
         self.write_file()

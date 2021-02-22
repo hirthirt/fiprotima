@@ -177,7 +177,7 @@ class BaseJSONHandler:
     def write_file(self):
         json_dump = json.dumps(self.json_all, separators=(",", ":"))
         if self.compressed:
-            json_dump = b"mozLz40\0" + lz4.block.compress(json_dump)
+            json_dump = b"mozLz40\0" + lz4.block.compress(bytes(json_dump, encoding="utf-8"))
         self.open_file(write=True)
 
         self.file_handle.write(json_dump)

@@ -133,6 +133,10 @@ class BaseAttribute:
             self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
             milliseconds = int(microseconds / MILLI_FACTOR)
             self.timestamp = float(str(self.timestamp) + "." + str(milliseconds))
+        elif self.type == DT_SEC_DOT_MICRO:
+            microseconds = self.value.microsecond
+            self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
+            self.timestamp = float(str(self.timestamp) + "." + str(microseconds))
         elif self.type == DT_WEBKIT:
             diff = self.value - WEBKITEPOCH
             seconds_in_day = 60 * 60 * 24

@@ -342,45 +342,57 @@ class ProfileHandler(BaseJSONHandler):
 
     def commit(self):
         
-        self.json_all[
-                "account_tracker_service_last_update"
-            ] = self.profile[0].account_tracker_service_update
+        if self.profile[0].account_tracker_service_update:
+            self.json_all[
+                    "account_tracker_service_last_update"
+                ] = self.profile[0].account_tracker_service_update
         
-        self.json_all[
-                "announcement_notification_service_first_run_time"
-            ] = self.profile[0].notification_service_first_run
+        if self.profile[0].notification_service_first_run:
+            self.json_all[
+                    "announcement_notification_service_first_run_time"
+                ] = self.profile[0].notification_service_first_run
         
-        self.json_all["browser"][
-                "default_browser_infobar_last_declined"
-            ] = self.profile[0].default_browser_declined
+        if self.profile[0].default_browser_declined:
+            self.json_all["browser"][
+                    "default_browser_infobar_last_declined"
+                ] = self.profile[0].default_browser_declined
         
-        self.json_all["data_reduction"][
-            "last_update_date"] = self.profile[0].last_update
+        if self.profile[0].last_update:
+            self.json_all["data_reduction"][
+                "last_update_date"] = self.profile[0].last_update
 
-        self.json_all["domain_diversity"][
-                "last_reporting_timestamp"
-            ] = self.profile[0].domain_diversity_last_reporting
+        if self.profile[0].domain_diversity_last_reporting:
+            self.json_all["domain_diversity"][
+                    "last_reporting_timestamp"
+                ] = self.profile[0].domain_diversity_last_reporting
 
-        self.json_all["extensions"]["install_signature"][
-                "expire_date"
-            ] = self.profile[0].extension_sig_expire
+        if self.profile[0].extension_sig_expire:
+            self.json_all["extensions"]["install_signature"][
+                    "expire_date"
+                ] = self.profile[0].extension_sig_expire
 
-        self.json_all["extensions"]["install_signature"][
-                "timestamp"
-            ] = self.profile[0].extension_sig_timestamp
+        if self.profile[0].extension_sig_timestamp:
+            self.json_all["extensions"]["install_signature"][
+                    "timestamp"
+                ] = self.profile[0].extension_sig_timestamp
 
-        self.json_all["gaia_cookie"]["changed_time"] = self.profile[0].gaia_cookie_changed
+        if self.profile[0].gaia_cookie_changed:
+            self.json_all["gaia_cookie"]["changed_time"] = self.profile[0].gaia_cookie_changed
 
-        self.json_all["profile"]["creation_time"] = self.profile[0].profile_create_time
+        if self.profile[0].profile_create_time:
+            self.json_all["profile"]["creation_time"] = self.profile[0].profile_create_time
 
-        self.json_all["profile"]["last_engagement_time"] = self.profile[0].profile_last_engagement
+        if self.profile[0].profile_last_engagement:
+            self.json_all["profile"]["last_engagement_time"] = self.profile[0].profile_last_engagement
 
-        self.json_all[
-                "last_time_obsolete_http_credentials_removed"
-            ] = self.profile[0].profile_last_credential_remove
+        if self.profile[0].profile_last_credential_remove:
+            self.json_all["profile"][
+                    "last_time_obsolete_http_credentials_removed"
+                ] = self.profile[0].profile_last_credential_remove
 
-        self.json_all["safebrowsing"][
-            "metrics_last_log_time"] = self.profile[0].safebrowsing_last_log
+        if self.profile[0].safebrowsing_last_log:
+            self.json_all["safebrowsing"][
+                "metrics_last_log_time"] = self.profile[0].safebrowsing_last_log
 
         self.write_file()
 

@@ -58,23 +58,32 @@ class DataSourcesSQLite:
 
     def rollback(self, name):
         """Undo changes for only one source or all"""
-        if name is None:
-            for source in self.sources:
-                source.rollback()
+        if name:
+            try:
+                self.sources[name].rollback()
+            except:
+                print("Fehler beim speichern von: " + str(name))
         else:
             for source in self.sources:
-                if source.name == name:
-                    source.rollback()
+                try:
+                    self.sources[source].rollback()
+                except:
+                    print("Fehler beim Speichern von: "  + str(source))
+
 
     def commit(self, name):
         """Save changes for only one source or all"""
-        if name is None:
-            for source in self.sources:
-                source.commit()
+        if name:
+            try:
+                self.sources[name].commit()
+            except:
+                print("Fehler beim speichern von: " + str(name))
         else:
             for source in self.sources:
-                if source.name == name:
-                    source.commit()
+                try:
+                    self.sources[source].commit()
+                except:
+                    print("Fehler beim Speichern von: "  + str(source))
 
     def close(self):
         """Close all connections"""

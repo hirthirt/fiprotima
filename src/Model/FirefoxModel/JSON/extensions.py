@@ -170,10 +170,10 @@ class ExtensionsHandler(BaseJSONHandler):
                 json_extension["updateDate"] = self.extensions[id].update_timestamp
             if self.extensions[id].signed_timestamp:
                 json_extension["signedDate"] = self.extensions[id].signed_timestamp
-            if self.extensions[id].validenotafter_timestamp:
-                json_extension["recommendationState"]["validNotAfter"] = self.extensions[id].validenotafter_timestamp
-            if self.extensions[id].validenotbefore_timestamp:
-                json_extension["recommendationState"]["validNotBefore"] = self.extensions[id].validenotbefore_timestamp
+            if self.extensions[id].validnotafter_timestamp:
+                json_extension["recommendationState"]["validNotAfter"] = self.extensions[id].validnotafter_timestamp
+            if self.extensions[id].validnotbefore_timestamp:
+                json_extension["recommendationState"]["validNotBefore"] = self.extensions[id].validnotbefore_timestamp
 
 
         self.json_all["extensions"] = json_extensions

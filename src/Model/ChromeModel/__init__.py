@@ -95,19 +95,25 @@ class ChromeModel:
 
     def rollback(self, name: str = None):
         for source in self.sources:
-            source.rollback(name)
+            self.sources[source].rollback(name)
+        if name:
+            for item in self.data_dict[name]:
+                item.is_date_changed = False
+        else:
+            for source in self.data_dict:
+                for item in self.data_dict[source]:
+                    item.is_date_changed = False
 
     def commit(self, name: str = None):
         for source in self.sources:
-            source.commit(name)
-
-    def init_obj(self, list_=None):
-        if list_ is None:
-            return
-
-        for data in list_:
-            for obj in data:
-                obj.init()
+            self.sources[source].commit(name)
+        if name:
+            for item in self.data_dict[name]:
+                item.is_date_changed = False
+        else:
+            for source in self.data_dict:
+                for item in self.data_dict[source]:
+                    item.is_date_changed = False
 
     def close(self):
         for source in self.sources:

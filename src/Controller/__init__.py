@@ -114,6 +114,7 @@ class Controller:
 
         delta = int(years*365.24*24*60*60) + int(months*30*24*60*60) + int(days*24*60*60) + int(minutes*60) + seconds
         self.model.edit_all_data(delta)
+        self.reload_data()
 
     def edit_selected_data(self):
         # Ask for timedelta with dialog, then change all data based on this timedelta
@@ -135,6 +136,13 @@ class Controller:
             return
         self.reload_data()
 
+    def commit_all_data(self):
+        self.model.commit()
+    
+    #TODO: Get selected Dataname from View and commit only this data
+    def commit_selected_data(self):
+        pass
+    
     def change_filesystem_time(self):
         self.model.change_filesystem_time(self.config)
         try:

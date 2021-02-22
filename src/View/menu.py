@@ -9,7 +9,8 @@ class MainMenu(tk.Menu):
 
     def body(self):
         filemenu = tk.Menu(self, tearoff=0)
-        filemenu.add_command(label="Speichern")
+        filemenu.add_command(label="Alle Änderungen speichern", command=self.parent.controller.commit_all_data)
+        filemenu.add_command(label="Änderungen dieser Tabelle speichern", command=self.parent.controller.commit_selected_data)
         filemenu.add_command(label="Beenden", command=self.parent.quit)
         self.add_cascade(label="Datei", menu=filemenu)
 

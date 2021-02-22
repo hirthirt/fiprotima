@@ -74,7 +74,7 @@ class Content(tk.Frame):
         headinglist.append("data_name")
         headinglist.append("id")
         self.dataview["columns"] = tuple(headinglist[1:])
-        self.dataview["displaycolumns"] = tuple(headinglist[1:-1])
+        self.dataview["displaycolumns"] = tuple(headinglist[1:-2])
         self.dataview.heading("#0",text=headinglist[0],anchor=tk.W)
         for heading in headinglist[1:]:
             self.dataview.heading(heading, text=heading, anchor=tk.W)

@@ -90,6 +90,9 @@ class Session(BaseJSONClass):
         self.attr_list.append(BaseAttribute(STARTTIME, DT_SEC_ZEROED_MILLI, self.start_time))
     
     def update(self, delta):
+        if self.is_date_changed:
+            return
+
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
                 try:
@@ -110,7 +113,7 @@ class Session(BaseJSONClass):
                     continue
                 self.is_date_changed = True
 
-class WindowsHandler(BaseJSONHandler):
+class WindowHandler(BaseJSONHandler):
     name = "Windows"
 
     attr_names = [NAME, CLOSEDAT]
@@ -151,7 +154,7 @@ class WindowsHandler(BaseJSONHandler):
         for id, json_window in enumerate(json_windows):
             title = json_window["title"]
             closed_at = json_window["closedAt"]
-            window_type = "Geschossen"
+            window_type = "Geschlossen"
             tabs = []
             for t_id, json_tab in enumerate(json_window["tabs"]):
                 t_title = json_tab["entries"][-1]["title"]
@@ -164,13 +167,25 @@ class WindowsHandler(BaseJSONHandler):
         return self.windows
 
     def commit(self):
-        json_windows = self.json_all["windows"]
-        for id, json_login in enumerate(json_windows):
-            json_login["timeCreated"] = self.windows[id].created_timestamp
-            json_login["timeLastUsed"] = self.windows[id].lastused_timestamp
-            json_login["timePaswordChanged"] = self.windows[id].lastpasschange_timestamp
+        for window in self.windows:
+            if window.window_type == "Geöffnet":
+                json_window = self.json_all["windows"][window.id]
+                json_tabs = json_window["tabs"]
+            else:
+                json_window = self.json_all["_closedWindows"][window.id]
+                json_tabs = self.json_all["_closedWindows"][window.id]["tabs"]
+            json_window["closedAt"] = window.closed_at
+            for tab in window.tabs:
+                json_tabs[tab.id]["lastAccessed"] = tab.last_accessed
 
-        self.json_all["windows"] = json_windows
+            json_window["tabs"] = json_tabs
+            if window.window_type == "Geöffnet":
+                self.json_all["windows"][window.id] = json_window
+            else:
+                self.json_all["_closedWindows"][window.id] = json_window
+
+        self.json_all["session"]["lastUpdate"] = self.windows[0].session.last_update
+        self.json_all["session"]["startTime"] = self.windows[0].session.start_time
 
         self.write_file()
 
