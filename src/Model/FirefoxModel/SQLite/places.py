@@ -20,8 +20,6 @@ VISITED = "Besucht am"
 ADDEDAT = "Hinzugefügt am"
 LASTMODIFIED = "Geändert am"
 
-# TODO: Add download annotations
-
 class Place(BaseSession, BaseSQLiteClass):
     __tablename__ = "moz_places"
 
