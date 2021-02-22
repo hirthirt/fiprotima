@@ -29,15 +29,32 @@ class Favicon(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.urls.url))
         self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))
         self.attr_list.append(BaseAttribute(LASTREQUESTED, DT_WEBKIT, self.last_requested))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
-                self.expiry_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_updated = attr.timestamp
+                except:
+                    print("Fehler bei Update in Favicon für " + attr.name)
+                    continue
+                self.is_date_changed = True
+            if attr.name == LASTREQUESTED:
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_requested = attr.timestamp
+                except:
+                    print("Fehler bei Update in Favicon für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class FaviconUrls(BaseSession, BaseSQLiteClass):
@@ -46,7 +63,7 @@ class FaviconUrls(BaseSession, BaseSQLiteClass):
     url = Column("url", String)
 
 
-class FaviconsHandler(BaseSQliteHandler):
+class FaviconHandler(BaseSQliteHandler):
     name = "Favicons"
 
     attr_names = [URL, LASTUPDATED, LASTREQUESTED]

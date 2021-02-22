@@ -19,22 +19,35 @@ class Login(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.origin_url))
         self.attr_list.append(BaseAttribute(CREATEDAT, DT_WEBKIT, self.date_created))
         self.attr_list.append(BaseAttribute(LASTUSED, DT_WEBKIT, self.date_last_used))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
-                self.date_created = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.date_created = attr.timestamp
+                except:
+                    print("Fehler bei Update in  Login für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTUSED:
-                self.date_last_used = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.date_last_used = attr.timestamp
+                except:
+                    print("Fehler bei Update in  Login für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
-
-class CompromisedCredetials(BaseSession, BaseSQLiteClass):
+class CompromisedCredetial(BaseSession, BaseSQLiteClass):
     __tablename__ = "compromised_credentials"
 
     url = Column("url", String)
@@ -43,6 +56,7 @@ class CompromisedCredetials(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.id = random.randint(0, 9999999999999)
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.url))
@@ -50,12 +64,18 @@ class CompromisedCredetials(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(CREATEDAT, DT_WEBKIT, self.date_created))
 
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
-                self.date_created = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.date_created = attr.timestamp
+                except:
+                    print("Fehler bei Update in  CompromisedCredentials für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 class LoginDataHandler(BaseSQliteHandler):
     name = "Login"
@@ -79,10 +99,10 @@ class LoginHandler(LoginDataHandler):
         logins = self.session.query(Login).order_by(Login.id).all()
         return logins
 
-class CompromisedCredentialsHandler(LoginDataHandler):
+class CompromisedCredentialHandler(LoginDataHandler):
     name = "CompromisedCredentials"
 
 
     def get_all_id_ordered(self):
-        logins = self.session.query(CompromisedCredetials).all()
+        logins = self.session.query(CompromisedCredetial).all()
         return logins

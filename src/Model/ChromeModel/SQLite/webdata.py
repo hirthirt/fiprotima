@@ -28,17 +28,29 @@ class Autofill(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(CREATEDAT, DT_SEC, self.date_created))
         self.attr_list.append(BaseAttribute(LASTUSED, DT_SEC, self.date_last_used))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
-                self.date_created = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.date_created = attr.timestamp
+                except:
+                    print("Fehler bei Update in Autofill für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTUSED:
-                self.date_last_used = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.date_last_used = attr.timestamp
+                except:
+                    print("Fehler bei Update in Autofill für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
-
-class Keywords(BaseSession, BaseSQLiteClass):
+class Keyword(BaseSession, BaseSQLiteClass):
     __tablename__ = "keywords"
 
     id = Column("id", Integer, primary_key=True)
@@ -50,6 +62,7 @@ class Keywords(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(KEYWORD, OTHER, self.keyword))
         self.attr_list.append(BaseAttribute(CREATEDAT, DT_WEBKIT, self.date_created))
@@ -57,16 +70,36 @@ class Keywords(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTVISITED, DT_WEBKIT, self.last_visited))
 
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
-                self.date_created = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.date_created = attr.timestamp
+                except:
+                    print("Fehler bei Update in KeyWord für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTMODIFIED:
-                self.last_modified = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_modified = attr.timestamp
+                except:
+                    print("Fehler bei Update in KeyWord für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTVISITED:
-                self.last_visited = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_visited = attr.timestamp
+                except:
+                    print("Fehler bei Update in KeyWord für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 class WebDataHandler(BaseSQliteHandler):
     name = "WebData"
@@ -93,5 +126,5 @@ class KeywordHandler(WebDataHandler):
 
 
     def get_all_id_ordered(self):
-        keywords = self.session.query(Keywords).all()
+        keywords = self.session.query(Keyword).all()
         return keywords

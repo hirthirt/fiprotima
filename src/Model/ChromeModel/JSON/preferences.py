@@ -92,6 +92,7 @@ class Profile(BaseJSONClass):
         self.init()
 
     def init(self):
+        self.is_date_changed = False
         self.id = random.randint(0,99)
         self.attr_list = []
         if self.profile_create_time:
@@ -121,32 +122,116 @@ class Profile(BaseJSONClass):
         
 
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == PROFILECREATED:
-                self.profile_create_time = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.profile_create_time = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == PROFILEENGAGEMENT:
-                self.profile_last_engagement = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.profile_last_engagement = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTCREDREMOVED:
-                self.profile_last_credential_remove = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.profile_last_credential_remove = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == ACCTRKUPDATE:
-                self.account_tracker_service_update = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.account_tracker_service_update = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == NOTIFSERVICEFIRSTRUN:
-                self.notification_service_first_run = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.notification_service_first_run = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == DEFBROLASTDECLINED:
-                self.default_browser_declined = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.default_browser_declined = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTUPDATE:
-                self.last_update = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_update = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTREPORT:
-                self.domain_diversity_last_reporting = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.domain_diversity_last_reporting = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == EXTSIGEXPIRE:
-                self.extension_sig_expire = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.extension_sig_expire = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == EXTSIGTIME:
-                self.extension_sig_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.extension_sig_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == GAIACOOKIECHANGED:
-                self.gaia_cookie_changed = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.gaia_cookie_changed = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
             if attr.name == LASTSAFEBROWSLOGTIME:
-                self.safebrowsing_last_log = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.safebrowsing_last_log = attr.timestamp
+                except:
+                    print("Fehler bei Update in Profil für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class ProfileHandler(BaseJSONHandler):

@@ -7,7 +7,7 @@ URL = "Url"
 PATH = "Pfad"
 LASTUPDATED = "Zuletzt aktualisiert"
 
-
+# TODO: Check if its better to edit timestamps for Playback if Origin is edited
 class Origin(BaseSession, BaseSQLiteClass):
     __tablename__ = "origin"
 
@@ -24,12 +24,18 @@ class Origin(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))
 
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
-                self.last_updated = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_updated = attr.timestamp
+                except:
+                    print("Fehler bei Update in Origin/MediaHistory für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 
 class Playback(BaseSession, BaseSQLiteClass):
@@ -43,17 +49,24 @@ class Playback(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.url))
         self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))
 
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
-                self.last_updated = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_updated = attr.timestamp
+                except:
+                    print("Fehler bei Update in Playback/MediaHistory für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 class PlaybackSession(BaseSession, BaseSQLiteClass):
     __tablename__ = "playbackSession"
@@ -71,14 +84,20 @@ class PlaybackSession(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))
 
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
-                self.last_updated = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_updated = attr.timestamp
+                except:
+                    print("Fehler bei Update in PlaybackSession/MediaHistory für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
-class MediaHistoryHandler(BaseSQliteHandler):
+class OriginHandler(BaseSQliteHandler):
     name = "Login"
 
     attr_names = [URL]

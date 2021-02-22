@@ -8,6 +8,7 @@ from os.path import exists, isfile, join
 
 # Base needed for sqlalchemy
 BaseSession = declarative_base()
+BaseSessionTwo = declarative_base()
 
 EPOCH = datetime(1970, 1, 1)
 WEBKITEPOCH = datetime(1601, 1, 1)
@@ -95,28 +96,39 @@ class BaseAttribute:
         if self.type == OTHER or self.type == DT_ZERO:
             return
 
-        microseconds = self.value.microsecond
-        self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
-
         if self.type == DT_MICRO:
+            microseconds = self.value.microsecond
+            self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
             self.timestamp = (self.timestamp * MICRO_FACTOR) + microseconds
         elif self.type == DT_MILLI_ZEROED_MICRO:
             # Zeroing out the last three numbers
+            microseconds = self.value.microsecond
+            self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
             microseconds = int(microseconds / MILLI_FACTOR) * MILLI_FACTOR
             self.timestamp = (self.timestamp * MICRO_FACTOR) + microseconds
         elif self.type == DT_MILLI:
+            microseconds = self.value.microsecond
+            self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
             milliseconds = int(microseconds / MILLI_FACTOR)
             self.timestamp = (self.timestamp * MILLI_FACTOR) + milliseconds
         elif self.type == DT_SEC_DOT_MILLI:
+            microseconds = self.value.microsecond
+            self.timestamp = int(datetime.timestamp(self.value.replace(tzinfo=timezone.utc)))
             milliseconds = int(microseconds / MILLI_FACTOR)
             self.timestamp = float(str(self.timestamp) + "." + str(milliseconds))
+        elif self.type == DT_WEBKIT:
+            diff = self.value - WEBKITEPOCH
+            seconds_in_day = 60 * 60 * 24
+            self.timestamp = (diff.days * seconds_in_day + diff.seconds) * 1000000  + diff.microseconds
+        elif self.type == DT_STRING:
+            self.timestamp = datetime.strftime(self.value, "%a, %d %b %Y %H:%M:%S %Z")
 
-    def set_date(self, date: datetime):
+    def change_date(self, delta):
         """Override value with datetime"""
         if self.type == OTHER:
             return
 
-        self.value = date
+        self.value = datetime.fromtimestamp(self.value.timestamp() - delta)
 
     def is_other(self):
         """Check if attribute is datetime or other type like string"""
@@ -170,3 +182,5 @@ class BaseSQliteHandler:
 
     def close(self):
         self.session.close()
+
+    

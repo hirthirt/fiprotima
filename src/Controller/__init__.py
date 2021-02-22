@@ -80,6 +80,11 @@ class Controller:
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
+        elif data_view == "keywords":
+            data = self.model.get_keywords()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
 
     def load_additional_info(self, a):
         if self.view.content.dataview_mode == "history":

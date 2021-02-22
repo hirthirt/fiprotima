@@ -68,4 +68,4 @@ class DataSourcesJSON:
 
     def close(self):
         for source in self.sources:
-            source.close()
+            self.sources[source].close()

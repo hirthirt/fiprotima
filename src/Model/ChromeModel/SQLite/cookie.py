@@ -24,6 +24,7 @@ class Cookie(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.id = random.randint(0, 9999999999999)
         self.attr_list = []
         self.attr_list.append(BaseAttribute(HOST, OTHER, self.host))
@@ -33,16 +34,35 @@ class Cookie(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_WEBKIT, self.expiry_timestamp))
         self.attr_list.append(BaseAttribute(LASTACCESSAT, DT_WEBKIT, self.last_accessed_timestamp))    
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
-                self.expiry_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.expiry_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Cookie für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTACCESSAT:
-                self.last_accessed_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_accessed_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Cookie für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == CREATEDAT:
-                self.creation_timestamp = attr.timestamp
-
-        self.init()
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.creation_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Cookie für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class CookieHandler(BaseSQliteHandler):

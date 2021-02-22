@@ -12,7 +12,7 @@ LASTACCESSAT = "Letzter Zugriff"
 CREATEDAT = "Erstellt am"
 
 
-class ExtensionCookie(BaseSession, BaseSQLiteClass):
+class ExtensionCookie(BaseSessionTwo, BaseSQLiteClass):
     __tablename__ = "cookies"
 
     host = Column("host_key", String)
@@ -24,6 +24,7 @@ class ExtensionCookie(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.id = random.randint(0, 9999999999999)
         self.attr_list = []
         self.attr_list.append(BaseAttribute(HOST, OTHER, self.host))
@@ -34,19 +35,39 @@ class ExtensionCookie(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTACCESSAT, DT_WEBKIT, self.last_accessed_timestamp))
         
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
-                self.expiry_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.expiry_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in ExtensionCookie für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTACCESSAT:
-                self.last_accessed_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_accessed_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in ExtensionCookie für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == CREATEDAT:
-                self.creation_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.creation_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in ExtensionCookie für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
-        self.init()
 
 
-class ExtensionCookiesHandler(BaseSQliteHandler):
+class ExtensionCookieHandler(BaseSQliteHandler):
     name = "Extension Cookies"
 
     attr_names = [ID, HOST, PATH, EXPIRYAT, LASTACCESSAT, CREATEDAT]

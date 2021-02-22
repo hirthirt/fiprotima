@@ -123,6 +123,13 @@ class Model:
             data = None
         return data
 
+    def get_keywords(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_keywords()
+        else:
+            data = None
+        return data
+    
     def edit_all_data(self, delta):
         if self.browsermodel:
             self.browsermodel.edit_all_data(delta)

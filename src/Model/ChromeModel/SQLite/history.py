@@ -47,8 +47,8 @@ class Visits(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
-
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
         self.attr_list.append(
@@ -56,14 +56,26 @@ class Visits(BaseSession, BaseSQLiteClass):
         )
         self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_timestamp))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
-                self.url.last_visited_timestamp = attr.timestamp
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.place.last_visited_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Visits/History für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == VISITED:
-                self.visit_timestamp = attr.timestamp
-
-        self.init()
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.visit_timestamp = attr.timestamp
+                except:
+                    print("Fehler bei Update in Visits/History für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class Download(BaseSession, BaseSQLiteClass):
@@ -78,6 +90,7 @@ class Download(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(FILE, OTHER, self.target_path))
         self.attr_list.append(BaseAttribute(URL, OTHER, self.referrer))
@@ -85,15 +98,35 @@ class Download(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(ENDTIME, DT_WEBKIT, self.end_time))
         self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_STRING, self.last_modified))
 
-    def update(self):
+    def update(self, delta):
         for attr in self.attr_list:
-            if attr.name == ADDEDAT:
-                self.added_timestamp = attr.timestamp
+            if attr.name == STARTTIME:
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.start_time = attr.timestamp
+                except:
+                    print("Fehler bei Update in Downloads für " + attr.name)
+                    continue
+                self.is_date_changed = True
+            if attr.name == ENDTIME:
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.end_time = attr.timestamp
+                except:
+                    print("Fehler bei Update in Downloads für " + attr.name)
+                    continue
+                self.is_date_changed = True
             elif attr.name == LASTMODIFIED:
-                self.last_modified_timestamp = attr.timestamp
-
-        self.init()
-
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.last_modified = attr.timestamp
+                except:
+                    print("Fehler bei Update in Downloads für " + attr.name)
+                    continue
+                self.is_date_changed = True
 
 
 class HistoryHandler(BaseSQliteHandler):
