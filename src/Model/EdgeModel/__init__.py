@@ -2,6 +2,8 @@ from Model.EdgeModel.JSON import DataSourcesJSON
 from Model.EdgeModel.SQLite import DataSourcesSQLite
 from Model.EdgeModel.Cache import DataSourcesCache
 
+from Model.EdgeModel.SQLite.history import VISITED
+
 class EdgeModel:
 
     def __init__(self, profile_path: str = None):
@@ -15,7 +17,7 @@ class EdgeModel:
         #self.sources["Cache"] = DataSourcesCache(cache_path)
 
         self.data_dict = self.get_data()
-        #
+        
 
     def get_data(self):
         data_dict = {}
@@ -34,33 +36,34 @@ class EdgeModel:
                         histroy_tree[tree_entry].append(entry)
         return histroy_tree
 
-    def get_additional_info(self, sitename):
-        data_dict = {
-            "Cookies" : [],
-            "Favicons" : [],
-            #"Permissions" : [],
-            "ContentPrefs" : [],
-            "Downloads" : []
-        }
-        for cookie in self.data_dict["CookieHandler"]:
-            if sitename in cookie.host:
-                data_dict["Cookies"].append(cookie)
+    def get_history_last_time(self):
+        history_last_time = None#
+        last_history_item = self.data_dict["VisitsHandler"][-1]
+        for attr in last_history_item.attr_list:
+            if attr.name == VISITED:
+                history_last_time = attr.value
+        
+        return history_last_time
 
-        for favico in self.data_dict["FaviconsHandler"]:
-            if sitename in favico.urls.url:
-                data_dict["Favicons"].append(favico)
+    def get_additional_info(self, data_type, identifier):
+        if data_type == "history":
+            data_dict = {
+                "Cookies" : [],
+                "Favicons" : [],
+                "ContentPrefs" : [],
+                "Downloads" : []
+            }
+            for cookie in self.data_dict["CookieHandler"]:
+                if identifier in cookie.host:
+                    data_dict["Cookies"].append(cookie)
 
-        #for perm in self.data_dict["PermissionHandler"]:
-        #    if sitename in perm.origin:
-        #        data_dict["Permissions"].append(perm)
+            for favico in self.data_dict["FaviconHandler"]:
+                if identifier in favico.urls.url:
+                    data_dict["Favicons"].append(favico)
 
-        #for pref in self.data_dict["ContentPrefHandler"]:
-        #    if sitename in pref.group.name:
-        #        data_dict["ContentPrefs"].append(pref)
-
-        for downl in self.data_dict["DownloadHandler"]:
-            if sitename in downl.referrer:
-                data_dict["Downloads"].append(downl)
+            for downl in self.data_dict["DownloadHandler"]:
+                if identifier in downl.referrer:
+                    data_dict["Downloads"].append(downl)
 
         return data_dict
 
@@ -73,37 +76,45 @@ class EdgeModel:
     def get_bookmarks(self):
         return self.data_dict["BookmarkHandler"]
 
-    def get_data_header(self):
-        data_header = []
-        for source in self.sources:
-            for header in source.get_data_header():
-                data_header.append(header)
+    def get_profile(self):
+        return self.data_dict["ProfileHandler"]
 
-        return data_header
+    def get_keywords(self):
+        return self.data_dict["KeywordHandler"]
 
-    def get_names(self):
-        name_list = []
-        for source in self.sources:
-            for name in source.get_names():
-                name_list.append(name)
-        return name_list
+    def edit_all_data(self, delta):
+        for source in self.data_dict:
+            for item in self.data_dict[source]:
+                item.update(delta)
+
+    def edit_selected_data(self, delta, selection):
+        for selected in selection:
+            for item in self.data_dict[selected[0]]:
+                if item.id == selected[1]:
+                    item.update(delta)
 
     def rollback(self, name: str = None):
         for source in self.sources:
-            source.rollback(name)
+            self.sources[source].rollback(name)
+        if name:
+            for item in self.data_dict[name]:
+                item.is_date_changed = False
+        else:
+            for source in self.data_dict:
+                for item in self.data_dict[source]:
+                    item.is_date_changed = False
 
     def commit(self, name: str = None):
         for source in self.sources:
-            source.commit(name)
-
-    def init_obj(self, list_=None):
-        if list_ is None:
-            return
-
-        for data in list_:
-            for obj in data:
-                obj.init()
+            self.sources[source].commit(name)
+        if name:
+            for item in self.data_dict[name]:
+                item.is_date_changed = False
+        else:
+            for source in self.data_dict:
+                for item in self.data_dict[source]:
+                    item.is_date_changed = False
 
     def close(self):
         for source in self.sources:
-            source.close()
+            self.sources[source].close()

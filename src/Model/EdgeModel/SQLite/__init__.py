@@ -8,10 +8,15 @@ class DataSourcesSQLite:
 
         # Create list of module names and handlers, that we need
         source_names.append(["Model.EdgeModel.SQLite.cookie", "CookieHandler"])
-        source_names.append(["Model.EdgeModel.SQLite.favicons", "FaviconsHandler"])
-        #source_names.append(["Model.EdgeModel.SQLite.formhistory", "FormHistoryHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.favicons", "FaviconHandler"])
         source_names.append(["Model.EdgeModel.SQLite.history", "VisitsHandler"])
         source_names.append(["Model.EdgeModel.SQLite.history", "DownloadHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.extensioncookies", "ExtensionCookieHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.mediahistory", "OriginHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.webdata", "AutofillHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.webdata", "KeywordHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.logindata", "LoginHandler"])
+        source_names.append(["Model.EdgeModel.SQLite.logindata", "CompromisedCredentialHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]
@@ -60,25 +65,34 @@ class DataSourcesSQLite:
 
     def rollback(self, name):
         """Undo changes for only one source or all"""
-        if name is None:
-            for source in self.sources:
-                source.rollback()
+        if name:
+            try:
+                self.sources[name].rollback()
+            except:
+                print("Fehler beim speichern von: " + str(name))
         else:
             for source in self.sources:
-                if source.name == name:
-                    source.rollback()
+                try:
+                    self.sources[source].rollback()
+                except:
+                    print("Fehler beim Speichern von: "  + str(source))
+
 
     def commit(self, name):
         """Save changes for only one source or all"""
-        if name is None:
-            for source in self.sources:
-                source.commit()
+        if name:
+            try:
+                self.sources[name].commit()
+            except:
+                print("Fehler beim speichern von: " + str(name))
         else:
             for source in self.sources:
-                if source.name == name:
-                    source.commit()
+                try:
+                    self.sources[source].commit()
+                except:
+                    print("Fehler beim Speichern von: "  + str(source))
 
     def close(self):
         """Close all connections"""
         for source in self.sources:
-            source.close()
+            self.sources[source].close()

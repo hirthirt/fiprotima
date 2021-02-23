@@ -4,7 +4,7 @@ import random
 from Model.EdgeModel.SQLite.base import *
 
 ID = "ID"
-HOST = "Host"
+HOST = "Erweiterung"
 NAME = "Name"
 PATH = "Pfad"
 EXPIRYAT = "Ungueltig ab"
@@ -12,7 +12,7 @@ LASTACCESSAT = "Letzter Zugriff"
 CREATEDAT = "Erstellt am"
 
 
-class Cookie(BaseSession, BaseSQLiteClass):
+class ExtensionCookie(BaseSessionTwo, BaseSQLiteClass):
     __tablename__ = "cookies"
 
     host = Column("host_key", String)
@@ -32,7 +32,8 @@ class Cookie(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(PATH, OTHER, self.path))
         self.attr_list.append(BaseAttribute(CREATEDAT, DT_WEBKIT, self.creation_timestamp))
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_WEBKIT, self.expiry_timestamp))
-        self.attr_list.append(BaseAttribute(LASTACCESSAT, DT_WEBKIT, self.last_accessed_timestamp))    
+        self.attr_list.append(BaseAttribute(LASTACCESSAT, DT_WEBKIT, self.last_accessed_timestamp))
+        
 
     def update(self, delta):
         for attr in self.attr_list:
@@ -42,7 +43,7 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.expiry_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Cookie für " + attr.name)
+                    print("Fehler bei Update in ExtensionCookie für " + attr.name)
                     continue
                 self.is_date_changed = True
             elif attr.name == LASTACCESSAT:
@@ -51,7 +52,7 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_accessed_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Cookie für " + attr.name)
+                    print("Fehler bei Update in ExtensionCookie für " + attr.name)
                     continue
                 self.is_date_changed = True
             elif attr.name == CREATEDAT:
@@ -60,24 +61,25 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.creation_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Cookie für " + attr.name)
+                    print("Fehler bei Update in ExtensionCookie für " + attr.name)
                     continue
                 self.is_date_changed = True
 
 
-class CookieHandler(BaseSQliteHandler):
-    name = "Cookies"
+
+class ExtensionCookieHandler(BaseSQliteHandler):
+    name = "Extension Cookies"
 
     attr_names = [ID, HOST, PATH, EXPIRYAT, LASTACCESSAT, CREATEDAT]
 
     def __init__(
         self,
         profile_path: str,
-        file_name: str = "Cookies",
+        file_name: str = "Extension Cookies",
         logging: bool = False,
     ):
         super().__init__(profile_path, file_name, logging)
 
     def get_all_id_ordered(self):
-        query = self.session.query(Cookie)
+        query = self.session.query(ExtensionCookie)
         return query.all()
