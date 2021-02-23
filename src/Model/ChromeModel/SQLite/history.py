@@ -96,7 +96,10 @@ class Download(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(URL, OTHER, self.referrer))
         self.attr_list.append(BaseAttribute(STARTTIME, DT_WEBKIT, self.start_time))
         self.attr_list.append(BaseAttribute(ENDTIME, DT_WEBKIT, self.end_time))
-        self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_STRING, self.last_modified))
+        if self.last_modified:
+            self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_STRING, self.last_modified))
+        else:
+            self.attr_list.append(BaseAttribute(LASTMODIFIED, OTHER, "None"))
 
     def update(self, delta):
         for attr in self.attr_list:

@@ -18,6 +18,8 @@ class Model:
 
     
     def load_profile(self, browser, name, config):
+        if self.browsermodel:
+            self.browsermodel.close()
         if browser == "Firefox":
             messages = []
             config.set_profile_path(self.profiledict[browser][name][0])

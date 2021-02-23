@@ -113,6 +113,8 @@ class Content(tk.Frame):
         self.tab_control = ttk.Notebook(self)
         self.tab_control.pack(side=tk.BOTTOM, expand=True, fill="both") 
         
+        if history_data == "None":
+            return
 
         self.dataview["columns"]=("visit","l_visit", "data_name", "id")
         self.dataview["displaycolumns"] = ("visit","l_visit")

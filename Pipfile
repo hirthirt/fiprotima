@@ -13,6 +13,7 @@ tksheet = "*"
 tkcalendar = "*"
 python-dateutil = "*"
 lz4 = "*"
+pywin32 = "*"
 
 [requires]
 python_version = "3.8"

@@ -47,6 +47,8 @@ class SideBar(tk.Frame):
             data = self.parent.controller.load_profile(browser, profile_name)
             if data:
                 self.parent.content.fillHistroyData(data)
+            else:
+                self.parent.content.fillHistroyData("None")
 
     def insert_profiles_to_treeview(self):
         for child in self.tree.get_children():
