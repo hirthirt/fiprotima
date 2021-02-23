@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from Model.FirefoxModel.JSON import DataSourcesJSON
 from Model.FirefoxModel.SQLite import DataSourcesSQLite
 from Model.FirefoxModel.Cache import DataSourcesCache
@@ -40,11 +42,14 @@ class FirefoxModel:
         return histroy_tree
 
     def get_history_last_time(self):
-        history_last_time = None#
-        last_history_item = self.data_dict["HistoryVisitHandler"][-1]
-        for attr in last_history_item.attr_list:
-            if attr.name == VISITED:
-                history_last_time = attr.value
+        history_last_time = None
+        try:
+            last_history_item = self.data_dict["HistoryVisitHandler"][-1]
+            for attr in last_history_item.attr_list:
+                if attr.name == VISITED:
+                    history_last_time = attr.value
+        except:
+            history_last_time = datetime.now()
         
         return history_last_time
 
@@ -60,30 +65,49 @@ class FirefoxModel:
                 "Downloads" : [],
                 "Logins" : []
             }
-            for cookie in self.data_dict["CookieHandler"]:
-                if identifier in cookie.host:
-                    data_dict["Cookies"].append(cookie)
 
-            for favico in self.data_dict["FaviconHandler"]:
-                if identifier in favico.icon_url:
-                    data_dict["Favicons"].append(favico)
+            try:
+                for cookie in self.data_dict["CookieHandler"]:
+                    if identifier in cookie.host:
+                        data_dict["Cookies"].append(cookie)
+            except:
+                print("Keine Cookies gefunden!")
 
-            for perm in self.data_dict["PermissionHandler"]:
-                if identifier in perm.origin:
-                    data_dict["Permissions"].append(perm)
-
-            for pref in self.data_dict["ContentPrefHandler"]:
-                if identifier in pref.group.name:
-                    data_dict["ContentPrefs"].append(pref)
+            try:
+                for favico in self.data_dict["FaviconHandler"]:
+                    if identifier in favico.icon_url:
+                        data_dict["Favicons"].append(favico)
+            except:
+                print("Keine Favicon gefunden")
             
-            for login in self.data_dict["LoginsHandler"]:
-                if identifier in login.hostname:
-                    data_dict["Logins"].append(login)
+            try:
+                for perm in self.data_dict["PermissionHandler"]:
+                    if identifier in perm.origin:
+                        data_dict["Permissions"].append(perm)
+            except:
+                print("Keine Permissions gefunden!")
 
-            for site in self.data_dict["HistoryVisitHandler"]:
-                for downl in self.data_dict["DownloadHandler"]:
-                    if identifier in site.place.url and downl.place.id == site.place.id:
-                        data_dict["Downloads"].append(downl)
+            try:
+                for pref in self.data_dict["ContentPrefHandler"]:
+                    if identifier in pref.group.name:
+                        data_dict["ContentPrefs"].append(pref)
+            except:
+                print("Keine ContentPrefs gefunden")
+            
+            try:
+                for login in self.data_dict["LoginsHandler"]:
+                    if identifier in login.hostname:
+                        data_dict["Logins"].append(login)
+            except:
+                print("Keine Logins gefunden")
+
+            try:
+                for site in self.data_dict["HistoryVisitHandler"]:
+                    for downl in self.data_dict["DownloadHandler"]:
+                        if identifier in site.place.url and downl.place.id == site.place.id:
+                            data_dict["Downloads"].append(downl)
+            except:
+                print("Keine Downloads gefunden")
         
         elif data_type == "session":
             window = None

@@ -40,7 +40,11 @@ def webit_to_datetime(microsecond):
     Creates datetime form a webkit timestamp.
     Webkit is microseconds since 1.1.1601
     """
-    return WEBKITEPOCH + timedelta(microseconds=microsecond)
+    try:
+        date_time = WEBKITEPOCH + timedelta(microseconds=microsecond)
+    except:
+        date_time = WEBKITEPOCH + timedelta(microseconds=microsecond/10)
+    return date_time
 
 def webit_seconds_to_datetime(seconds):
     """

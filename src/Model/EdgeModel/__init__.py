@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from Model.EdgeModel.JSON import DataSourcesJSON
 from Model.EdgeModel.SQLite import DataSourcesSQLite
 from Model.EdgeModel.Cache import DataSourcesCache
@@ -38,10 +40,13 @@ class EdgeModel:
 
     def get_history_last_time(self):
         history_last_time = None#
-        last_history_item = self.data_dict["VisitsHandler"][-1]
-        for attr in last_history_item.attr_list:
-            if attr.name == VISITED:
-                history_last_time = attr.value
+        try:
+            last_history_item = self.data_dict["VisitsHandler"][-1]
+            for attr in last_history_item.attr_list:
+                if attr.name == VISITED:
+                    history_last_time = attr.value
+        except:
+            history_last_time = datetime.now()
         
         return history_last_time
 

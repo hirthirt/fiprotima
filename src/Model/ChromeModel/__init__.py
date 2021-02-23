@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from Model.ChromeModel.JSON import DataSourcesJSON
 from Model.ChromeModel.SQLite import DataSourcesSQLite
 from Model.ChromeModel.Cache import DataSourcesCache
@@ -37,11 +39,14 @@ class ChromeModel:
         return histroy_tree
 
     def get_history_last_time(self):
-        history_last_time = None#
-        last_history_item = self.data_dict["VisitsHandler"][-1]
-        for attr in last_history_item.attr_list:
-            if attr.name == VISITED:
-                history_last_time = attr.value
+        history_last_time = None
+        try:
+            last_history_item = self.data_dict["VisitsHandler"][-1]
+            for attr in last_history_item.attr_list:
+                if attr.name == VISITED:
+                    history_last_time = attr.value
+        except:
+            last_history_item = datetime.now()
         
         return history_last_time
 
