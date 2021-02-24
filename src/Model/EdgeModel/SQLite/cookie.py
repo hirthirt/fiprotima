@@ -35,6 +35,9 @@ class Cookie(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTACCESSAT, DT_WEBKIT, self.last_accessed_timestamp))    
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Cookie")
+            return
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
                 try:

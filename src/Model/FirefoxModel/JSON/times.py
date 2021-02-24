@@ -29,6 +29,9 @@ class Times(BaseJSONClass):
         self.attr_list.append(BaseAttribute(FIRSTUSE, DT_SEC_ZEROED_MILLI, self.first_use))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Times")
+            return
         for attr in self.attr_list:
             if attr.name == CREATEDDATE:
                 try:

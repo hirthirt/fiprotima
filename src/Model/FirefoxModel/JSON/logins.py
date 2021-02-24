@@ -34,6 +34,9 @@ class Login(BaseJSONClass):
         self.attr_list.append(BaseAttribute(LASTPASSCHANGED, DT_SEC_ZEROED_MILLI, self.lastpasschange_timestamp))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Login")
+            return
         for attr in self.attr_list:
             if attr.name == CREATEDDATE:
                 try:

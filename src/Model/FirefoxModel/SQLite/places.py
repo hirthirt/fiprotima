@@ -48,18 +48,33 @@ class HistoryVisit(BaseSession, BaseSQLiteClass):
         self.attr_list.append(
             BaseAttribute(LASTVISITED, DT_MICRO, self.place.last_visited_timestamp)
         )
+    
+    def reload_attributes(self):
+        self.attr_list = []
+        self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
+        self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
+        self.attr_list.append(BaseAttribute(VISITED, DT_MICRO, self.visit_timestamp))
+        self.attr_list.append(
+            BaseAttribute(LASTVISITED, DT_MICRO, self.place.last_visited_timestamp)
+        )
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Historie")
+            return
+        visited_safe = self.visit_timestamp
+        last_visited_safe = self.place.last_visited_timestamp
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
-                try:
-                    attr.change_date(delta)
-                    attr.date_to_timestamp()
-                    self.place.last_visited_timestamp = attr.timestamp
-                except:
-                    print("Fehler bei Update in HistoryVisit für " + attr.name)
-                    continue
-                self.is_date_changed = True
+                if visited_safe == last_visited_safe:
+                    try:
+                        attr.change_date(delta)
+                        attr.date_to_timestamp()
+                        self.place.last_visited_timestamp = attr.timestamp
+                    except:
+                        print("Fehler bei Update in HistoryVisit für " + attr.name)
+                        continue
+                    self.is_date_changed = True
             elif attr.name == VISITED:
                 try:
                     attr.change_date(delta)
@@ -101,6 +116,9 @@ class Bookmark(BaseSession, BaseSQLiteClass):
         )
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Bookmark")
+            return
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
                 try:
@@ -153,6 +171,9 @@ class Download(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_MILLI_ZEROED_MICRO, self.last_modified_timestamp))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Download")
+            return
         for attr in self.attr_list:
             if attr.name == ADDEDAT:
                 try:

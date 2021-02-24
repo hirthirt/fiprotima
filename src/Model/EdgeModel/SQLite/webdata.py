@@ -29,6 +29,9 @@ class Autofill(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTUSED, DT_SEC, self.date_last_used))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Autofill")
+            return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
                 try:
@@ -71,6 +74,9 @@ class Keyword(BaseSession, BaseSQLiteClass):
 
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Keyword")
+            return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
                 try:

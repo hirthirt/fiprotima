@@ -32,6 +32,9 @@ class FormHistory(BaseSession, BaseSQLiteClass):
         )
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in FormHistory")
+            return
         for attr in self.attr_list:
             if attr.name == FIRSTUSED:
                 try:

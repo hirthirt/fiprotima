@@ -36,6 +36,9 @@ class ExtensionCookie(BaseSessionTwo, BaseSQLiteClass):
         
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in ExtensionCookie")
+            return
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
                 try:

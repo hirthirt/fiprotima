@@ -5,6 +5,7 @@ from Model.ChromeModel.SQLite import DataSourcesSQLite
 from Model.ChromeModel.Cache import DataSourcesCache
 
 from Model.ChromeModel.SQLite.history import VISITED
+from Model.ChromeModel.SQLite.base import OTHER
 
 class ChromeModel:
 
@@ -26,6 +27,14 @@ class ChromeModel:
         for source in self.sources:
             data_dict.update(self.sources[source].get_data())
         return data_dict
+
+    def reload_data_attributes(self):
+        for source in self.data_dict:
+            for item in self.data_dict[source]:
+                try:
+                    item.reload_attributes()
+                except:
+                    pass
     
     def get_history(self):
         histroy_tree = {}
@@ -91,12 +100,58 @@ class ChromeModel:
         for source in self.data_dict:
             for item in self.data_dict[source]:
                 item.update(delta)
+        self.reload_data_attributes()
 
-    def edit_selected_data(self, delta, selection):
+    def edit_selected_data_delta(self, delta, selection):
         for selected in selection:
             for item in self.data_dict[selected[0]]:
                 if item.id == selected[1]:
                     item.update(delta)
+                try:
+                    for other_item in self.data_dict[selected[0]]:
+                        if item.place.id == other_item.place.id:
+                            other_item.reload_attributes()
+                except:
+                    pass
+            if selected[2]:
+                for child in selected[2]:
+                    for c_item in self.data_dict[child[0]]:
+                        if c_item.id == child[1]:
+                            c_item.update(delta)
+                            try:
+                                for other_item in self.data_dict[child[0]]:
+                                    if other_item.place.id == c_item.place.id:
+                                        other_item.reload_attributes()
+                            except:
+                                pass
+
+    def edit_selected_data_date(self, date, selection):
+        delta = None
+        for selected in selection:
+            for item in self.data_dict[selected[0]]:
+                if item.id == selected[1]:
+                    for attr in item.attr_list:
+                        if attr.type != OTHER:
+                            delta = attr.value.timestamp() - date.timestamp()
+                            break  
+                    item.update(delta)
+                    try:
+                        for other_item in self.data_dict[selected[0]]:
+                            if item.place.id == other_item.place.id:
+                                other_item.reload_attributes()
+                    except:
+                        pass
+            if selected[2]:
+                for child in selected[2]:
+                    for c_item in self.data_dict[child[0]]:
+                        if c_item.id == child[1]:
+                            c_item.update(delta)
+                            try:
+                                for other_item in self.data_dict[child[0]]:
+                                    if other_item.place.id == c_item.place.id:
+                                        other_item.reload_attributes()
+                            except:
+                                pass
 
     def rollback(self, name: str = None):
         for source in self.sources:

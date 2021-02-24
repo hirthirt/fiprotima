@@ -116,7 +116,7 @@ class Controller:
         self.model.edit_all_data(delta)
         self.reload_data()
 
-    def edit_selected_data(self):
+    def edit_selected_data(self, mode):
         # Ask for timedelta with dialog, then change all data based on this timedelta
         years = 2
         months = 0
@@ -125,15 +125,43 @@ class Controller:
         seconds = 0
 
         delta = int(years*365.24*24*60*60) + int(months*30*24*60*60) + int(days*24*60*60) + int(minutes*60) + seconds
+        date = datetime.datetime(1990,1,1)
         selected_list = []
+        already_selected_list = []
         for selected in self.view.content.dataview.selection():
+            if selected in already_selected_list:
+                continue
             item = self.view.content.dataview.item(selected)
-            selected_list.append([item["values"][-2], item["values"][-1]])
-        try:
-            self.model.edit_selected_data(delta, selected_list)
-        except:
-            print("Fehler beim edititeren!")
-            return
+            children = self.view.content.dataview.get_children(selected)
+            children_list = []
+            if children:
+                for child in children:
+                    if child in already_selected_list:
+                        continue
+                    c_item = self.view.content.dataview.item(child)
+                    children_list.append([c_item["values"][-2], c_item["values"][-1]])
+                    already_selected_list.append(child)
+            selected_list.append([item["values"][-2], item["values"][-1], children_list])
+            already_selected_list.append(selected)
+        
+        
+        for info_view in self.view.content.info_views:
+            for selected in info_view.selection():
+                item = info_view.item(selected)
+                selected_list.append([item["values"][-2], item["values"][-1]])
+        if mode == "date":
+            self.model.edit_selected_data_date(date, selected_list)
+            try:
+                pass
+            except:
+                print("Fehler beim editieren")
+                return
+        else:
+            try:
+                self.model.edit_selected_data_delta(delta, selected_list)
+            except:
+                print("Fehler beim edititeren!")
+                return
         self.reload_data()
 
     def commit_all_data(self):

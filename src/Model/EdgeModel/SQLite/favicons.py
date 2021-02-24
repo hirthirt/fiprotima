@@ -36,6 +36,9 @@ class Favicon(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(LASTREQUESTED, DT_WEBKIT, self.last_requested))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Favicon")
+            return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
                 try:

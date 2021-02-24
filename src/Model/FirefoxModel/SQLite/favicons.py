@@ -35,6 +35,9 @@ class Favicon(BaseSession, BaseSQLiteClass):
         self.attr_list.append(BaseAttribute(EXPIRYAT, DT_MILLI, self.expiry_timestamp))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Favicon")
+            return
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
                 try:

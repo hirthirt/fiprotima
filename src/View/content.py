@@ -8,32 +8,78 @@ class Content(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, width=200, height=150)
         self.parent = parent
+        self.tree_frame = None
+        self.tree_scroll_vertical = None
+        self.tree_scroll_horizontal = None
+        self.popup_menu = None
         self.dataview = None
         self.tab_control = None
         self.info = None
         self.style = None
         self.dataview_mode = "history"
+        self.info_views = []
 
         self.body()
 
 
     def body(self):
-        # Treeview for main data
+        # Popup menu
+        self.popup_menu = tk.Menu(self, tearoff=False)
+        self.popup_menu.add_command(label="Ausgewählte editieren via Delta", command=lambda: self.parent.controller.edit_selected_data("delta"))
+        self.popup_menu.add_command(label="Ausgewählte editieren via Datum", command=lambda: self.parent.controller.edit_selected_data("date"))
+        self.popup_menu.add_command(label="Gesamte aktuelle Tablle editieren")
+
+        # Treeview style
         self.style = ttk.Style()
         self.style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
         self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
-        self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
+        
+        # Treeview in frame and scrollbars 
+        self.tree_frame = tk.Frame(self)
 
+        self.tree_scroll_vertical = tk.Scrollbar(self.tree_frame)
+        self.tree_scroll_vertical.pack(side=tk.RIGHT, fill=tk.Y)
+        self.tree_scroll_horizontal = tk.Scrollbar(self.tree_frame, orient="horizontal")
+        self.tree_scroll_horizontal.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.dataview = ttk.Treeview(self.tree_frame, height=25, style="mystyle.Treeview", yscrollcommand=self.tree_scroll_vertical.set,
+                                    xscrollcommand=self.tree_scroll_horizontal.set
+        )
+        self.dataview.pack(fill="both")
+        self.tree_scroll_vertical.config(command=self.dataview.yview)
+        self.tree_scroll_horizontal.config(command=self.dataview.xview)
+        
+        # Notebook for the additional information
         self.tab_control = ttk.Notebook(self) 
 
+        self.tree_frame.pack(fill="both")
+        self.tab_control.pack(side=tk.BOTTOM, fill="both", expand=True)
 
-
-        self.dataview.pack(fill="both")
-        self.tab_control.pack(side=tk.BOTTOM, fill="both", expand=True) 
+    def rebuild_treeview(self):
+        self.dataview.pack_forget()
+        self.tree_scroll_vertical.pack_forget()
+        self.tree_scroll_horizontal.pack_forget()
         
+        self.tree_scroll_vertical = tk.Scrollbar(self.tree_frame)
+        self.tree_scroll_vertical.pack(side=tk.RIGHT, fill=tk.Y)
+        self.tree_scroll_horizontal = tk.Scrollbar(self.tree_frame, orient="horizontal")
+        self.tree_scroll_horizontal.pack(side=tk.BOTTOM, fill=tk.X)
 
+        self.dataview = ttk.Treeview(self.tree_frame, height=25, style="mystyle.Treeview", yscrollcommand=self.tree_scroll_vertical.set,
+                                    xscrollcommand=self.tree_scroll_horizontal.set
+        )
+        self.dataview.pack(fill="both")
+        self.tree_scroll_vertical.config(command=self.dataview.yview)
+        self.tree_scroll_horizontal.config(command=self.dataview.xview)
+        self.dataview.bind("<Button-3>", self.dateview_popup)
+
+    def dateview_popup(self, e):
+        self.popup_menu.tk_popup(e.x_root, e.y_root)
+        
+    
     # Receives additional data and builds tabs and treeviews to show it
     def fill_info_section(self, data):
+        self.info_views = []
         for tab in self.tab_control.tabs():
             self.tab_control.forget(tab)
 
@@ -43,16 +89,27 @@ class Content(tk.Frame):
                     self.tab_control.add(tab, text=info) 
                     infoview = ttk.Treeview(tab)
                     headinglist = [attr.name for attr in data[info][0].attr_list if data[info]]
+                    headinglist.append("data_name")
+                    headinglist.append("id")
                     infoview["columns"] = tuple(headinglist[1:])
+                    infoview["displaycolumns"] = tuple(headinglist[1:-2])
                     infoview.heading("#0",text=headinglist[0],anchor=tk.W)
                     for heading in headinglist[1:]:
                         infoview.heading(heading, text=heading, anchor=tk.W)
                     for item in data[info]:
-                        insert = infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple([attr.value for attr in item.attr_list[1:]]))
+                        values = [attr.value for attr in item.attr_list[1:]]
+                        try:
+                            values.append(str(item.__class__.__name__) + "Handler")
+                            values.append(item.id)
+                        except:
+                            values.append("None")
+                            values.append(0)
+                        insert = infoview.insert("", "end",  text=item.attr_list[0].value, values=tuple(values))
                         if item.is_date_changed:
                             infoview.item(insert, tags=("edited"))
                     infoview.tag_configure('edited', background='green') 
                     infoview.pack(expand=True, fill="both")
+                    self.info_views.append(infoview)
                 else:
                     tab = ttk.Frame(self.tab_control)
                     self.tab_control.add(tab, text=info)
@@ -62,9 +119,10 @@ class Content(tk.Frame):
         
     # Receives data and inserts it into the main treeview (dataview)
     def fill_dataview(self, data, addi_infos):
-        self.dataview.pack_forget()
-        self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
-        self.dataview.pack(fill="both")
+        #self.dataview.pack_forget()
+        #self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
+        #self.dataview.pack(fill="both")
+        self.rebuild_treeview()
 
         self.tab_control.pack_forget()
         self.tab_control = ttk.Notebook(self)
@@ -79,7 +137,6 @@ class Content(tk.Frame):
         for heading in headinglist[1:]:
             self.dataview.heading(heading, text=heading, anchor=tk.W)
         for item in data:
-            print(item.__class__.__name__)
             values = [attr.value for attr in item.attr_list[1:]]
             try:
                 values.append(str(item.__class__.__name__) + "Handler")
@@ -88,7 +145,6 @@ class Content(tk.Frame):
                 values.append("None")
                 values.append(0)
             insert = self.dataview.insert("", "end",  text=item.attr_list[0].value, values=tuple(values))
-            print(self.dataview.item(insert))
             if item.is_date_changed:
                 self.dataview.item(insert, tags=("edited"))
         self.dataview.tag_configure('edited', background='green')
@@ -105,9 +161,7 @@ class Content(tk.Frame):
         for child in self.dataview.get_children():
             self.dataview.delete(child)
 
-        self.dataview.pack_forget()
-        self.dataview = ttk.Treeview(self, height=25, style="mystyle.Treeview")
-        self.dataview.pack(fill="both")
+        self.rebuild_treeview()
 
         self.tab_control.pack_forget()
         self.tab_control = ttk.Notebook(self)

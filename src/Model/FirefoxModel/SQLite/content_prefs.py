@@ -40,6 +40,9 @@ class ContentPref(BaseSession, BaseSQLiteClass):
         )
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in ContentPref")
+            return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
                 try:

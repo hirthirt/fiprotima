@@ -25,6 +25,9 @@ class Origin(BaseSession, BaseSQLiteClass):
 
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Mediahistory/Origin")
+            return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
                 try:
@@ -56,6 +59,9 @@ class Playback(BaseSession, BaseSQLiteClass):
 
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Playback")
+            return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
                 try:
@@ -85,6 +91,9 @@ class PlaybackSession(BaseSession, BaseSQLiteClass):
 
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in PlaybackSession")
+            return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
                 try:

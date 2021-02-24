@@ -36,6 +36,9 @@ class Window(BaseJSONClass):
         self.attr_list.append(BaseAttribute(CLOSEDAT, DT_SEC_ZEROED_MILLI, self.closed_at))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Window")
+            return
         for attr in self.attr_list:
             if attr.name == CLOSEDAT:
                 try:
@@ -65,6 +68,9 @@ class Tab(BaseJSONClass):
         self.attr_list.append(BaseAttribute(LASTACCESSED, DT_SEC_ZEROED_MILLI, self.last_accessed))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Tab")
+            return
         for attr in self.attr_list:
             if attr.name == LASTACCESSED:
                 try:
@@ -92,7 +98,9 @@ class Session(BaseJSONClass):
     def update(self, delta):
         if self.is_date_changed:
             return
-
+        if not delta:
+            print("Kein Delta erhalten in Session")
+            return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
                 try:

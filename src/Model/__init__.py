@@ -24,9 +24,10 @@ class Model:
             messages = []
             config.set_profile_path(self.profiledict[browser][name][0])
             config.set_cache_path(self.profiledict[browser][name][1]) 
+            self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
+            config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             try:
-                self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
-                config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
+                pass
             except:
                 self.browsermodel = None
                 messages.append("Firefox Daten konnten nicht geladen werden!")
@@ -139,9 +140,15 @@ class Model:
         else:
             print("Kein Profil ausgewählt!")
 
-    def edit_selected_data(self, delta, selection):
+    def edit_selected_data_delta(self, delta, selection):
         if self.browsermodel:
-            self.browsermodel.edit_selected_data(delta, selection)
+            self.browsermodel.edit_selected_data_delta(delta, selection)
+        else:
+            print("Kein Profil ausgewählt!")
+    
+    def edit_selected_data_date(self, date, selection):
+        if self.browsermodel:
+            self.browsermodel.edit_selected_data_date(date, selection)
         else:
             print("Kein Profil ausgewählt!")
 

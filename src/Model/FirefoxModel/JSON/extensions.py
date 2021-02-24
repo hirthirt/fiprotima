@@ -65,6 +65,9 @@ class Extension(BaseJSONClass):
             self.attr_list.append(BaseAttribute(VALIDNOTBEFORE, OTHER, "None"))
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Extensions")
+            return
         for attr in self.attr_list:
             if attr.name == INSTALLDDATE:
                 try:

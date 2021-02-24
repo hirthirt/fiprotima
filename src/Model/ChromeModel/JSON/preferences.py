@@ -123,6 +123,9 @@ class Profile(BaseJSONClass):
 
 
     def update(self, delta):
+        if not delta:
+            print("Kein Delta erhalten in Profil")
+            return
         for attr in self.attr_list:
             if attr.name == PROFILECREATED:
                 try:
