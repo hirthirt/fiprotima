@@ -2,10 +2,14 @@ import getpass
 import platform
 import datetime
 
+from dateutil.relativedelta import *
 from urllib.parse import urlparse
 from Config import Config
 from View import View
+from View.Dialogs.delta_dialog import TimedeltaDialog
+from View.Dialogs.date_dialog import DateDialog
 from Model import Model
+
 
 class Controller:
 
@@ -117,15 +121,23 @@ class Controller:
         self.reload_data()
 
     def edit_selected_data(self, mode):
-        # Ask for timedelta with dialog, then change all data based on this timedelta
-        years = 2
-        months = 0
-        days = 0
-        minutes = 0
-        seconds = 0
+        # Ask for timedelta with dialog, then change all data based on this timedelta 
+        if mode == "date":
+            date = DateDialog(self.view, self).show()
+            if not date:
+                print("Kein Datum angegeben!")
+                return
+        else:
+            delta = TimedeltaDialog(self.view, self).show()
+            if delta:
+                now = datetime.datetime.now()
+                delta = now  - delta
+                delta = now.timestamp() - delta.timestamp()
+            else:
+                print("Kein Delta angegeben!")
+                return
 
-        delta = int(years*365.24*24*60*60) + int(months*30*24*60*60) + int(days*24*60*60) + int(minutes*60) + seconds
-        date = datetime.datetime(1990,1,1)
+
         selected_list = []
         already_selected_list = []
         for selected in self.view.content.dataview.selection():
