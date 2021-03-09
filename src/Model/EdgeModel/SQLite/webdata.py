@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, orm
 import random
 
+from Model.log_util import log_message
 from Model.EdgeModel.SQLite.base import *
 
 NAME = "Name"
@@ -30,7 +31,7 @@ class Autofill(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Autofill")
+            log_message("Kein Delta erhalten in Autofill", "error")
             return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
@@ -39,7 +40,7 @@ class Autofill(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.date_created = attr.timestamp
                 except:
-                    print("Fehler bei Update in Autofill für " + attr.name)
+                    log_message("Fehler bei Update in Autofill für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             elif attr.name == LASTUSED:
@@ -48,7 +49,7 @@ class Autofill(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.date_last_used = attr.timestamp
                 except:
-                    print("Fehler bei Update in Autofill für " + attr.name)
+                    log_message("Fehler bei Update in Autofill für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
@@ -75,7 +76,7 @@ class Keyword(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Keyword")
+            log_message("Kein Delta erhalten in Keyword", "error")
             return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
@@ -84,7 +85,7 @@ class Keyword(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.date_created = attr.timestamp
                 except:
-                    print("Fehler bei Update in KeyWord für " + attr.name)
+                    log_message("Fehler bei Update in KeyWord für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTMODIFIED:
@@ -93,7 +94,7 @@ class Keyword(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_modified = attr.timestamp
                 except:
-                    print("Fehler bei Update in KeyWord für " + attr.name)
+                    log_message("Fehler bei Update in KeyWord für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTVISITED:
@@ -102,7 +103,7 @@ class Keyword(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_visited = attr.timestamp
                 except:
-                    print("Fehler bei Update in KeyWord für " + attr.name)
+                    log_message("Fehler bei Update in KeyWord für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

@@ -39,14 +39,16 @@ class SideBar(tk.Frame):
         selected = self.tree.focus()
         parent = self.tree.parent(selected)
         if self.tree.item(selected)["text"] in ["Firefox", "Chrome", "Edge"]:
-            self.insert_message("Bitte Profil auswählen!")
+            self.parent.controller.logger.error("Bitte Profil auswählen!")
             return
         if selected and parent and self.tree.item(selected):
             browser = self.tree.item(parent)["text"]
             profile_name = self.tree.item(selected)["text"]
             data = self.parent.controller.load_profile(browser, profile_name)
-            if data:
+            if data and data != "keep":
                 self.parent.content.fillHistroyData(data)
+            elif data and data == "keep":
+                return
             else:
                 self.parent.content.fillHistroyData("None")
 
@@ -62,13 +64,3 @@ class SideBar(tk.Frame):
                     self.tree.insert(parent, "end", text=profile)
         else:
             pass
-
-        
-
-
-    # Insert a message into the console
-    def insert_message(self, message):
-        message += "\n"
-        self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.INSERT, message)
-        self.console.config(state=tk.DISABLED)

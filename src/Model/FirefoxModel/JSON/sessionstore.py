@@ -1,6 +1,7 @@
 import json
 import random
 
+from Model.log_util import log_message
 from Model.FirefoxModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,
@@ -37,7 +38,7 @@ class Window(BaseJSONClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Window")
+            log_message("Kein Delta erhalten in Window", "error")
             return
         for attr in self.attr_list:
             if attr.name == CLOSEDAT:
@@ -46,7 +47,7 @@ class Window(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.closed_at = attr.timestamp
                 except:
-                    print("Fehler bei Update in Window für " + attr.name)
+                    log_message("Fehler bei Update in Window für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
         for tab in self.tabs:
@@ -69,7 +70,7 @@ class Tab(BaseJSONClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Tab")
+            log_message("Kein Delta erhalten in Tab", "error")
             return
         for attr in self.attr_list:
             if attr.name == LASTACCESSED:
@@ -78,7 +79,7 @@ class Tab(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.last_accessed = attr.timestamp
                 except:
-                    print("Fehler bei Update in Tab für " + attr.name)
+                    log_message("Fehler bei Update in Tab für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
@@ -99,7 +100,7 @@ class Session(BaseJSONClass):
         if self.is_date_changed:
             return
         if not delta:
-            print("Kein Delta erhalten in Session")
+            log_message("Kein Delta erhalten in Session", "error")
             return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
@@ -108,7 +109,7 @@ class Session(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.last_update = attr.timestamp
                 except:
-                    print("Fehler bei Update in Session für " + attr.name)
+                    log_message("Fehler bei Update in Session für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == STARTTIME:
@@ -117,7 +118,7 @@ class Session(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.start_time = attr.timestamp
                 except:
-                    print("Fehler bei Update in Session für " + attr.name)
+                    log_message("Fehler bei Update in Session für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

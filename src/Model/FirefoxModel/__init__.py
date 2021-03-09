@@ -1,4 +1,5 @@
 from datetime import datetime
+from pubsub import pub
 
 from Model.FirefoxModel.JSON import DataSourcesJSON
 from Model.FirefoxModel.SQLite import DataSourcesSQLite
@@ -80,35 +81,35 @@ class FirefoxModel:
                     if identifier in cookie.host:
                         data_dict["Cookies"].append(cookie)
             except:
-                print("Keine Cookies gefunden!")
+                pass
 
             try:
                 for favico in self.data_dict["FaviconHandler"]:
                     if identifier in favico.icon_url:
                         data_dict["Favicons"].append(favico)
             except:
-                print("Keine Favicon gefunden")
+                pass
             
             try:
                 for perm in self.data_dict["PermissionHandler"]:
                     if identifier in perm.origin:
                         data_dict["Permissions"].append(perm)
             except:
-                print("Keine Permissions gefunden!")
+                pass
 
             try:
                 for pref in self.data_dict["ContentPrefHandler"]:
                     if identifier in pref.group.name:
                         data_dict["ContentPrefs"].append(pref)
             except:
-                print("Keine ContentPrefs gefunden")
+                pass
             
             try:
                 for login in self.data_dict["LoginsHandler"]:
                     if identifier in login.hostname:
                         data_dict["Logins"].append(login)
             except:
-                print("Keine Logins gefunden")
+                pass
 
             try:
                 for site in self.data_dict["HistoryVisitHandler"]:
@@ -116,7 +117,7 @@ class FirefoxModel:
                         if identifier in site.place.url and downl.place.id == site.place.id:
                             data_dict["Downloads"].append(downl)
             except:
-                print("Keine Downloads gefunden")
+                pass
         
         elif data_type == "session":
             window = None

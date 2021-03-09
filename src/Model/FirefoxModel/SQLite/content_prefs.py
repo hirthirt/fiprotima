@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
+from Model.log_util import log_message
 from Model.FirefoxModel.SQLite.base import (
     BaseSession,
     BaseSQLiteClass,
@@ -41,7 +42,7 @@ class ContentPref(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in ContentPref")
+            log_message("Kein Delta erhalten in ContentPref", "error")
             return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
@@ -50,7 +51,7 @@ class ContentPref(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.created_at_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Extensions für " + attr.name)
+                    log_message("Fehler bei Update in Extensions für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

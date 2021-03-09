@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, orm
 import random
 
+from Model.log_util import log_message
 from Model.EdgeModel.SQLite.base import *
 
 URL = "Url"
@@ -27,7 +28,7 @@ class Login(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Login")
+            log_message("Kein Delta erhalten in Login", "error")
             return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
@@ -36,7 +37,7 @@ class Login(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.date_created = attr.timestamp
                 except:
-                    print("Fehler bei Update in  Login für " + attr.name)
+                    log_message("Fehler bei Update in  Login für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             elif attr.name == LASTUSED:
@@ -45,7 +46,7 @@ class Login(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.date_last_used = attr.timestamp
                 except:
-                    print("Fehler bei Update in  Login für " + attr.name)
+                    log_message("Fehler bei Update in  Login für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
@@ -69,7 +70,7 @@ class CompromisedCredetial(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in CompromisedCredentials")
+            log_message("Kein Delta erhalten in CompromisedCredentials", "error")
             return
         for attr in self.attr_list:
             if attr.name == CREATEDAT:
@@ -78,7 +79,7 @@ class CompromisedCredetial(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.date_created = attr.timestamp
                 except:
-                    print("Fehler bei Update in  CompromisedCredentials für " + attr.name)
+                    log_message("Fehler bei Update in  CompromisedCredentials für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

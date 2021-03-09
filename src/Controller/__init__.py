@@ -1,13 +1,17 @@
 import getpass
 import platform
 import datetime
+import logging
 
+from pubsub import pub
 from dateutil.relativedelta import *
 from urllib.parse import urlparse
 from Config import Config
+from Controller.console import Console
 from View import View
 from View.Dialogs.delta_dialog import TimedeltaDialog
 from View.Dialogs.date_dialog import DateDialog
+from View.Dialogs.ask_dialog import AskDialog
 from Model import Model
 
 
@@ -18,27 +22,35 @@ class Controller:
         self.config.set_current_username(getpass.getuser())
         self.config.set_current_os(platform.system())
 
-        self.model = Model()
         self.view = View(self)
-        self.view.sidebar.insert_profiles_to_treeview()
 
+        self.console = Console(self.view.sidebar.console)
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(self.console)
+
+        self.model = Model() 
+
+        pub.subscribe(self.log_listener, 'logging')
+
+        self.view.sidebar.insert_profiles_to_treeview()
 
     def main(self):
         self.view.main()
 
     
     def load_profiles(self):
-        profiledict, messages = self.model.search_profiles(current_username=self.config.current_username, current_os=self.config.current_os)
-        if messages:
-            for message in messages:
-                self.view.sidebar.insert_message(message)
+        profiledict = self.model.search_profiles(current_username=self.config.current_username, current_os=self.config.current_os)
         return profiledict
 
     def load_profile(self, browser, name):
-        data, messages = self.model.load_profile(browser,name, self.config)
-        if messages:
-            for message in messages:
-                self.view.sidebar.insert_message(message)
+        data = None
+        if self.model.has_profil_loaded():
+            answer = AskDialog(self.view, self, "Möchten Sie das Profil wirklich wechseln?").show()
+            if not answer:
+                data = "keep"
+                return data
+        data = self.model.load_profile(browser,name, self.config)
         return data
 
     def get_history(self):
@@ -110,13 +122,18 @@ class Controller:
     
     def edit_all_data(self):
         # Ask for timedelta with dialog, then change all data based on this timedelta
-        years = 2
-        months = 0
-        days = 0
-        minutes = 0
-        seconds = 0
-
-        delta = int(years*365.24*24*60*60) + int(months*30*24*60*60) + int(days*24*60*60) + int(minutes*60) + seconds
+        delta = TimedeltaDialog(self.view, self).show()
+        if delta:
+            now = datetime.datetime.now()
+            delta = now  - delta
+            try:
+                delta = now.timestamp() - delta.timestamp()
+            except:
+                self.log_listener("Zeitdelta zu groß!", "error")
+                return
+        else:
+            self.logger.error("Kein Delta angegeben!")
+            return
         self.model.edit_all_data(delta)
         self.reload_data()
 
@@ -125,16 +142,20 @@ class Controller:
         if mode == "date":
             date = DateDialog(self.view, self).show()
             if not date:
-                print("Kein Datum angegeben!")
+                self.logger.error("Kein Datum angegeben!")
                 return
         else:
             delta = TimedeltaDialog(self.view, self).show()
             if delta:
                 now = datetime.datetime.now()
                 delta = now  - delta
-                delta = now.timestamp() - delta.timestamp()
+                try:
+                    delta = now.timestamp() - delta.timestamp()
+                except:
+                    self.log_listener("Zeitdelta zu groß!", "error")
+                    return
             else:
-                print("Kein Delta angegeben!")
+                self.logger.error("Kein Delta angegeben!")
                 return
 
 
@@ -166,13 +187,13 @@ class Controller:
             try:
                 pass
             except:
-                print("Fehler beim editieren")
+                self.logger.error("Fehler beim editieren")
                 return
         else:
             try:
                 self.model.edit_selected_data_delta(delta, selected_list)
             except:
-                print("Fehler beim edititeren!")
+                self.logger.error("Fehler beim editieren")
                 return
         self.reload_data()
 
@@ -183,11 +204,15 @@ class Controller:
     def commit_selected_data(self):
         pass
     
-    def change_filesystem_time(self):
-        self.model.change_filesystem_time(self.config)
+    def change_filesystem_time(self):      
         try:
-            pass
+            self.model.change_filesystem_time(self.config)
         except:
-            print("Felher beim ändern der Dateisystem Zeit!")
+            self.logger.error("Felher beim ändern der Dateisystem Zeit!")
 
-# TODO: Implement LoggerClass to log events directly to text console
+    # The listener for the logging event of pubsub
+    def log_listener(self, message, lvl):
+        if lvl == "info":
+            self.logger.info(message)
+        else:
+            self.logger.error(message)

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
+from Model.log_util import log_message
 from Model.ChromeModel.SQLite.base import (
     BaseSession,
     BaseSQLiteClass,
@@ -67,7 +68,7 @@ class Visits(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Historie")
+            log_message("Kein Delta erhalten in Historie", "error")
             return
         visited_safe = self.visit_timestamp
         last_visited_safe = self.place.last_visited_timestamp
@@ -79,7 +80,7 @@ class Visits(BaseSession, BaseSQLiteClass):
                         attr.date_to_timestamp()
                         self.place.last_visited_timestamp = attr.timestamp
                     except:
-                        print("Fehler bei Update in Visits/History für " + attr.name)
+                        log_message("Fehler bei Update in Visits/History für " + attr.name, "error")
                         continue
                     self.is_date_changed = True
             elif attr.name == VISITED:
@@ -88,7 +89,7 @@ class Visits(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.visit_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Visits/History für " + attr.name)
+                    log_message("Fehler bei Update in Visits/History für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
@@ -118,7 +119,7 @@ class Download(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Download")
+            log_message("Kein Delta erhalten in Download", "error")
             return
         for attr in self.attr_list:
             if attr.name == STARTTIME:
@@ -127,7 +128,7 @@ class Download(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.start_time = attr.timestamp
                 except:
-                    print("Fehler bei Update in Downloads für " + attr.name)
+                    log_message("Fehler bei Update in Downloads für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == ENDTIME:
@@ -136,7 +137,7 @@ class Download(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.end_time = attr.timestamp
                 except:
-                    print("Fehler bei Update in Downloads für " + attr.name)
+                    log_message("Fehler bei Update in Downloads für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             elif attr.name == LASTMODIFIED:
@@ -145,7 +146,7 @@ class Download(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_modified = attr.timestamp
                 except:
-                    print("Fehler bei Update in Downloads für " + attr.name)
+                    log_message("Fehler bei Update in Downloads für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

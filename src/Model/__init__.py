@@ -2,6 +2,7 @@ import os
 import configparser
 import json
 from time import sleep
+from pubsub import pub
 from datetime import datetime, timedelta
 from win32file import CreateFile, SetFileTime, GetFileTime, CloseHandle
 from win32file import GENERIC_WRITE, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, FILE_SHARE_WRITE
@@ -16,12 +17,16 @@ class Model:
         self.profiledict = {}
         self.browsermodel = None
 
+    def has_profil_loaded(self):
+        if self.browsermodel:
+            return True
+        else:
+            return False
     
     def load_profile(self, browser, name, config):
         if self.browsermodel:
             self.browsermodel.close()
         if browser == "Firefox":
-            messages = []
             config.set_profile_path(self.profiledict[browser][name][0])
             config.set_cache_path(self.profiledict[browser][name][1]) 
             self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
@@ -30,28 +35,34 @@ class Model:
                 pass
             except:
                 self.browsermodel = None
-                messages.append("Firefox Daten konnten nicht geladen werden!")
+                pub.sendMessage("logging",
+                                 message="Firefox Daten konnten nicht geladen werden!", 
+                                 lvl="error")
             if self.browsermodel:
-                messages.append("Profildaten erfolgreich geladen!")
-                return self.browsermodel.get_history(), messages
+                pub.sendMessage("logging",
+                                 message="Profildaten erfolgreich geladen!", 
+                                 lvl="info")
+                return self.browsermodel.get_history()
             else:
-                return None, messages
+                return None
         elif browser == "Edge":
-            messages = []
             config.profile_path = self.profiledict[browser][name]
             try:
                 self.browsermodel = EdgeModel(config.profile_path)
                 config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             except:
                 self.browsermodel = None
-                messages.append("Edge Daten konnente nicht geladen werden!")
+                pub.sendMessage("logging",
+                                 message="Edge Daten konnten nicht geladen werden!", 
+                                 lvl="error")
             if self.browsermodel:
-                messages.append("Profildaten erfolgreich geladen")
-                return self.browsermodel.get_history(), messages
+                pub.sendMessage("logging",
+                                 message="Profildaten erfolgreich geladen", 
+                                 lvl="info")
+                return self.browsermodel.get_history()
             else:
-                return None, messages
+                return None
         elif browser == "Chrome":
-            messages = []
             config.set_profile_path(self.profiledict[browser][name])
             self.browsermodel = ChromeModel(config.profile_path)
             config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
@@ -59,12 +70,16 @@ class Model:
                 pass
             except:
                 self.browsermodel = None
-                messages.append("Chrome Daten konnente nicht geladen werden!")
+                pub.sendMessage("logging",
+                                 message="Chrome Daten konnten nicht geladen werden!", 
+                                 lvl="error")
             if self.browsermodel:
-                messages.append("Profildaten erfolgreich geladen")
-                return self.browsermodel.get_history(), messages
+                pub.sendMessage("logging",
+                                 message="Profildaten erfolgreich geladen", 
+                                 lvl="info")
+                return self.browsermodel.get_history()
             else:
-                return None, messages
+                return None
 
     # Get additional infos (cookies, permissions, etc.) for a given website
     def get_additional_info(self, data_type, indentifier):
@@ -138,32 +153,42 @@ class Model:
         if self.browsermodel:
             self.browsermodel.edit_all_data(delta)
         else:
-            print("Kein Profil ausgewählt!")
+            pub.sendMessage("logging",
+                                 message="Kein Profil ausgewählt!", 
+                                 lvl="info")
 
     def edit_selected_data_delta(self, delta, selection):
         if self.browsermodel:
             self.browsermodel.edit_selected_data_delta(delta, selection)
         else:
-            print("Kein Profil ausgewählt!")
+            pub.sendMessage("logging",
+                                 message="Kein Profil ausgewählt!", 
+                                 lvl="info")
     
     def edit_selected_data_date(self, date, selection):
         if self.browsermodel:
             self.browsermodel.edit_selected_data_date(date, selection)
         else:
-            print("Kein Profil ausgewählt!")
+            pub.sendMessage("logging",
+                                 message="Kein Profil ausgewählt!", 
+                                 lvl="info")
 
     def commit(self, name: str = None):
         if self.browsermodel:
             self.browsermodel.commit(name)
         else:
-            print("Kein Profil ausgewählt!")
+            pub.sendMessage("logging",
+                                 message="Kein Profil ausgewählt!", 
+                                 lvl="info")
 
     def change_filesystem_time(self, config):
         self.browsermodel.close()
         sleep(1)
         now_history_last_time = self.browsermodel.get_history_last_time()
         if not now_history_last_time:
-            print("Konnte keine History finden")
+            pub.sendMessage("logging",
+                            message="Konnte keine History finden", 
+                            lvl="error")
         paths = [config.profile_path]
         if config.cache_path:
             paths.append(config.cache_path)
@@ -187,13 +212,17 @@ class Model:
                         try:
                             setTime(path, delta)
                         except:
-                            print("Datei " + path + " konnten nicht editiert werden!")
+                            pub.sendMessage("logging",
+                                            message="Datei " + path + " konnten nicht editiert werden!", 
+                                            lvl="info")
                     for f in files:
                         path = os.path.join(root, f)
                         try:
                             setTime(path, delta)
                         except:
-                            print("Datei " + path + " konnten nicht editiert werden!")
+                            pub.sendMessage("logging",
+                                            message="Datei " + path + " konnten nicht editiert werden!", 
+                                            lvl="info")
 
             self.browsermodel.get_data()
 
@@ -207,11 +236,13 @@ class Model:
         firecachepath = None
         chromepath = None
         edgepath = None
-        messages = []
+
 
         if not current_username:
-            messages.append("Der Nutzername konnte nicht ermittelt werden!")
-            return None, messages
+            pub.sendMessage("logging",
+                            message="Der Nutzername konnte nicht ermittelt werden!", 
+                            lvl="error")
+            return None
 
         if current_os == "Windows":
             firepath = "C:/Users/" + current_username + "/AppData/Roaming/Mozilla/Firefox/"
@@ -230,8 +261,10 @@ class Model:
             chromepath = "Users/" + current_username + "/Library/Application Support/Google/Chrome/"
             edgepath = ""
         else:
-            messages.append("Kein kompatibles OS gefunden!")
-            return None, messages
+            pub.sendMessage("logging",
+                            message="Kein kompatibles OS gefunden!", 
+                            lvl="error")
+            return None
         
         if os.path.exists(firepath):
             self.profiledict["Firefox"] = {}
@@ -246,7 +279,9 @@ class Model:
                     
             
         else:
-            messages.append("Firefox scheint nicht installiert zu sein!")
+            pub.sendMessage("logging",
+                            message="Firefox scheint nicht installiert zu sein!", 
+                            lvl="info")
             pass
 
         if os.path.exists(chromepath):
@@ -261,11 +296,17 @@ class Model:
                         else:
                             self.profiledict["Chrome"][file] = path
                     else:
-                        messages.append("Preferences-Datei für Profil " + file + " in Chrome wurde nicht gefunden!")
+                        pub.sendMessage("logging",
+                            message="Preferences-Datei für Profil " + file + " in Chrome wurde nicht gefunden!", 
+                            lvl="info")
             if not self.profiledict["Chrome"]:
-                messages.append("Keine Profile für Chrome gefunden")
+                pub.sendMessage("logging",
+                            message="Keine Profile für Chrome gefunden", 
+                            lvl="info")
         else:
-            messages.append("Chrome scheint nicht installiert zu sein!")
+            pub.sendMessage("logging",
+                            message="Chrome scheint nicht installiert zu sein!", 
+                            lvl="info")
             pass
 
         if os.path.exists(edgepath):
@@ -280,10 +321,19 @@ class Model:
                         else:
                             self.profiledict["Edge"][file] = path
                     else:
-                        messages.append("Preferences-Datei für Profil " + file +  " in Edge wurde nicht gefunden!")
+                        pub.sendMessage("logging",
+                            message="Preferences-Datei für Profil " + file +  " in Edge wurde nicht gefunden!", 
+                            lvl="info")
             if not self.profiledict["Edge"]:
-                messages.append("Keine Profile für Edge gefunden")
+                pub.sendMessage("logging",
+                            message="Keine Profile für Edge gefunden", 
+                            lvl="info")
         else:
-            messages.append("Edge scheint nicht installiert zu sein!")
+            pub.sendMessage("logging",
+                            message="Edge scheint nicht installiert zu sein!", 
+                            lvl="info")
             pass
-        return self.profiledict, messages
+        return self.profiledict
+
+def log_message(message, lvl):
+    pub.sendMessage("logging", message=message, lvl=lvl)

@@ -1,6 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
+from Model.log_util import log_message
 from Model.EdgeModel.SQLite.base import (
     BaseSession,
     BaseSQLiteClass,
@@ -37,7 +38,7 @@ class Favicon(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Favicon")
+            log_message("Kein Delta erhalten in Favicon", "error")
             return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
@@ -46,7 +47,7 @@ class Favicon(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_updated = attr.timestamp
                 except:
-                    print("Fehler bei Update in Favicon für " + attr.name)
+                    log_message("Fehler bei Update in Favicon für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTREQUESTED:
@@ -55,7 +56,7 @@ class Favicon(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_requested = attr.timestamp
                 except:
-                    print("Fehler bei Update in Favicon für " + attr.name)
+                    log_message("Fehler bei Update in Favicon für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

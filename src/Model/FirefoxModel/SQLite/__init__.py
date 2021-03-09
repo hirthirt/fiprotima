@@ -1,5 +1,5 @@
 from importlib import import_module
-
+from pubsub import pub
 
 class DataSourcesSQLite:
     def __init__(self, profile_path: str, cache_path: str):
@@ -27,10 +27,8 @@ class DataSourcesSQLite:
                 Class_ = getattr(module, class_name)
                 instance = Class_(profile_path=profile_path, cache_path=cache_path)
             except Exception as e:
-                print(
-                    "Fehler in Datenquelle SQlite, Modul %s, Klasse %s: %s. Überspringe"
-                    % (module_name, class_name, e)
-                )
+                message = "Fehler in SQlite, Klasse " + str(class_name) + ": " + str(e) + ". Überspringe"
+                self.log_message(message, "info")
                 continue
             self.sources[class_name] = instance
 
@@ -62,13 +60,13 @@ class DataSourcesSQLite:
             try:
                 self.sources[name].rollback()
             except:
-                print("Fehler beim speichern von: " + str(name))
+                self.log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].rollback()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    self.log_message("Fehler beim Rollback von: "  + str(source), "error")
 
 
     def commit(self, name):
@@ -77,15 +75,18 @@ class DataSourcesSQLite:
             try:
                 self.sources[name].commit()
             except:
-                print("Fehler beim speichern von: " + str(name))
+                self.log_message("Fehler beim speichern von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].commit()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    self.log_message("Fehler beim Speichern von: "  + str(source), "error")
 
     def close(self):
         """Close all connections"""
         for source in self.sources:
             self.sources[source].close()
+
+    def log_message(self, message, lvl):
+        pub.sendMessage("logging", message=message, lvl=lvl)

@@ -1,5 +1,6 @@
 import json
 
+from Model.log_util import log_message
 from Model.FirefoxModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,
@@ -35,7 +36,7 @@ class Login(BaseJSONClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Login")
+            log_message("Kein Delta erhalten in Login", "error")
             return
         for attr in self.attr_list:
             if attr.name == CREATEDDATE:
@@ -44,7 +45,7 @@ class Login(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.created_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Login für " + attr.name)
+                    log_message("Fehler bei Update in Login für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTUSE:
@@ -53,7 +54,7 @@ class Login(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.lastused_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Login für " + attr.name)
+                    log_message("Fehler bei Update in Login für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTPASSCHANGED:
@@ -62,7 +63,7 @@ class Login(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.lastpasschange_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Login für " + attr.name)
+                    log_message("Fehler bei Update in Login für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

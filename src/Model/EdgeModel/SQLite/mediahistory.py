@@ -1,6 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, orm
 from sqlalchemy.orm import relationship
 
+from Model.log_util import log_message
 from Model.EdgeModel.SQLite.base import *
 
 URL = "Url"
@@ -26,7 +27,7 @@ class Origin(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Mediahistory/Origin")
+            log_message("Kein Delta erhalten in Mediahistory/Origin", "error")
             return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
@@ -35,7 +36,7 @@ class Origin(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_updated = attr.timestamp
                 except:
-                    print("Fehler bei Update in Origin/MediaHistory für " + attr.name)
+                    log_message("Fehler bei Update in Origin/MediaHistory für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
@@ -60,7 +61,7 @@ class Playback(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Playback")
+            log_message("Kein Delta erhalten in Playback", "error")
             return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
@@ -69,7 +70,7 @@ class Playback(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_updated = attr.timestamp
                 except:
-                    print("Fehler bei Update in Playback/MediaHistory für " + attr.name)
+                    log_message("Fehler bei Update in Playback/MediaHistory für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
@@ -92,7 +93,7 @@ class PlaybackSession(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in PlaybackSession")
+            log_message("Kein Delta erhalten in PlaybackSession", "error")
             return
         for attr in self.attr_list:
             if attr.name == LASTUPDATED:
@@ -101,7 +102,7 @@ class PlaybackSession(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_updated = attr.timestamp
                 except:
-                    print("Fehler bei Update in PlaybackSession/MediaHistory für " + attr.name)
+                    log_message("Fehler bei Update in PlaybackSession/MediaHistory für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

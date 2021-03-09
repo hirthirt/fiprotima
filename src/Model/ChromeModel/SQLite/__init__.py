@@ -1,5 +1,5 @@
 from importlib import import_module
-
+from Model.log_util import log_message
 
 class DataSourcesSQLite:
     def __init__(self, profile_path: str):
@@ -29,10 +29,8 @@ class DataSourcesSQLite:
                 Class_ = getattr(module, class_name)
                 instance = Class_(profile_path=profile_path)
             except Exception as e:
-                print(
-                    "Fehler in Datenquelle SQlite, Modul %s, Klasse %s: %s. Überspringe"
-                    % (module_name, class_name, e)
-                )
+                message = "Fehler in Datenquelle SQlite, Klasse %s: %s. Überspringe" % (class_name, e)
+                log_message(message, "info")
                 continue
             self.sources[class_name] = instance
 
@@ -69,13 +67,13 @@ class DataSourcesSQLite:
             try:
                 self.sources[name].rollback()
             except:
-                print("Fehler beim speichern von: " + str(name))
+                log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].rollback()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    log_message("Fehler beim Rollback von: "  + str(source), "error")
 
 
     def commit(self, name):
@@ -84,13 +82,13 @@ class DataSourcesSQLite:
             try:
                 self.sources[name].commit()
             except:
-                print("Fehler beim speichern von: " + str(name))
+                log_message("Fehler beim speichern von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].commit()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    log_message("Fehler beim Speichern von: "  + str(source), "error")
 
     def close(self):
         """Close all connections"""

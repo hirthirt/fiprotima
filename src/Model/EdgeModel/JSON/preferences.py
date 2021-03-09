@@ -1,6 +1,7 @@
 import json
 import random
 
+from Model.log_util import log_message
 from Model.EdgeModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,
@@ -124,7 +125,7 @@ class Profile(BaseJSONClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Profil")
+            log_message("Kein Delta erhalten in Profil", "error")
             return
         for attr in self.attr_list:
             if attr.name == PROFILECREATED:
@@ -133,7 +134,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.profile_create_time = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == PROFILEENGAGEMENT:
@@ -142,7 +143,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.profile_last_engagement = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTCREDREMOVED:
@@ -151,7 +152,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.profile_last_credential_remove = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == ACCTRKUPDATE:
@@ -160,7 +161,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.account_tracker_service_update = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == NOTIFSERVICEFIRSTRUN:
@@ -169,7 +170,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.notification_service_first_run = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == DEFBROLASTDECLINED:
@@ -178,7 +179,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.default_browser_declined = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTUPDATE:
@@ -187,7 +188,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.last_update = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTREPORT:
@@ -196,7 +197,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.domain_diversity_last_reporting = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == EXTSIGEXPIRE:
@@ -205,7 +206,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.extension_sig_expire = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == EXTSIGTIME:
@@ -214,7 +215,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.extension_sig_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == GAIACOOKIECHANGED:
@@ -223,7 +224,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.gaia_cookie_changed = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTSAFEBROWSLOGTIME:
@@ -232,7 +233,7 @@ class Profile(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.safebrowsing_last_log = attr.timestamp
                 except:
-                    print("Fehler bei Update in Profil für " + attr.name)
+                    log_message("Fehler bei Update in Profil für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

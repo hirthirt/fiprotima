@@ -9,7 +9,7 @@ from Model.EdgeModel.SQLite.base import OTHER
 
 class EdgeModel:
 
-    def __init__(self, profile_path: str = None):
+    def __init__(self, profile_path: str = None): 
         if profile_path is None:
             return
 

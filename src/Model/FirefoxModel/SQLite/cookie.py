@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, orm
 
+from Model.log_util import log_message
 from Model.FirefoxModel.SQLite.base import *
 
 ID = "ID"
@@ -32,7 +33,7 @@ class Cookie(BaseSession, BaseSQLiteClass):
         
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Cookies")
+            log_message("Kein Delta erhalten in Cookies", "error")
             return
         for attr in self.attr_list:
             if attr.name == EXPIRYAT:
@@ -41,7 +42,8 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.expiry_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Cookies für " + attr.name)
+                    log_message("Fehler bei Update in Cookies für " + attr.name, "error")
+                    print(attr.timestamp, attr.value)
                     continue
                 self.is_date_changed = True
             elif attr.name == LASTACCESSAT:
@@ -50,7 +52,7 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_accessed_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Cookies für " + attr.name)
+                    log_message("Fehler bei Update in Cookies für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             elif attr.name == CREATEDAT:
@@ -59,7 +61,7 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.creation_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Cookies für " + attr.name)
+                    log_message("Fehler bei Update in Cookies für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

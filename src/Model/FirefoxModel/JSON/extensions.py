@@ -1,5 +1,6 @@
 import json
 
+from Model.log_util import log_message
 from Model.FirefoxModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,
@@ -66,7 +67,7 @@ class Extension(BaseJSONClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in Extensions")
+            log_message("Kein Delta erhalten in Extensions", "error")
             return
         for attr in self.attr_list:
             if attr.name == INSTALLDDATE:
@@ -75,7 +76,7 @@ class Extension(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.install_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Extensions für " + attr.name)
+                    log_message("Fehler bei Update in Extensions für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == UPDATEDATE:
@@ -84,7 +85,7 @@ class Extension(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.update_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Extensions für " + attr.name)
+                    log_message("Fehler bei Update in Extensions für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == SIGNEDDATE:
@@ -93,7 +94,7 @@ class Extension(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.signed_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Extensions für " + attr.name)
+                    log_message("Fehler bei Update in Extensions für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == VALIDNOTAFTER:
@@ -102,7 +103,7 @@ class Extension(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.validnotafter_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Extensions für " + attr.name)
+                    log_message("Fehler bei Update in Extensions für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == VALIDNOTBEFORE:
@@ -111,7 +112,7 @@ class Extension(BaseJSONClass):
                     attr.date_to_timestamp()
                     self.validnotbefore_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Extensions für " + attr.name)
+                    log_message("Fehler bei Update in Extensions für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 

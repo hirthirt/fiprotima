@@ -1,5 +1,5 @@
 from importlib import import_module
-
+from Model.log_util import log_message
 
 class DataSourcesJSON:
     pre_path = ""
@@ -54,13 +54,13 @@ class DataSourcesJSON:
             try:
                 self.sources[name].rollback()
             except:
-                print("Fehler beim speichern von: " + str(name))
+                log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].rollback()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    log_message("Fehler beim Rollback von: "  + str(source), "error")
 
 
     def commit(self, name):
@@ -69,13 +69,13 @@ class DataSourcesJSON:
             try:
                 self.sources[name].commit()
             except:
-                print("Fehler beim speichern von: " + str(name))
+                log_message("Fehler beim speichern von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].commit()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    log_message("Fehler beim Speichern von: "  + str(source), "error")
 
     def close(self):
         """Close all connections"""

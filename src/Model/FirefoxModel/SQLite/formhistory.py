@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, orm
 
+from Model.log_util import log_message
 from Model.FirefoxModel.SQLite.base import *
 
 ID = "ID"
@@ -33,7 +34,7 @@ class FormHistory(BaseSession, BaseSQLiteClass):
 
     def update(self, delta):
         if not delta:
-            print("Kein Delta erhalten in FormHistory")
+            log_message("Kein Delta erhalten in FormHistory", "error")
             return
         for attr in self.attr_list:
             if attr.name == FIRSTUSED:
@@ -42,7 +43,7 @@ class FormHistory(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.first_used_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Formhistory für " + attr.name)
+                    log_message("Fehler bei Update in Formhistory für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
             if attr.name == LASTUSED:
@@ -51,7 +52,7 @@ class FormHistory(BaseSession, BaseSQLiteClass):
                     attr.date_to_timestamp()
                     self.last_used_timestamp = attr.timestamp
                 except:
-                    print("Fehler bei Update in Formhistory für " + attr.name)
+                    log_message("Fehler bei Update in Formhistory für " + attr.name, "error")
                     continue
                 self.is_date_changed = True
 
