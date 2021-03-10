@@ -182,9 +182,9 @@ class Model:
                                  lvl="info")
 
     def change_filesystem_time(self, config):
+        now_history_last_time = self.browsermodel.get_history_last_time()
         self.browsermodel.close()
         sleep(1)
-        now_history_last_time = self.browsermodel.get_history_last_time()
         if not now_history_last_time:
             pub.sendMessage("logging",
                             message="Konnte keine History finden", 
@@ -192,9 +192,11 @@ class Model:
         paths = [config.profile_path]
         if config.cache_path:
             paths.append(config.cache_path)
+        start_timestamp = config.startup_history_last_time.timestamp()
+        end_timestamp = now_history_last_time.timestamp()
+        delta = start_timestamp - end_timestamp
 
         if config.current_os == "Windows":
-            delta = config.startup_history_last_time.timestamp()-now_history_last_time.timestamp()
 
             def setTime(path, delta):
                 fh = CreateFile(path, GENERIC_WRITE, FILE_SHARE_WRITE, None, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0)
@@ -204,8 +206,14 @@ class Model:
                 mTime = datetime.fromtimestamp(mTime.timestamp() - delta)
                 SetFileTime(fh, cTime, aTime, mTime)
                 CloseHandle(fh)
+        else:
 
-            for path in paths:
+            def setTime(path, delta):
+                a_time = os.path.getatime(path)
+                m_time = os.path.getmtime(path)
+                print(a_time, m_time)
+        
+        for path in paths:
                 for root, dir, files in os.walk(path):
                     for d in dir:
                         path = os.path.join(root, d)
@@ -224,7 +232,7 @@ class Model:
                                             message="Datei " + path + " konnten nicht editiert werden!", 
                                             lvl="info")
 
-            self.browsermodel.get_data()
+        self.browsermodel.get_data()
 
 
 
