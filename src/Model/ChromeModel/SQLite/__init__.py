@@ -38,8 +38,11 @@ class DataSourcesSQLite:
         """Collect data from hanlders"""
         data = {}
         for source in self.sources:
-            data[source] = self.sources[source].get_all_id_ordered()
-
+            try:
+                data[source] = self.sources[source].get_all_id_ordered()
+            except Exception as e:
+                log_message("Fehler in " + source + ": " + str(e), "info")
+            
         return data
     
     def get_history(self):

@@ -1,5 +1,5 @@
 from importlib import import_module
-from pubsub import pub
+from Model.log_util import log_message
 
 class DataSourcesSQLite:
     def __init__(self, profile_path: str, cache_path: str):
@@ -36,7 +36,10 @@ class DataSourcesSQLite:
         """Collect data from hanlders"""
         data = {}
         for source in self.sources:
-            data[source] = self.sources[source].get_all_id_ordered()
+            try:
+                data[source] = self.sources[source].get_all_id_ordered()
+            except Exception as e:
+                log_message("Fehler in " + source + ": " + str(e), "info")
 
         return data
 
@@ -87,6 +90,3 @@ class DataSourcesSQLite:
         """Close all connections"""
         for source in self.sources:
             self.sources[source].close()
-
-    def log_message(self, message, lvl):
-        pub.sendMessage("logging", message=message, lvl=lvl)

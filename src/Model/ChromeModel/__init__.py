@@ -3,9 +3,10 @@ from datetime import datetime
 from Model.ChromeModel.JSON import DataSourcesJSON
 from Model.ChromeModel.SQLite import DataSourcesSQLite
 from Model.ChromeModel.Cache import DataSourcesCache
-
 from Model.ChromeModel.SQLite.history import VISITED
 from Model.ChromeModel.SQLite.base import OTHER
+
+from Model.log_util import log_message
 
 class ChromeModel:
 
