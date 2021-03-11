@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
-from Model.log_util import log_message
+from Model.util import log_message
 from Model.ChromeModel.SQLite.base import (
     BaseSession,
     BaseSQLiteClass,

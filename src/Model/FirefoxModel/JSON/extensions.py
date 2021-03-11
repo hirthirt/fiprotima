@@ -1,6 +1,6 @@
 import json
 
-from Model.log_util import log_message
+from Model.util import log_message
 from Model.FirefoxModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,

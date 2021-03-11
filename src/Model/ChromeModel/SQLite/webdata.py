@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, orm
 import random
 
-from Model.log_util import log_message
+from Model.util import log_message
 from Model.ChromeModel.SQLite.base import *
 
 NAME = "Name"

@@ -6,7 +6,7 @@ from Model.ChromeModel.Cache import DataSourcesCache
 from Model.ChromeModel.SQLite.history import VISITED
 from Model.ChromeModel.SQLite.base import OTHER
 
-from Model.log_util import log_message
+from Model.util import log_message
 
 class ChromeModel:
 

@@ -1,6 +1,6 @@
 from Model.FirefoxModel.Cache.cache2entries import Cache2Handler
 from importlib import import_module
-from Model.log_util import log_message
+from Model.util import log_message
 
 
 class DataSourcesCache:

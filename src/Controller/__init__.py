@@ -209,6 +209,12 @@ class Controller:
             self.model.change_filesystem_time(self.config)
         except:
             self.logger.error("Felher beim ändern der Dateisystem Zeit!")
+    
+    def rollback_filesystem_time(self):      
+        try:
+            self.model.rollback_filesystem_time(self.config)
+        except:
+            self.logger.error("Felher beim Rollback der Dateisystem Zeit!")
 
     # The listener for the logging event of pubsub
     def log_listener(self, message, lvl):

@@ -1,5 +1,5 @@
 from importlib import import_module
-from Model.log_util import log_message
+from Model.util import log_message
 
 class DataSourcesSQLite:
     def __init__(self, profile_path: str):

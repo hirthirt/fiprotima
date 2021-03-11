@@ -1,7 +1,7 @@
 import json
 import random
 
-from Model.log_util import log_message
+from Model.util import log_message
 from Model.EdgeModel.JSON.base import (
     BaseJSONHandler,
     BaseJSONClass,

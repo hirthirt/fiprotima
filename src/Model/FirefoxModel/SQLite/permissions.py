@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, orm
-from Model.log_util import log_message
+from Model.util import log_message
 from Model.FirefoxModel.SQLite.base import *
 
 ID = "ID"

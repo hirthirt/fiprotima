@@ -5,19 +5,18 @@ import platform
 from time import sleep
 from pubsub import pub
 from datetime import datetime, timedelta
-if platform.system() == "Windows":
-    from win32file import CreateFile, SetFileTime, GetFileTime, CloseHandle
-    from win32file import GENERIC_WRITE, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, FILE_SHARE_WRITE
 
 from Model.FirefoxModel import FirefoxModel
 from Model.EdgeModel import EdgeModel
 from Model.ChromeModel import ChromeModel
+from Model.util import change_file_time
 
 class Model:
 
     def __init__(self):
         self.profiledict = {}
         self.browsermodel = None
+        self.filesystem_changed = False
 
     def has_profil_loaded(self):
         if self.browsermodel:
@@ -183,6 +182,47 @@ class Model:
                                  message="Kein Profil ausgewählt!", 
                                  lvl="info")
 
+    def rollback_filesystem_time(self, config):
+        if not self.filesystem_changed:
+            pub.sendMessage("logging",
+                            message="Dateisystem wurde noch nicht verändert!", 
+                            lvl="info")
+            return
+        delta = config.file_system_rollback_delta
+        self.browsermodel.close()
+        sleep(1)
+        config.set_file_system_rollback_delta(0)
+
+        paths = [config.profile_path]
+        if config.cache_path:
+            paths.append(config.cache_path)
+
+        for path in paths:
+                # recursivly iterate through the dirs and files and change time
+                for root, dir, files in os.walk(path):
+                    for d in dir:
+                        path = os.path.join(root, d)
+                        try:
+                            change_file_time(path, delta)
+                        except:
+                            pub.sendMessage("logging",
+                                            message="Datei " + 
+                                            path + 
+                                            " konnten nicht editiert werden!", 
+                                            lvl="info")
+                    for f in files:
+                        path = os.path.join(root, f)
+                        try:
+                            change_file_time(path, delta)
+                        except:
+                            pub.sendMessage("logging",
+                                            message="Datei " + 
+                                            path + 
+                                            " konnten nicht editiert werden!", 
+                                            lvl="info")
+        self.filesystem_changed = False
+        self.browsermodel.get_data()
+    
     def change_filesystem_time(self, config):
         now_history_last_time = self.browsermodel.get_history_last_time()
         self.browsermodel.close()
@@ -197,27 +237,8 @@ class Model:
         start_timestamp = config.startup_history_last_time.timestamp()
         end_timestamp = now_history_last_time.timestamp()
         delta = start_timestamp - end_timestamp
-
-        if config.current_os == "Windows":
-            # Define function to modify filetimes on Windows
-            def setTime(path, delta):
-                fh = CreateFile(path, GENERIC_WRITE, 
-                                FILE_SHARE_WRITE, None, 
-                                OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0)
-                cTime, aTime, mTime = GetFileTime(fh)
-                cTime = datetime.fromtimestamp(cTime.timestamp() - delta)
-                aTime = datetime.fromtimestamp(aTime.timestamp() - delta)
-                mTime = datetime.fromtimestamp(mTime.timestamp() - delta)
-                SetFileTime(fh, cTime, aTime, mTime)
-                CloseHandle(fh)
-        else:
-            # Define function to modify filetimes on Linux/Mac
-            def setTime(path, delta):
-                a_time = os.path.getatime(path)
-                m_time = os.path.getmtime(path)
-                a_time = a_time - delta
-                m_time = m_time - delta
-                os.utime(path, (a_time, m_time))
+        rollback_delta = -1 * delta
+        config.set_file_system_rollback_delta(rollback_delta)
         
         for path in paths:
                 # recursivly iterate through the dirs and files and change time
@@ -225,7 +246,7 @@ class Model:
                     for d in dir:
                         path = os.path.join(root, d)
                         try:
-                            setTime(path, delta)
+                            change_file_time(path, delta)
                         except:
                             pub.sendMessage("logging",
                                             message="Datei " + 
@@ -235,14 +256,14 @@ class Model:
                     for f in files:
                         path = os.path.join(root, f)
                         try:
-                            setTime(path, delta)
+                            change_file_time(path, delta)
                         except:
                             pub.sendMessage("logging",
                                             message="Datei " + 
                                             path + 
                                             " konnten nicht editiert werden!", 
                                             lvl="info")
-
+        self.filesystem_changed = True
         self.browsermodel.get_data()
 
 

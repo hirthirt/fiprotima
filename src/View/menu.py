@@ -20,6 +20,7 @@ class MainMenu(tk.Menu):
         editmenu.add_command(label="Alle Daten editieren", command=self.parent.controller.edit_all_data)
         editmenu.add_command(label="Ausgewählte Daten editieren", command=self.parent.controller.edit_selected_data)
         editmenu.add_command(label="Dateisystem-Zeit anpassen", command=self.parent.controller.change_filesystem_time)
+        editmenu.add_command(label="Dateisystem-Zeit zurücksetzten", command=self.parent.controller.rollback_filesystem_time)
         self.add_cascade(label="Bearbeiten", menu=editmenu)
 
         viewmenu = tk.Menu(self, tearoff=0)
