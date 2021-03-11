@@ -85,6 +85,9 @@ class BaseAttribute:
     def set_date(self, date: datetime):
         if self.type == OTHER:
             return
+        
+        if self.timestamp == 0:
+            return
 
         self.value = date
 

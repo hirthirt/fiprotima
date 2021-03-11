@@ -131,6 +131,9 @@ class BaseAttribute:
         """Override value with datetime"""
         if self.type == OTHER:
             return
+        
+        if self.timestamp == 0:
+            return
 
         self.value = datetime.fromtimestamp(self.value.timestamp() - delta)
 
