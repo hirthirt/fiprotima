@@ -2,6 +2,7 @@ import getpass
 import platform
 import datetime
 import logging
+import lz4
 
 from pubsub import pub
 from dateutil.relativedelta import *
@@ -199,14 +200,25 @@ class Controller:
 
     def commit_all_data(self):
         self.model.commit()
+        self.reload_data()
     
     #TODO: Get selected Dataname from View and commit only this data
     def commit_selected_data(self):
         pass
+
+    def rollback_all_data(self):
+        self.model.rollback()
+        self.model.rollback_filesystem_time(self.config)
+        self.reload_data()
+    
+    #TODO: Get selected Dataname from View and commit only this data
+    def rollback_selected_data(self):
+        pass
     
     def change_filesystem_time(self):      
+        self.model.change_filesystem_time(self.config)
         try:
-            self.model.change_filesystem_time(self.config)
+            pass
         except:
             self.logger.error("Felher beim ändern der Dateisystem Zeit!")
     

@@ -20,7 +20,7 @@ class SideBar(tk.Frame):
     def body(self):
 
         # Profile Treeview
-        self.tree = ttk.Treeview(self, height=25)
+        self.tree = ttk.Treeview(self, selectmode="browse", height=25)
 
         # Load Profile Button
         subbutton = tk.Button(self, text="Laden", relief=tk.FLAT, width=30, command=self.load_profile)

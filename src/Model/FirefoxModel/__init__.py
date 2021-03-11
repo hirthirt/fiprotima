@@ -238,10 +238,12 @@ class FirefoxModel:
         if name:
             for item in self.data_dict[name]:
                 item.is_date_changed = False
+                item.init()
         else:
             for source in self.data_dict:
                 for item in self.data_dict[source]:
                     item.is_date_changed = False
+                    item.init()
 
     def close(self):
         for source in self.sources:

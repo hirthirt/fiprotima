@@ -2,7 +2,7 @@ import json
 import pickle
 from datetime import datetime, timedelta, timezone
 
-import lz4.block
+from lz4 import block
 from os.path import exists, isfile, join
 
 EPOCH = datetime(1970, 1, 1)
@@ -174,13 +174,13 @@ class BaseJSONHandler:
             if self.file_handle.read(8) != b"mozLz40\0":
                 raise Exception("Ungueltiger Datenheader")
             else:
-                return lz4.block.decompress(self.file_handle.read())
+                return block.decompress(self.file_handle.read())
         return self.file_handle.read()
 
     def write_file(self):
         json_dump = json.dumps(self.json_all, separators=(",", ":"))
         if self.compressed:
-            json_dump = b"mozLz40\0" + lz4.block.compress(bytes(json_dump, encoding="utf-8"))
+            json_dump = b"mozLz40\0" + block.compress(bytes(json_dump, encoding="utf-8"))
         self.open_file(write=True)
 
         self.file_handle.write(json_dump)

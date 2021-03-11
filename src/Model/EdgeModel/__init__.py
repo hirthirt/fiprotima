@@ -64,25 +64,47 @@ class EdgeModel:
             data_dict = {
                 "Cookies" : [],
                 "Favicons" : [],
-                "ContentPrefs" : [],
-                "Downloads" : []
+                "Downloads" : [],
+                "Logins" : [],
+                "CompromisedCreds" : []
             }
-            for cookie in self.data_dict["CookieHandler"]:
-                if identifier in cookie.host:
-                    data_dict["Cookies"].append(cookie)
 
-            for favico in self.data_dict["FaviconHandler"]:
-                if identifier in favico.urls.url:
-                    data_dict["Favicons"].append(favico)
+            try:
+                for cookie in self.data_dict["CookieHandler"]:
+                    if identifier in cookie.host:
+                        data_dict["Cookies"].append(cookie)
+            except:
+                pass
 
-            for downl in self.data_dict["DownloadHandler"]:
-                if identifier in downl.referrer:
-                    data_dict["Downloads"].append(downl)
+            try:
+                for favico in self.data_dict["FaviconHandler"]:
+                    if identifier in favico.urls.url:
+                        data_dict["Favicons"].append(favico)
+            except:
+                pass
+
+            try:
+                for downl in self.data_dict["DownloadHandler"]:
+                    if identifier in downl.referrer:
+                        data_dict["Downloads"].append(downl)
+            except:
+                pass
+
+            try:
+                for login in self.data_dict["LoginHandler"]:
+                    if identifier in login.origin_url:
+                        data_dict["Logins"].append(login)
+            except:
+                pass
+
+            try:
+                for compcred in self.data_dict["CompromisedCredentialHandler"]:
+                    if identifier in compcred.date_created:
+                        data_dict["CompromisedCredentialHandler"].append(compcred)
+            except:
+                pass
 
         return data_dict
-
-    def get_form_history(self):
-        return self.data_dict["FormHistoryHandler"]
 
     def get_addons(self):
         return self.data_dict["AddonsHandler"]
@@ -95,6 +117,9 @@ class EdgeModel:
 
     def get_keywords(self):
         return self.data_dict["KeywordHandler"]
+    
+    def get_form_history(self):
+        return self.data_dict["AutofillHandler"]
 
     def edit_all_data(self, delta):
         for source in self.data_dict:
@@ -159,10 +184,12 @@ class EdgeModel:
         if name:
             for item in self.data_dict[name]:
                 item.is_date_changed = False
+                item.init()
         else:
             for source in self.data_dict:
                 for item in self.data_dict[source]:
                     item.is_date_changed = False
+                    item.init()
 
     def commit(self, name: str = None):
         for source in self.sources:

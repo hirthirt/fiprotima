@@ -181,6 +181,14 @@ class Model:
             pub.sendMessage("logging",
                                  message="Kein Profil ausgewählt!", 
                                  lvl="info")
+    
+    def rollback(self, name: str = None):
+        if self.browsermodel:
+            self.browsermodel.rollback(name)
+        else:
+            pub.sendMessage("logging",
+                                 message="Kein Profil ausgewählt!", 
+                                 lvl="info")
 
     def rollback_filesystem_time(self, config):
         if not self.filesystem_changed:
@@ -255,8 +263,9 @@ class Model:
                                             lvl="info")
                     for f in files:
                         path = os.path.join(root, f)
+                        change_file_time(path, delta)
                         try:
-                            change_file_time(path, delta)
+                            pass
                         except:
                             pub.sendMessage("logging",
                                             message="Datei " + 

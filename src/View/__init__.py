@@ -5,12 +5,15 @@ from View.menu import MainMenu
 from View.toolbar import Toolbar
 from View.sidebar import SideBar
 from View.content import Content
+from Model.util import resource_path
 
 class View(tk.Tk):
-
     def __init__(self, controller):
         super().__init__()
         self.geometry("1500x900")
+        icon = tk.PhotoImage(file=resource_path("View/icons/Logo.png"))
+        self.iconphoto(False, icon)
+
         self.controller = controller
         self.menu = None
         self.toolbar = None

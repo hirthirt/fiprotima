@@ -1,4 +1,6 @@
 import os
+import sys
+from datetime import datetime
 from pubsub import pub
 import platform
 
@@ -28,3 +30,14 @@ def change_file_time(path, delta):
         a_time = a_time - delta
         m_time = m_time - delta
         os.utime(path, (a_time, m_time))
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
