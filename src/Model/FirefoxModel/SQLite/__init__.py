@@ -28,7 +28,7 @@ class DataSourcesSQLite:
                 instance = Class_(profile_path=profile_path, cache_path=cache_path)
             except Exception as e:
                 message = "Fehler in SQlite, Klasse " + str(class_name) + ": " + str(e) + ". Überspringe"
-                self.log_message(message, "info")
+                log_message(message, "info")
                 continue
             self.sources[class_name] = instance
 
@@ -63,13 +63,13 @@ class DataSourcesSQLite:
             try:
                 self.sources[name].rollback()
             except:
-                self.log_message("Fehler beim Rollback von: " + str(name), "error")
+                log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].rollback()
                 except:
-                    self.log_message("Fehler beim Rollback von: "  + str(source), "error")
+                    log_message("Fehler beim Rollback von: "  + str(source), "error")
 
 
     def commit(self, name):
@@ -78,13 +78,13 @@ class DataSourcesSQLite:
             try:
                 self.sources[name].commit()
             except:
-                self.log_message("Fehler beim speichern von: " + str(name), "error")
+                log_message("Fehler beim speichern von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].commit()
                 except:
-                    self.log_message("Fehler beim Speichern von: "  + str(source), "error")
+                    log_message("Fehler beim Speichern von: "  + str(source), "error")
 
     def close(self):
         """Close all connections"""

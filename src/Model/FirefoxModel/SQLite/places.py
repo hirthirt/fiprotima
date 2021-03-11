@@ -1,7 +1,10 @@
+import json
+import platform
+
 from sqlalchemy import Column, Integer, String, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
-from Model.util import log_message
+from Model.util import log_message, change_file_time
 from Model.FirefoxModel.SQLite.base import (
     BaseSession,
     BaseSQLiteClass,
@@ -175,6 +178,23 @@ class Download(BaseSession, BaseSQLiteClass):
         if not delta:
             log_message("Kein Delta erhalten in Download", "error")
             return
+        if self.content.startswith('file'):
+            print(self.content)
+            file_path = self.content.split("///")[1]
+            if platform.system() != "Windows":
+                file_path = "/" + file_path
+            print(file_path)
+            change_file_time(file_path, delta)
+        else:
+            data = json.loads(self.content)
+            endtime = int(data["endTime"])
+            endtime = endtime - delta
+            data["endTime"] = int(endtime)
+            self.content = json.dumps(data)
+            for attr in self.attr_list:
+                if attr.name == "Inhalt":
+                    attr.value = self.content
+           
         for attr in self.attr_list:
             if attr.name == ADDEDAT:
                 try:

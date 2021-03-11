@@ -28,7 +28,7 @@ class DataSourcesJSON:
                 instance = Class_(profile_path=profile_path, cache_path=cache_path)
             except Exception as e:
                 message = "Fehler in SQlite, Klasse " + str(class_name) + ": " + str(e) + ". Überspringe"
-                self.log_message(message, "info")
+                log_message(message, "info")
                 continue
             self.sources[class_name] = instance
 
@@ -60,13 +60,13 @@ class DataSourcesJSON:
             try:
                 self.sources[name].rollback()
             except:
-                self.log_message("Fehler beim Rollback von: " + str(name), "error")
+                log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].rollback()
                 except:
-                    self.log_message("Fehler beim Rollback von: " + str(source), "error")
+                    log_message("Fehler beim Rollback von: " + str(source), "error")
 
 
     def commit(self, name):
@@ -75,19 +75,17 @@ class DataSourcesJSON:
             try:
                 self.sources[name].commit()
             except:
-                self.log_message("Fehler beim Speichern von: "  + str(name), "error")
+                log_message("Fehler beim Speichern von: "  + str(name), "error")
         else:
             for source in self.sources:
                 self.sources[source].commit()
                 try:
                     pass
                 except:
-                    self.log_message("Fehler beim Speichern von: "  + str(source), "error")
+                    log_message("Fehler beim Speichern von: "  + str(source), "error")
 
     def close(self):
         """Close all connections"""
         for source in self.sources:
             self.sources[source].close()
 
-    def log_message(self, message, lvl):
-        pub.sendMessage("logging", message=message, lvl=lvl)

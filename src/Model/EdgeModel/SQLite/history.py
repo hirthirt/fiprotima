@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, orm, ForeignKey
 from sqlalchemy.orm import relationship
 
-from Model.util import log_message
+from Model.util import log_message, change_file_time
 from Model.EdgeModel.SQLite.base import (
     BaseSession,
     BaseSQLiteClass,
@@ -118,6 +118,10 @@ class Download(BaseSession, BaseSQLiteClass):
         if not delta:
             log_message("Kein Delta erhalten in Download", "error")
             return
+        
+        print(self.target_path)
+        change_file_time(self.target_path, delta)
+
         for attr in self.attr_list:
             if attr.name == STARTTIME:
                 try:
