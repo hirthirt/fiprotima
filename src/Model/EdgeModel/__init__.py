@@ -3,6 +3,7 @@ from datetime import datetime
 from Model.EdgeModel.JSON import DataSourcesJSON
 from Model.EdgeModel.SQLite import DataSourcesSQLite
 from Model.EdgeModel.Cache import DataSourcesCache
+from Model.util import log_message
 
 from Model.EdgeModel.SQLite.history import VISITED
 from Model.EdgeModel.SQLite.base import OTHER
@@ -20,7 +21,16 @@ class EdgeModel:
         self.sources["Cache"] = DataSourcesCache(profile_path)
 
         self.data_dict = self.get_data()
-        
+        self.save_state = {}
+        for key in self.data_dict:
+            self.save_state[key] = True
+
+
+    def get_unsaved_handlers(self):
+        return [self.save_state[handler] for handler in self.save_state if self.save_state[handler] == False ]
+
+    def get_saved_handler(self):
+        return [self.save_state[handler] for handler in self.save_state if self.save_state[handler] == True ]    
 
     def get_data(self):
         data_dict = {}
@@ -106,6 +116,7 @@ class EdgeModel:
 
         return data_dict
 
+
     def get_addons(self):
         return self.data_dict["AddonsHandler"]
 
@@ -123,18 +134,32 @@ class EdgeModel:
 
     def get_cache(self):
         return self.data_dict["CacheEntryHandler"]
+    
+    def get_specific_data(self, id):
+        if id in self.data_dict:
+            if self.data_dict[id]:
+                return self.data_dict[id]
+            else:
+                log_message("Keine Daten verfügbar!", "info")
+                return None
+        else:
+            log_message("Daten nicht gefunden!", "info")
+            return None
 
     def edit_all_data(self, delta):
         for source in self.data_dict:
             for item in self.data_dict[source]:
                 item.update(delta)
         self.reload_data_attributes()
+        for handler in self.save_state:
+            self.save_state[handler] = False
 
     def edit_selected_data_delta(self, delta, selection):
         for selected in selection:
             for item in self.data_dict[selected[0]]:
                 if item.id == selected[1]:
                     item.update(delta)
+                    self.save_state[selected[0]] = False
                 try:
                     for other_item in self.data_dict[selected[0]]:
                         if item.place.id == other_item.place.id:
@@ -163,6 +188,7 @@ class EdgeModel:
                             delta = attr.value.timestamp() - date.timestamp()
                             break  
                     item.update(delta)
+                    self.save_state[selected[0]] = False
                     try:
                         for other_item in self.data_dict[selected[0]]:
                             if item.place.id == other_item.place.id:
@@ -188,11 +214,14 @@ class EdgeModel:
             for item in self.data_dict[name]:
                 item.is_date_changed = False
                 item.init()
+            self.save_state[name] = True
         else:
             for source in self.data_dict:
                 for item in self.data_dict[source]:
                     item.is_date_changed = False
                     item.init()
+            for handler in self.save_state:
+                self.save_state[handler] = True
 
     def commit(self, name: str = None):
         for source in self.sources:
@@ -200,10 +229,13 @@ class EdgeModel:
         if name:
             for item in self.data_dict[name]:
                 item.is_date_changed = False
+            self.save_state[name] = True
         else:
             for source in self.data_dict:
                 for item in self.data_dict[source]:
                     item.is_date_changed = False
+            for handler in self.save_state:
+                self.save_state[handler] = True
 
     def close(self):
         for source in self.sources:

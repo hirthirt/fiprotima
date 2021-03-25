@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from Model.FirefoxModel import FirefoxModel
 from Model.EdgeModel import EdgeModel
 from Model.ChromeModel import ChromeModel
-from Model.util import change_file_time
+from Model.util import change_file_time, log_message
 
 class Model:
 
@@ -30,10 +30,9 @@ class Model:
         if browser == "Firefox":
             config.set_profile_path(self.profiledict[browser][name][0])
             config.set_cache_path(self.profiledict[browser][name][1]) 
-            self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
-            config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             try:
-                pass
+                self.browsermodel = FirefoxModel(config.profile_path, config.cache_path)
+                config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             except:
                 self.browsermodel = None
                 pub.sendMessage("logging",
@@ -65,10 +64,9 @@ class Model:
                 return None
         elif browser == "Chrome":
             config.set_profile_path(self.profiledict[browser][name])
-            self.browsermodel = ChromeModel(config.profile_path)
-            config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             try:
-                pass
+                self.browsermodel = ChromeModel(config.profile_path)
+                config.set_startup_history_last_time(self.browsermodel.get_history_last_time())
             except:
                 self.browsermodel = None
                 pub.sendMessage("logging",
@@ -82,9 +80,33 @@ class Model:
             else:
                 return None
 
+    
+    def get_saved_handlers(self):
+        if self.browsermodel:
+            saved_handler  = self.browsermodel.get_saved_handlers()
+        else:
+            log_message("Kein Profil geladen!", "info")
+            saved_handler = None
+        return saved_handler
+
+    def get_unsaved_handlers(self):
+        if self.browsermodel:
+            unsaved_handler  = self.browsermodel.get_unsaved_handlers()
+        else:
+            log_message("Kein Profil geladen!", "info")
+            unsaved_handler = None
+        return unsaved_handler
+    
     # Get additional infos (cookies, permissions, etc.) for a given website
     def get_additional_info(self, data_type, indentifier):
         data = self.browsermodel.get_additional_info(data_type, indentifier)
+        return data
+
+    def get_specific_data(self, id):
+        if self.browsermodel:
+            data = self.browsermodel.get_specific_data(id)
+        else:
+            data = None
         return data
 
     def get_form_history(self):
@@ -390,6 +412,3 @@ class Model:
                             lvl="info")
             pass
         return self.profiledict
-
-def log_message(message, lvl):
-    pub.sendMessage("logging", message=message, lvl=lvl)

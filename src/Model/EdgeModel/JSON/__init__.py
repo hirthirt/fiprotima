@@ -12,6 +12,7 @@ class DataSourcesJSON:
         source_names = []
 
         source_names.append(["Model.EdgeModel.JSON.preferences", "ProfileHandler"])
+        source_names.append(["Model.EdgeModel.JSON.bookmarks", "BookmarkHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]

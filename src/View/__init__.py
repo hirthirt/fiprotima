@@ -5,6 +5,7 @@ from View.menu import MainMenu
 from View.toolbar import Toolbar
 from View.sidebar import SideBar
 from View.content import Content
+from View.Dialogs.ask_dialog import AskDialog
 from Model.util import resource_path
 
 class View(tk.Tk):
@@ -25,6 +26,7 @@ class View(tk.Tk):
 
     
     def main(self):
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.mainloop()
 
     def body(self):      
@@ -39,3 +41,13 @@ class View(tk.Tk):
         self.content.grid(row=1, column=1, sticky="wens")
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
+
+    def on_closing(self):
+        if self.controller.get_unsaved_handlers():
+            answer = AskDialog(self, self.controller, "Es wurden nicht alle Daten gespeichert!\n Trotzdem fortfahren?").show()
+            if not answer:
+                return
+        answer = AskDialog(self, self.controller, "Möchten Sie wirklich beenden?").show()
+        if not answer:
+            return
+        self.destroy()

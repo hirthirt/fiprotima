@@ -20,6 +20,7 @@ class Origin(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.origin))
         self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))
@@ -86,6 +87,7 @@ class PlaybackSession(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.url))
         self.attr_list.append(BaseAttribute(LASTUPDATED, DT_WEBKIT, self.last_updated))

@@ -46,14 +46,31 @@ class Controller:
 
     def load_profile(self, browser, name):
         data = None
+        if self.get_unsaved_handlers():
+            answer = AskDialog(self.view, self, "Es wurden nicht alle Daten gespeichert!\n Trotzdem fortfahren?").show()
+            if not answer:
+                data = "keep"
+                return data
         if self.model.has_profil_loaded():
             answer = AskDialog(self.view, self, "Möchten Sie das Profil wirklich wechseln?").show()
             if not answer:
                 data = "keep"
                 return data
         data = self.model.load_profile(browser,name, self.config)
+        if browser in ["Edge", "Chrome"]:
+            self.view.menu.chrome_edge_views()
+        else:
+            self.view.menu.firefox_views()
         return data
 
+    def get_unsaved_handlers(self):
+        unsaved_handlers = self.model.get_unsaved_handlers()
+        return unsaved_handlers
+
+    def get_saved_handlers(self):
+        saved_handlers = self.model.get_saved_handler()
+        return saved_handlers
+    
     def get_history(self):
         data = self.model.get_history()
         return data
@@ -63,7 +80,7 @@ class Controller:
 
     def change_data_view(self, data_view):
         if data_view == "FormHistory":
-            data = self.model.get_form_history()
+            data = self.model.get_specific_data("FormHistoryHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
@@ -75,47 +92,114 @@ class Controller:
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Historie")
         elif data_view == "Addons":
-            data = self.model.get_addons()
+            data = self.model.get_specific_data("AddonsHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Addons")
         elif data_view == "Bookmarks":
-            data = self.model.get_bookmarks()
+            data = self.model.get_specific_data("BookmarkHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Lesezeichen")
         elif data_view == "Extensions":
-            data = self.model.get_extensions()
+            data = self.model.get_specific_data("ExtensionsHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Erweiterungen")
         elif data_view == "Session":
-            data = self.model.get_session()
+            data = self.model.get_specific_data("WindowHandler")
             if data:
                 self.view.content.fill_dataview(data, True)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Sessions")
         elif data_view == "Profile":
-            data = self.model.get_profile()
+            data = self.model.get_specific_data("ProfileHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Profil")
         elif data_view == "Keywords":
-            data = self.model.get_keywords()
+            data = self.model.get_specific_data("KeywordHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Keywords")
         elif data_view == "Cache":
-            data = self.model.get_cache()
+            data = self.model.get_specific_data("CacheEntryHandler")
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
                 self.view.content.change_view_label("Cache")
+        elif data_view == "Download":
+            data = self.model.get_specific_data("DownloadHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Download")
+        elif data_view == "Permission":
+            data = self.model.get_specific_data("PermissionHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Berechtigungen")
+        elif data_view == "Favicon":
+            data = self.model.get_specific_data("FaviconHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Favicons")
+        elif data_view == "Cookie":
+            data = self.model.get_specific_data("CookieHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Cookies")
+        elif data_view == "ContentPref":
+            data = self.model.get_specific_data("ContentPrefHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Seiten-Präferenzen")
+        elif data_view == "FireProfile":
+            data = self.model.get_specific_data("TimesHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Profil")
+        elif data_view == "Autofill":
+            data = self.model.get_specific_data("AutofillHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Formular-Eingaben")
+        elif data_view == "Login":
+            data = self.model.get_specific_data("LoginHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Logins")
+        elif data_view == "CompCred":
+            data = self.model.get_specific_data("CompromisedCredentialHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Unsichere Anmeldedaten")
+        elif data_view == "ExtCookies":
+            data = self.model.get_specific_data("ExtensionCookieHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Erweiterungs-Cookies")
+        elif data_view == "Media":
+            data = self.model.get_specific_data("OriginHandler")
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Medien")
+        
 
     def load_additional_info(self, a):
         if self.view.content.dataview_mode == "History":
@@ -132,6 +216,10 @@ class Controller:
         elif self.view.content.dataview_mode == "Session":
             item = self.view.content.dataview.item(self.view.content.dataview.focus())
             data = self.model.get_additional_info("session", item["values"][-1])
+            self.view.content.fill_info_section(data)
+        elif self.view.content.dataview_mode == "Media":
+            item = self.view.content.dataview.item(self.view.content.dataview.focus())
+            data = self.model.get_additional_info("media", item["values"][-1])
             self.view.content.fill_info_section(data)
 
     
@@ -217,7 +305,7 @@ class Controller:
         if not selected_list:
             self.logger.info("Keine Elemente ausgewählt!")
             return
-
+            
         if mode == "date":
             try:
                 self.model.edit_selected_data_date(date, selected_list)
@@ -240,7 +328,7 @@ class Controller:
         self.model.commit()
         self.reload_data()
     
-    #TODO: Get selected Dataname from View and commit only this data
+    # Only commit the selected table
     def commit_selected_data(self, infoview=False):
         if not infoview:
             data_handler_name = self.view.content.selected_treeview_handler
@@ -259,7 +347,7 @@ class Controller:
         self.model.rollback_filesystem_time(self.config)
         self.reload_data()
     
-    #TODO: Get selected Dataname from View and commit only this data
+    # Only rollback the selected table
     def rollback_selected_data(self, infoview=False):
         if not infoview:
             data_handler_name = self.view.content.selected_treeview_handler
@@ -273,18 +361,23 @@ class Controller:
             self.load_additional_info(None)
         pass
     
-    def change_filesystem_time(self):      
+    def change_filesystem_time(self):
+        check = AskDialog(self.view, self, "Möchten Sie die Dateisystemzeit wirklich anpassen?\n Dies sollte erst dann gemacht werden wenn alle anderen Änderungen vollzogen und gespeichert wurden!").show()
+        if not check:
+            return
+        if not self.model.has_profil_loaded():
+            self.logger.info("Kein Profil geladen!")
         self.model.change_filesystem_time(self.config)
         try:
             pass
         except:
-            self.logger.error("Felher beim ändern der Dateisystem Zeit!")
+            self.logger.error("Fehler beim ändern der Dateisystem Zeit!")
     
     def rollback_filesystem_time(self):      
         try:
             self.model.rollback_filesystem_time(self.config)
         except:
-            self.logger.error("Felher beim Rollback der Dateisystem Zeit!")
+            self.logger.error("Fehler beim Rollback der Dateisystem Zeit!")
 
     # The listener for the logging event of pubsub
     def log_listener(self, message, lvl):

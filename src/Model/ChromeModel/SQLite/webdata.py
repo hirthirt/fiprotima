@@ -22,6 +22,7 @@ class Autofill(BaseSession, BaseSQLiteClass):
 
     @orm.reconstructor
     def init(self):
+        self.is_date_changed = False
         self.id = random.randint(0, 9999999999999)
         self.attr_list = []
         self.attr_list.append(BaseAttribute(NAME, OTHER, self.name))
