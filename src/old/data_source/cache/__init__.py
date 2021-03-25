@@ -1,5 +1,6 @@
 from data_source.cache.cache2entries import Cache2Handler
 from importlib import import_module
+from Model.util import log_message
 
 
 class DataSourcesCache:
@@ -18,9 +19,9 @@ class DataSourcesCache:
                 Class_ = getattr(module, class_name)
                 instance = Class_(profile_path=profile_path, cache_path=cache_path)
             except Exception as e:
-                print(
+                log_message(
                     "Fehler in Datenquelle Cache, Modul %s, Klasse %s: %s. Überspringe"
-                    % (module_name, class_name, e)
+                    % (module_name, class_name, e), "info"
                 )
                 continue
             self.sources.append(instance)

@@ -225,15 +225,17 @@ class FirefoxModel:
         return name_list
 
     def rollback(self, name: str = None):
-            for source in self.sources:
-                self.sources[source].rollback(name)
-            if name:
-                for item in self.data_dict[name]:
+        for source in self.sources:
+            self.sources[source].rollback(name)
+        if name:
+            for item in self.data_dict[name]:
+                item.is_date_changed = False
+                item.init()
+        else:
+            for source in self.data_dict:
+                for item in self.data_dict[source]:
                     item.is_date_changed = False
-            else:
-                for source in self.data_dict:
-                    for item in self.data_dict[source]:
-                        item.is_date_changed = False
+                    item.init()
 
     def commit(self, name: str = None):
         for source in self.sources:

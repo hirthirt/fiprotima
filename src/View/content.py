@@ -30,11 +30,15 @@ class Content(tk.Frame):
         self.popup_menu.add_command(label="Ausgewählte editieren via Delta", command=lambda: self.parent.controller.edit_selected_data(mode="delta"))
         self.popup_menu.add_command(label="Ausgewählte editieren via Datum", command=lambda: self.parent.controller.edit_selected_data(mode="date"))
         self.popup_menu.add_command(label="Gesamte aktuelle Tablle editieren", command=lambda: self.parent.controller.edit_selected_data(mode="delta", all=True))
+        self.popup_menu.add_command(label="Änderungen für gesamte Tabelle zurücknehmen", command=lambda: self.parent.controller.rollback_selected_data())
+        self.popup_menu.add_command(label="Änderungen für gesamte Tabelle speichern", command=lambda: self.parent.controller.commit_selected_data())
 
         self.addi_popup_menu = tk.Menu(self, tearoff=False)
         self.addi_popup_menu.add_command(label="Ausgewählte editieren via Delta", command=lambda: self.parent.controller.edit_selected_data(mode="delta", infoview=True))
         self.addi_popup_menu.add_command(label="Ausgewählte editieren via Datum", command=lambda: self.parent.controller.edit_selected_data(mode="date", infoview=True))
         self.addi_popup_menu.add_command(label="Gesamte aktuelle Tablle editieren", command=lambda: self.parent.controller.edit_selected_data(mode="delta",all=True, infoview=True))
+        self.addi_popup_menu.add_command(label="Änderungen für gesamte Tabelle zurücknehmen", command=lambda: self.parent.controller.rollback_selected_data(infoview=True))
+        self.addi_popup_menu.add_command(label="Änderungen für gesamte Tabelle zurücknehmen", command=lambda: self.parent.controller.commit_selected_data(infoview=True))
 
         # Treeview style
         self.style = ttk.Style()

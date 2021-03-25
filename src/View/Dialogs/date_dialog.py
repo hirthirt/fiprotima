@@ -15,7 +15,6 @@ class DateDialog(tk.Toplevel):
         self.controller = controller
         self.return_value = None
         self.date = datetime.datetime.now()
-        print(type(self.date))
 
         tk.Label(self, text="Datum auswählen:").pack(side=tk.TOP, pady=8)
 

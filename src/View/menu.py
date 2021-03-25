@@ -1,4 +1,5 @@
 import tkinter as tk
+import webbrowser
 
 class MainMenu(tk.Menu):
 
@@ -36,6 +37,6 @@ class MainMenu(tk.Menu):
 
         helpmenu = tk.Menu(self, tearoff=0)
         helpmenu.add_command(label="Hilfe")
-        helpmenu.add_command(label="Über...")
+        helpmenu.add_command(label="Über...", command=lambda: webbrowser.open_new("https://github.com/hirthirt/fiprotima"))
         self.add_cascade(label="Hilfe", menu=helpmenu)
 

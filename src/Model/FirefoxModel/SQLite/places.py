@@ -179,11 +179,9 @@ class Download(BaseSession, BaseSQLiteClass):
             log_message("Kein Delta erhalten in Download", "error")
             return
         if self.content.startswith('file'):
-            print(self.content)
             file_path = self.content.split("///")[1]
             if platform.system() != "Windows":
                 file_path = "/" + file_path
-            print(file_path)
             change_file_time(file_path, delta)
         else:
             data = json.loads(self.content)

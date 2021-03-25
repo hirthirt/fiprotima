@@ -68,7 +68,10 @@ class DataSourcesSQLite:
         """Undo changes for only one source or all"""
         if name:
             try:
-                self.sources[name].rollback()
+                if name in self.sources:
+                    self.sources[name].rollback()
+                else:
+                    pass
             except:
                 log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
@@ -83,7 +86,10 @@ class DataSourcesSQLite:
         """Save changes for only one source or all"""
         if name:
             try:
-                self.sources[name].commit()
+                if name in self.sources:
+                    self.sources[name].commit()
+                else:
+                    pass
             except:
                 log_message("Fehler beim speichern von: " + str(name), "error")
         else:

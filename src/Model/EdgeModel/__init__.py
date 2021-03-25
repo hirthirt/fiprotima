@@ -122,8 +122,6 @@ class EdgeModel:
         return self.data_dict["AutofillHandler"]
 
     def get_cache(self):
-        for x in self.data_dict:
-            print(x)
         return self.data_dict["CacheEntryHandler"]
 
     def edit_all_data(self, delta):

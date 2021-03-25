@@ -43,7 +43,6 @@ class Cookie(BaseSession, BaseSQLiteClass):
                     self.expiry_timestamp = attr.timestamp
                 except:
                     log_message("Fehler bei Update in Cookies für " + attr.name, "error")
-                    print(attr.timestamp, attr.value)
                     continue
                 self.is_date_changed = True
             elif attr.name == LASTACCESSAT:

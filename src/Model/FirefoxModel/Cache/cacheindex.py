@@ -73,4 +73,3 @@ class IndexHandler(BaseCacheHandler):
             )
             i = i + 1
         self.close_file()
-        print(self.index_entries[2].id)

@@ -49,7 +49,7 @@ class CacheEntry(BaseCacheClass):
             if attr.name == LASTMODIFIED:
                 attr.change_date(delta)
                 attr.date_to_timestamp()
-                self.creationTime = attr.timestamp
+                self.last_modified_timestamp = attr.timestamp
                 try:
                     pass
                 except:
@@ -60,7 +60,7 @@ class CacheEntry(BaseCacheClass):
                 try:
                     attr.change_date(delta)
                     attr.date_to_timestamp()
-                    self.creationTime = attr.timestamp
+                    self.last_fetched_timestamp = attr.timestamp
                 except:
                     log_message("Fehler bei Update in Cache für " + attr.name, "error")
                     continue
@@ -69,7 +69,7 @@ class CacheEntry(BaseCacheClass):
                 try:
                     attr.change_date(delta)
                     attr.date_to_timestamp()
-                    self.creationTime = attr.timestamp
+                    self.expiration_timestamp = attr.timestamp
                 except:
                     log_message("Fehler bei Update in Cache für " + attr.name, "error")
                     continue

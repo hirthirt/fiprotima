@@ -240,7 +240,17 @@ class Controller:
         self.reload_data()
     
     #TODO: Get selected Dataname from View and commit only this data
-    def commit_selected_data(self):
+    def commit_selected_data(self, infoview=False):
+        if not infoview:
+            data_handler_name = self.view.content.selected_treeview_handler
+            self.model.commit(data_handler_name)
+            self.reload_data()
+        else:
+            selected_id = self.view.content.tab_control.select()
+            selected_tab = self.view.content.tab_control.tab(selected_id, "text")
+            data_handler_name = self.view.content.info_views[selected_tab][1]
+            self.model.commit(data_handler_name)
+            self.load_additional_info(None)
         pass
 
     def rollback_all_data(self):
@@ -249,7 +259,17 @@ class Controller:
         self.reload_data()
     
     #TODO: Get selected Dataname from View and commit only this data
-    def rollback_selected_data(self):
+    def rollback_selected_data(self, infoview=False):
+        if not infoview:
+            data_handler_name = self.view.content.selected_treeview_handler
+            self.model.rollback(data_handler_name)
+            self.reload_data()
+        else:
+            selected_id = self.view.content.tab_control.select()
+            selected_tab = self.view.content.tab_control.tab(selected_id, "text")
+            data_handler_name = self.view.content.info_views[selected_tab][1]
+            self.model.rollback(data_handler_name)
+            self.load_additional_info(None)
         pass
     
     def change_filesystem_time(self):      

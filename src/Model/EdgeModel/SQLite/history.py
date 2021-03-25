@@ -118,8 +118,7 @@ class Download(BaseSession, BaseSQLiteClass):
         if not delta:
             log_message("Kein Delta erhalten in Download", "error")
             return
-        
-        print(self.target_path)
+            
         change_file_time(self.target_path, delta)
 
         for attr in self.attr_list:

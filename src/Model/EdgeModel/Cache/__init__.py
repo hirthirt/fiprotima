@@ -50,30 +50,36 @@ class DataSourcesCache:
         """Undo changes for only one source or all"""
         if name:
             try:
-                self.sources[name].rollback()
+                if name in self.sources:
+                    self.sources[name].rollback()
+                else:
+                    pass
             except:
-                print("Fehler beim speichern von: " + str(name))
+                log_message("Fehler beim Rollback von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].rollback()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    log_message("Fehler beim Rollback von: "  + str(source), "error")
 
 
     def commit(self, name):
         """Save changes for only one source or all"""
         if name:
             try:
-                self.sources[name].commit()
+                if name in self.sources:
+                    self.sources[name].commit()
+                else:
+                    pass
             except:
-                print("Fehler beim speichern von: " + str(name))
+                log_message("Fehler beim speichern von: " + str(name), "error")
         else:
             for source in self.sources:
                 try:
                     self.sources[source].commit()
                 except:
-                    print("Fehler beim Speichern von: "  + str(source))
+                    log_message("Fehler beim Speichern von: "  + str(source), "error")
 
     def close(self):
         """Close all connections"""

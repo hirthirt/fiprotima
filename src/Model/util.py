@@ -14,6 +14,7 @@ def log_message(message, lvl):
 def change_file_time(path, delta):
     if not os.path.exists(path):
         log_message("Pfad: " + path + " existiert nicht!", "info")
+        return
     if platform.system() == "Windows":
         # modify filetimes on Windows
         fh = CreateFile(path, GENERIC_WRITE, 
