@@ -5,11 +5,16 @@ from View.menu import MainMenu
 from View.toolbar import Toolbar
 from View.sidebar import SideBar
 from View.content import Content
+from View.Dialogs.ask_dialog import AskDialog
+from Model.util import resource_path
 
 class View(tk.Tk):
-
     def __init__(self, controller):
         super().__init__()
+        self.geometry("1500x900")
+        self.title("FiProTiMa")
+        icon = tk.PhotoImage(file=resource_path("View/icons/Logo.png"))
+        self.iconphoto(False, icon)
 
         self.controller = controller
         self.menu = None
@@ -21,6 +26,7 @@ class View(tk.Tk):
 
     
     def main(self):
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.mainloop()
 
     def body(self):      
@@ -36,5 +42,12 @@ class View(tk.Tk):
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        self.sidebar.insert_message("Fertig geladen...")
-        self.sidebar.insert_message("Legen Sie los!")
+    def on_closing(self):
+        if self.controller.get_unsaved_handlers():
+            answer = AskDialog(self, self.controller, "Es wurden nicht alle Daten gespeichert!\n Trotzdem fortfahren?").show()
+            if not answer:
+                return
+        answer = AskDialog(self, self.controller, "Möchten Sie wirklich beenden?").show()
+        if not answer:
+            return
+        self.destroy()

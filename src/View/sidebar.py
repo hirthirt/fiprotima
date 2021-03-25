@@ -16,18 +16,17 @@ class SideBar(tk.Frame):
         self.console = None
 
         self.body()
-        self.insert_profiles_to_treeview()
 
     def body(self):
 
         # Profile Treeview
-        self.tree = ttk.Treeview(self)
+        self.tree = ttk.Treeview(self, selectmode="browse", height=25)
 
         # Load Profile Button
-        subbutton = tk.Button(self, text="Laden", relief=tk.FLAT, width=30)
+        subbutton = tk.Button(self, text="Laden", relief=tk.FLAT, width=30, command=self.load_profile)
 
         # Console
-        self.console = tk.Text(self, width=30, height=5)
+        self.console = tk.Text(self, width=30)
         self.console.config(state=tk.DISABLED)
         
         # Pack Items
@@ -35,6 +34,23 @@ class SideBar(tk.Frame):
         subbutton.pack(fill="both")
         self.console.pack(side=tk.BOTTOM, fill="x")
 
+
+    def load_profile(self):
+        selected = self.tree.focus()
+        parent = self.tree.parent(selected)
+        if self.tree.item(selected)["text"] in ["Firefox", "Chrome", "Edge"]:
+            self.parent.controller.logger.error("Bitte Profil auswählen!")
+            return
+        if selected and parent and self.tree.item(selected):
+            browser = self.tree.item(parent)["text"]
+            profile_name = self.tree.item(selected)["text"]
+            data = self.parent.controller.load_profile(browser, profile_name)
+            if data and data != "keep":
+                self.parent.content.fillHistroyData(data)
+            elif data and data == "keep":
+                return
+            else:
+                self.parent.content.fillHistroyData("None")
 
     def insert_profiles_to_treeview(self):
         for child in self.tree.get_children():
@@ -48,13 +64,3 @@ class SideBar(tk.Frame):
                     self.tree.insert(parent, "end", text=profile)
         else:
             pass
-
-        
-
-
-    # Insert a message into the console
-    def insert_message(self, message):
-        message += "\n"
-        self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.INSERT, message)
-        self.console.config(state=tk.DISABLED)
