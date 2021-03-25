@@ -16,6 +16,7 @@ class Content(tk.Frame):
         self.tab_control = None
         self.info = None
         self.style = None
+        self.view_label_text = tk.StringVar("")
         self.dataview_mode = "history"
         self.info_views = []
 
@@ -35,7 +36,7 @@ class Content(tk.Frame):
         self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
         
         # Treeview in frame and scrollbars 
-        self.tree_frame = tk.Frame(self)
+        self.tree_frame = tk.Frame(self, height=25)
 
         self.tree_scroll_vertical = tk.Scrollbar(self.tree_frame)
         self.tree_scroll_vertical.pack(side=tk.RIGHT, fill=tk.Y)
@@ -52,6 +53,12 @@ class Content(tk.Frame):
         # Notebook for the additional information
         self.tab_control = ttk.Notebook(self) 
 
+        # Label to show selected view
+        self.label_frame = tk.Frame(self, height=5)
+        self.view_label = tk.Label(self.label_frame, textvariable=self.view_label_text)
+        self.view_label.pack()
+
+        self.label_frame.pack(side=tk.TOP, fill="x", expand=False)
         self.tree_frame.pack(fill="both")
         self.tab_control.pack(side=tk.BOTTOM, fill="both", expand=True)
 
@@ -73,10 +80,14 @@ class Content(tk.Frame):
         self.tree_scroll_horizontal.config(command=self.dataview.xview)
         self.dataview.bind("<Button-3>", self.dateview_popup)
 
+    # Start popup menu
     def dateview_popup(self, e):
         self.popup_menu.tk_popup(e.x_root, e.y_root)
         
-    
+    # Change view label to show name of selected view
+    def change_view_label(self, text):
+        self.view_label_text.set(text)
+
     # Receives additional data and builds tabs and treeviews to show it
     def fill_info_section(self, data):
         self.info_views = []
@@ -169,6 +180,8 @@ class Content(tk.Frame):
         
         if history_data == "None":
             return
+
+        self.change_view_label("Historie")
 
         self.dataview["columns"]=("visit","l_visit", "data_name", "id")
         self.dataview["displaycolumns"] = ("visit","l_visit")

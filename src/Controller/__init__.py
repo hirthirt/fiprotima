@@ -62,51 +62,60 @@ class Controller:
         self.change_data_view(self.view.content.dataview_mode)
 
     def change_data_view(self, data_view):
-        if data_view == "formhistory":
+        if data_view == "FormHistory":
             data = self.model.get_form_history()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "history":
+                self.view.content.change_view_label("Formular-Eingaben")
+        elif data_view == "History":
             data = self.model.get_history()
             if data:
                 self.view.content.fillHistroyData(data)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "addons":
+                self.view.content.change_view_label("Historie")
+        elif data_view == "Addons":
             data = self.model.get_addons()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "bookmarks":
+                self.view.content.change_view_label("Addons")
+        elif data_view == "Bookmarks":
             data = self.model.get_bookmarks()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "extensions":
+                self.view.content.change_view_label("Lesezeichen")
+        elif data_view == "Extensions":
             data = self.model.get_extensions()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "session":
+                self.view.content.change_view_label("Erweiterungen")
+        elif data_view == "Session":
             data = self.model.get_session()
             if data:
                 self.view.content.fill_dataview(data, True)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "profile":
+                self.view.content.change_view_label("Sessions")
+        elif data_view == "Profile":
             data = self.model.get_profile()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "keywords":
+                self.view.content.change_view_label("Profil")
+        elif data_view == "Keywords":
             data = self.model.get_keywords()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
-        elif data_view == "cache":
+                self.view.content.change_view_label("Keywords")
+        elif data_view == "Cache":
             data = self.model.get_cache()
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
+                self.view.content.change_view_label("Cache")
 
     def load_additional_info(self, a):
         if self.view.content.dataview_mode == "history":
