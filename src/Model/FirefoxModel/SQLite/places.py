@@ -70,9 +70,14 @@ class HistoryVisit(BaseSession, BaseSQLiteClass):
         last_visited_safe = self.place.last_visited_timestamp
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
-                if visited_safe == last_visited_safe:
+                is_bigger, addi_delta = attr.check_new_bigger(self.attr_list[2].value, delta)
+                if visited_safe == last_visited_safe or is_bigger :
                     try:
-                        attr.change_date(delta)
+                        if is_bigger:
+                            print(is_bigger, addi_delta)
+                            attr.change_date(addi_delta-delta)
+                        else:
+                            attr.change_date(delta)
                         attr.date_to_timestamp()
                         self.place.last_visited_timestamp = attr.timestamp
                     except:

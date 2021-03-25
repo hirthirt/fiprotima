@@ -119,6 +119,18 @@ class BaseAttribute:
 
         return None
 
+    def check_new_bigger(self, timestamp, delta):
+        value = None
+        try:
+            value = datetime.fromtimestamp(timestamp.timestamp() - delta)
+        except:
+            return False, None
+        if value and value > self.value:
+            return True, self.value.timestamp() - value.timestamp()
+        else:
+             return False, None
+
+
 
 class BaseSQLiteClass:
     attr_list = []

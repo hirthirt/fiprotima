@@ -52,19 +52,21 @@ class Visits(BaseSession, BaseSQLiteClass):
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
+        self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_timestamp))
         self.attr_list.append(
             BaseAttribute(LASTVISITED, DT_WEBKIT, self.place.last_visited_timestamp)
         )
-        self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_timestamp))
+        
 
     def reload_attributes(self):
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.place.url))
         self.attr_list.append(BaseAttribute(TITLE, OTHER, self.place.title))
+        self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_timestamp))
         self.attr_list.append(
             BaseAttribute(LASTVISITED, DT_WEBKIT, self.place.last_visited_timestamp)
         )
-        self.attr_list.append(BaseAttribute(VISITED, DT_WEBKIT, self.visit_timestamp))
+        
 
     def update(self, delta):
         if not delta:
@@ -74,9 +76,13 @@ class Visits(BaseSession, BaseSQLiteClass):
         last_visited_safe = self.place.last_visited_timestamp
         for attr in self.attr_list:
             if attr.name == LASTVISITED:
-                if visited_safe == last_visited_safe:
+                is_bigger, addi_delta = attr.check_new_bigger(self.attr_list[2].value, delta)
+                if visited_safe == last_visited_safe or is_bigger:
                     try:
-                        attr.change_date(delta)
+                        if is_bigger:
+                            attr.change_date(addi_delta-delta)
+                        else:
+                            attr.change_date(delta)
                         attr.date_to_timestamp()
                         self.place.last_visited_timestamp = attr.timestamp
                     except:
