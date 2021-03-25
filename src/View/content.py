@@ -44,6 +44,7 @@ class Content(tk.Frame):
         self.style = ttk.Style()
         self.style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11)) # Modify the font of the body
         self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 13,'bold')) # Modify the font of the headings
+        self.style.map('mystyle.Treeview', foreground=self.fixed_map('foreground'), background=self.fixed_map('background'))
         
         # Treeview in frame and scrollbars 
         self.tree_frame = tk.Frame(self, height=25)
@@ -111,7 +112,7 @@ class Content(tk.Frame):
                 if data[info]:
                     tab = ttk.Frame(self.tab_control)
                     self.tab_control.add(tab, text=info) 
-                    infoview = ttk.Treeview(tab)
+                    infoview = ttk.Treeview(tab, style="mystyle.Treeview")
                     headinglist = [attr.name for attr in data[info][0].attr_list if data[info]]
                     headinglist.append("data_name")
                     headinglist.append("id")
@@ -216,7 +217,7 @@ class Content(tk.Frame):
                 elif attr.name == "Besucht am":
                     v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
             self.selected_treeview_handler = str(entry.__class__.__name__) + "Handler"
-            parent = self.dataview.insert("", "end",  text=entry.place.url, tags=("bg"), values=(v_date, lv_date, str(entry.__class__.__name__) + "Handler", entry.id))
+            parent = self.dataview.insert("", "end",  text=entry.place.url, values=(v_date, lv_date, str(entry.__class__.__name__) + "Handler", entry.id))
             if entry.is_date_changed:
                             self.dataview.item(parent, tags=("edited"))               
             if history_data[entry]:
@@ -228,9 +229,25 @@ class Content(tk.Frame):
                             lv_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
                         elif attr.name == "Besucht am":
                             v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
-                    child = self.dataview.insert(parent, "end",  text=sube.place.url, values=(v_date,lv_date, str(entry.__class__.__name__) + "Handler", sube.id))
+                    child = self.dataview.insert(parent, "end",  text=sube.place.url, tags=("bg"), values=(v_date,lv_date, str(entry.__class__.__name__) + "Handler", sube.id))
                     if entry.is_date_changed:
-                            self.dataview.item(child, tags=("edited")) 
+                            self.dataview.item(child, tags=("editedchild")) 
         self.dataview.bind('<Double-1>', self.parent.controller.load_additional_info)
         self.dataview.tag_configure('bg', background='#DFDFDF')
-        self.dataview.tag_configure('edited', background='green')
+        self.dataview.tag_configure('edited', background='#008000')
+        self.dataview.tag_configure('editedchild', background='#0ecf2b')
+
+
+
+
+    def fixed_map(self, option):
+        # Fix for setting text colour for Tkinter 8.6.9
+        # From: https://core.tcl.tk/tk/info/509cafafae
+        #
+        # Returns the style map for 'option' with any styles starting with
+        # ('!disabled', '!selected', ...) filtered out.
+
+        # style.map() returns an empty list for missing options, so this
+        # should be future-safe.
+        return [elm for elm in self.style.map('Treeview', query_opt=option) if
+            elm[:2] != ('!disabled', '!selected')]
