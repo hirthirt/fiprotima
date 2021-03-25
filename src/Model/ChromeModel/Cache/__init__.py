@@ -2,11 +2,11 @@ from importlib import import_module
 from Model.util import log_message
 
 class DataSourcesCache:
-    def __init__(self, profile_path: str, cache_path: str):
+    def __init__(self, profile_path: str):
         self.sources = {}
         source_names = []
 
-        source_names.append(["Model.ChromeModel.Cache.cache2entries", "Cache2Handler"])
+        source_names.append(["Model.ChromeModel.Cache.cacheHandler", "CacheEntryHandler"])
 
         for source_name in source_names:
             module_name = source_name[0]
@@ -15,7 +15,7 @@ class DataSourcesCache:
             try:
                 module = import_module(module_name)
                 Class_ = getattr(module, class_name)
-                instance = Class_(profile_path=profile_path, cache_path=cache_path)
+                instance = Class_(profile_path=profile_path)
             except Exception as e:
                 print(
                     "Fehler in Datenquelle Cache, Modul %s, Klasse %s: %s. Überspringe"

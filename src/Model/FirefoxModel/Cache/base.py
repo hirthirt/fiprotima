@@ -5,7 +5,6 @@ from os.path import exists, isfile, join
 EPOCH = datetime(1970, 1, 1)
 OTHER = "other"
 DT_SEC = "datetime_second"
-DT_SEC_ZEROED_MILLI = "datetime_second_zeroed_milloseconds"
 DT_SEC_DOT_MILLI = "datetime_second_dot_milli"
 DT_MILLI = "datetime_milli"
 DT_MICRO = "datetime_microseconds"
@@ -20,11 +19,20 @@ PERSISTENT = "Dauerhaft"
 
 
 def microseconds_to_datetime(microseconds):
+    """
+    Creates datetime from microseconds.
+    Workaround to datetime.replace does not handle microseconds well
+    """
     datetime_obj = EPOCH + timedelta(microseconds=microseconds)
     return datetime_obj
 
 
 class BaseAttribute:
+    """
+    Helper class to better handle Attributes
+    Transforms timestamp into datetime because it makes handling date and time easier
+    """
+
     def __init__(self, name: str, type_: str, value):
         self.name = name
         self.type = type_
@@ -33,13 +41,13 @@ class BaseAttribute:
 
         if type_ == DT_SEC:
             self.timestamp = int(value)
-            self.value = datetime.utcfromtimestamp(self.timestamp)
+            try:
+                self.value = datetime.fromtimestamp(0) + timedelta(seconds=self.timestamp)
+            except:
+                self.value = datetime.fromtimestamp(0) + timedelta(seconds=self.timestamp/1000)
         elif type_ in (DT_MICRO, DT_MILLI_ZEROED_MICRO):
             self.timestamp = int(value)
             self.value = microseconds_to_datetime(self.timestamp)
-        elif type_ == DT_SEC_ZEROED_MILLI:
-            self.timestamp = int(value)
-            self.value = datetime.utcfromtimestamp(int(self.timestamp / MILLI_FACTOR))
         elif type_ == DT_MILLI:
             self.timestamp = int(value)
             self.value = microseconds_to_datetime(self.timestamp * MILLI_FACTOR)
@@ -61,6 +69,7 @@ class BaseAttribute:
             self.value = microseconds_to_datetime(self.timestamp * MILLI_FACTOR)
 
     def date_to_timestamp(self):
+        """Transforms datetime to timestamps"""
         if self.type == OTHER or self.type == DT_ZERO:
             return
 
@@ -69,8 +78,6 @@ class BaseAttribute:
 
         if self.type == DT_MICRO:
             self.timestamp = (self.timestamp * MICRO_FACTOR) + microseconds
-        elif self.type == DT_SEC_ZEROED_MILLI:
-            self.timestamp = self.timestamp * MILLI_FACTOR
         elif self.type == DT_MILLI_ZEROED_MICRO:
             # Zeroing out the last three numbers
             microseconds = int(microseconds / MILLI_FACTOR) * MILLI_FACTOR
@@ -82,19 +89,22 @@ class BaseAttribute:
             milliseconds = int(microseconds / MILLI_FACTOR)
             self.timestamp = float(str(self.timestamp) + "." + str(milliseconds))
 
-    def set_date(self, date: datetime):
+    def change_date(self, delta):
+        """Override value with datetime"""
         if self.type == OTHER:
             return
-        
-        if self.timestamp == 0:
-            return
 
-        self.value = date
+        if self.timestamp == 0:
+            return    
+
+        self.value = datetime.fromtimestamp(self.value.timestamp() - delta)
 
     def is_other(self):
+        """Check if attribute is datetime or other type like string"""
         return self.type == OTHER or self.type == DT_ZERO
 
     def extended_timestamp(self):
+        """Returns microseconds or milliseconds from timestamp"""
         if self.type == DT_MICRO:
             return self.timestamp % MICRO_FACTOR
         if self.type == DT_MILLI:

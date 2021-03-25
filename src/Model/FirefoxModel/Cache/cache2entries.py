@@ -2,6 +2,8 @@ import os
 import os.path
 import struct
 
+from Model.util import log_message
+
 from Model.FirefoxModel.Cache.base import (
     BaseCacheClass,
     BaseCacheHandler,
@@ -23,7 +25,7 @@ EXPIRATION = "Läuft ab am"
 
 class CacheEntry(BaseCacheClass):
     def __init__(self, i, file_name, url, last_fetched, last_modified, expiration):
-        self.i = i
+        self.id = i
         self.file_name = file_name
         self.url = url
         self.last_fetched_timestamp = last_fetched
@@ -32,23 +34,49 @@ class CacheEntry(BaseCacheClass):
         self.init()
 
     def init(self):
+        self.is_date_changed = False
         self.attr_list = []
         self.attr_list.append(BaseAttribute(URL, OTHER, self.url))
         self.attr_list.append(BaseAttribute(LASTFETCHED, DT_SEC, self.last_fetched_timestamp))
         self.attr_list.append(BaseAttribute(LASTMODIFIED, DT_SEC, self.last_modified_timestamp))
         self.attr_list.append(BaseAttribute(EXPIRATION, DT_SEC, self.expiration_timestamp))
 
-    def update(self):
+    def update(self, delta):
+        if not delta:
+            log_message("Kein Delta erhalten in Cache", "error")
+            return
         for attr in self.attr_list:
             if attr.name == LASTMODIFIED:
-                self.last_modified_timestamp = attr.timestamp
-            elif attr.name == LASTFETCHED:
-                self.last_fetched_timestamp = attr.timestamp
-            elif attr.name == EXPIRATION:
-                self.expiration_timestamp = attr.timestamp
+                attr.change_date(delta)
+                attr.date_to_timestamp()
+                self.creationTime = attr.timestamp
+                try:
+                    pass
+                except:
+                    log_message("Fehler bei Update in Cache für " + attr.name, "error")
+                    continue
+                self.is_date_changed = True
+            if attr.name == LASTFETCHED:
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.creationTime = attr.timestamp
+                except:
+                    log_message("Fehler bei Update in Cache für " + attr.name, "error")
+                    continue
+                self.is_date_changed = True
+            if attr.name == EXPIRATION:
+                try:
+                    attr.change_date(delta)
+                    attr.date_to_timestamp()
+                    self.creationTime = attr.timestamp
+                except:
+                    log_message("Fehler bei Update in Cache für " + attr.name, "error")
+                    continue
+                self.is_date_changed = True
 
 
-class Cache2Handler(BaseCacheHandler):
+class CacheEntryHandler(BaseCacheHandler):
     name = "Cache"
 
     attr_names = [ID, URL, LASTFETCHED, LASTMODIFIED, EXPIRATION]

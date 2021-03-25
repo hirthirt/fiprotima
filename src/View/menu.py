@@ -32,6 +32,7 @@ class MainMenu(tk.Menu):
         viewmenu.add_command(label="Session", command=lambda: self.parent.controller.change_data_view("session"))
         viewmenu.add_command(label="Profil", command=lambda: self.parent.controller.change_data_view("profile"))
         viewmenu.add_command(label="Keywords", command=lambda: self.parent.controller.change_data_view("keywords"))
+        viewmenu.add_command(label="Cache", command=lambda: self.parent.controller.change_data_view("cache"))
         self.add_cascade(label="Ansicht", menu=viewmenu)
 
         helpmenu = tk.Menu(self, tearoff=0)

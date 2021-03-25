@@ -18,7 +18,7 @@ class ChromeModel:
 
         self.sources["SQLite"] = DataSourcesSQLite(profile_path)
         self.sources["JSON"] = DataSourcesJSON(profile_path)
-        #self.sources["Cache"] = DataSourcesCache(cache_path)
+        self.sources["Cache"] = DataSourcesCache(profile_path)
 
         self.data_dict = self.get_data()
         
@@ -121,6 +121,9 @@ class ChromeModel:
     
     def get_form_history(self):
         return self.data_dict["AutofillHandler"]
+
+    def get_cache(self):
+        return self.data_dict["CacheEntryHandler"]
 
     def edit_all_data(self, delta):
         for source in self.data_dict:

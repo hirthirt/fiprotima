@@ -149,6 +149,13 @@ class Model:
         else:
             data = None
         return data
+
+    def get_cache(self):
+        if self.browsermodel:
+            data = self.browsermodel.get_cache()
+        else:
+            data = None
+        return data
     
     def edit_all_data(self, delta):
         if self.browsermodel:
@@ -190,6 +197,7 @@ class Model:
                                  message="Kein Profil ausgewählt!", 
                                  lvl="info")
 
+    # Rollback the changes on file timestamps
     def rollback_filesystem_time(self, config):
         if not self.filesystem_changed:
             pub.sendMessage("logging",
@@ -231,6 +239,7 @@ class Model:
         self.filesystem_changed = False
         self.browsermodel.get_data()
     
+    # Change timestamps of the profile files
     def change_filesystem_time(self, config):
         now_history_last_time = self.browsermodel.get_history_last_time()
         self.browsermodel.close()
@@ -273,8 +282,6 @@ class Model:
                                             " konnten nicht editiert werden!", 
                                             lvl="info")
         self.filesystem_changed = True
-        self.browsermodel.get_data()
-
 
 
 

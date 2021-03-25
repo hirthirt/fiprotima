@@ -102,6 +102,11 @@ class Controller:
             if data:
                 self.view.content.fill_dataview(data, False)
                 self.view.content.dataview_mode = data_view
+        elif data_view == "cache":
+            data = self.model.get_cache()
+            if data:
+                self.view.content.fill_dataview(data, False)
+                self.view.content.dataview_mode = data_view
 
     def load_additional_info(self, a):
         if self.view.content.dataview_mode == "history":
@@ -183,6 +188,8 @@ class Controller:
             for selected in info_view.selection():
                 item = info_view.item(selected)
                 selected_list.append([item["values"][-2], item["values"][-1]])
+
+        print(selected_list)
         if mode == "date":
             self.model.edit_selected_data_date(date, selected_list)
             try:
@@ -191,8 +198,9 @@ class Controller:
                 self.logger.error("Fehler beim editieren")
                 return
         else:
+            self.model.edit_selected_data_delta(delta, selected_list)
             try:
-                self.model.edit_selected_data_delta(delta, selected_list)
+                pass
             except:
                 self.logger.error("Fehler beim editieren")
                 return

@@ -21,10 +21,10 @@ class FirefoxModel:
 
         self.sources["SQLite"] = DataSourcesSQLite(profile_path, cache_path)
         self.sources["JSON"] = DataSourcesJSON(profile_path, cache_path)
-        #self.sources["Cache"] = DataSourcesCache(cache_path, cache_path)
+        self.sources["Cache"] = DataSourcesCache(cache_path, cache_path)
 
         self.data_dict = self.get_data()
-        #
+        
 
     def get_data(self):
         data_dict = {}
@@ -148,6 +148,9 @@ class FirefoxModel:
     
     def get_profile(self):
         return self.data_dict["TimesHandler"]
+
+    def get_cache(self):
+        return self.data_dict["CacheEntryHandler"]
 
     def edit_all_data(self, delta):
         for source in self.data_dict:
