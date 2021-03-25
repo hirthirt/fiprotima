@@ -118,7 +118,7 @@ class Controller:
                 self.view.content.change_view_label("Cache")
 
     def load_additional_info(self, a):
-        if self.view.content.dataview_mode == "history":
+        if self.view.content.dataview_mode == "History":
             item = self.view.content.dataview.item(self.view.content.dataview.focus())
             parsed_uri = urlparse(item["text"])
             split = parsed_uri.hostname.split(".")
@@ -129,7 +129,7 @@ class Controller:
             
             data = self.model.get_additional_info("history", sitename)
             self.view.content.fill_info_section(data)
-        elif self.view.content.dataview_mode == "session":
+        elif self.view.content.dataview_mode == "Session":
             item = self.view.content.dataview.item(self.view.content.dataview.focus())
             data = self.model.get_additional_info("session", item["values"][-1])
             self.view.content.fill_info_section(data)
@@ -152,7 +152,7 @@ class Controller:
         self.model.edit_all_data(delta)
         self.reload_data()
 
-    def edit_selected_data(self, mode):
+    def edit_selected_data(self, mode, all=False, infoview=False):
         # Ask for timedelta with dialog, then change all data based on this timedelta 
         if mode == "date":
             date = DateDialog(self.view, self).show()
@@ -172,48 +172,68 @@ class Controller:
             else:
                 self.logger.error("Kein Delta angegeben!")
                 return
-
-
         selected_list = []
-        already_selected_list = []
-        for selected in self.view.content.dataview.selection():
-            if selected in already_selected_list:
-                continue
-            item = self.view.content.dataview.item(selected)
-            children = self.view.content.dataview.get_children(selected)
-            children_list = []
-            if children:
-                for child in children:
-                    if child in already_selected_list:
+        if not all:
+            if not infoview:
+                already_selected_list = []
+                for selected in self.view.content.dataview.selection():
+                    if selected in already_selected_list:
                         continue
-                    c_item = self.view.content.dataview.item(child)
-                    children_list.append([c_item["values"][-2], c_item["values"][-1]])
-                    already_selected_list.append(child)
-            selected_list.append([item["values"][-2], item["values"][-1], children_list])
-            already_selected_list.append(selected)
-        
-        
-        for info_view in self.view.content.info_views:
-            for selected in info_view.selection():
-                item = info_view.item(selected)
-                selected_list.append([item["values"][-2], item["values"][-1]])
+                    item = self.view.content.dataview.item(selected)
+                    children = self.view.content.dataview.get_children(selected)
+                    children_list = []
+                    if children:
+                        for child in children:
+                            if child in already_selected_list:
+                                continue
+                            c_item = self.view.content.dataview.item(child)
+                            children_list.append([c_item["values"][-2], c_item["values"][-1]])
+                            already_selected_list.append(child)
+                    selected_list.append([item["values"][-2], item["values"][-1], children_list])
+                    already_selected_list.append(selected)
+            else:
+                selected_id = self.view.content.tab_control.select()
+                selected_tab = self.view.content.tab_control.tab(selected_id, "text")
+                for selected in self.view.content.info_views[selected_tab][0].selection():
+                    item = self.view.content.info_views[selected_tab][0].item(selected)
+                    selected_list.append([item["values"][-2], item["values"][-1]])
+        else:
+            if not infoview:
+                for element in self.view.content.dataview.get_children():
+                    children = self.view.content.dataview.get_children(element)
+                    if children:
+                        for child in children:
+                            item = self.view.content.dataview.item(child)
+                            selected_list.append([item["values"][-2], item["values"][-1]])
+                    item = self.view.content.dataview.item(element)
+                    selected_list.append([item["values"][-2], item["values"][-1]])
+            else:
+                selected_id = self.view.content.tab_control.select()
+                selected_tab = self.view.content.tab_control.tab(selected_id, "text")
+                for element in self.view.content.info_views[selected_tab][0].get_children():
+                    item = self.view.content.info_views[selected_tab][0].item(element)
+                    selected_list.append([item["values"][-2], item["values"][-1]])
 
-        print(selected_list)
+        if not selected_list:
+            self.logger.info("Keine Elemente ausgewählt!")
+            return
+
         if mode == "date":
-            self.model.edit_selected_data_date(date, selected_list)
             try:
-                pass
+                self.model.edit_selected_data_date(date, selected_list)
             except:
                 self.logger.error("Fehler beim editieren")
                 return
         else:
-            self.model.edit_selected_data_delta(delta, selected_list)
             try:
-                pass
+                self.model.edit_selected_data_delta(delta, selected_list)
             except:
                 self.logger.error("Fehler beim editieren")
                 return
-        self.reload_data()
+        if not infoview:
+            self.reload_data()
+        else:
+            self.load_additional_info(None)
 
     def commit_all_data(self):
         self.model.commit()

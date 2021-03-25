@@ -18,7 +18,8 @@ class Content(tk.Frame):
         self.style = None
         self.view_label_text = tk.StringVar("")
         self.dataview_mode = "history"
-        self.info_views = []
+        self.selected_treeview_handler = None
+        self.info_views = {}
 
         self.body()
 
@@ -26,9 +27,14 @@ class Content(tk.Frame):
     def body(self):
         # Popup menu
         self.popup_menu = tk.Menu(self, tearoff=False)
-        self.popup_menu.add_command(label="Ausgewählte editieren via Delta", command=lambda: self.parent.controller.edit_selected_data("delta"))
-        self.popup_menu.add_command(label="Ausgewählte editieren via Datum", command=lambda: self.parent.controller.edit_selected_data("date"))
-        self.popup_menu.add_command(label="Gesamte aktuelle Tablle editieren")
+        self.popup_menu.add_command(label="Ausgewählte editieren via Delta", command=lambda: self.parent.controller.edit_selected_data(mode="delta"))
+        self.popup_menu.add_command(label="Ausgewählte editieren via Datum", command=lambda: self.parent.controller.edit_selected_data(mode="date"))
+        self.popup_menu.add_command(label="Gesamte aktuelle Tablle editieren", command=lambda: self.parent.controller.edit_selected_data(mode="delta", all=True))
+
+        self.addi_popup_menu = tk.Menu(self, tearoff=False)
+        self.addi_popup_menu.add_command(label="Ausgewählte editieren via Delta", command=lambda: self.parent.controller.edit_selected_data(mode="delta", infoview=True))
+        self.addi_popup_menu.add_command(label="Ausgewählte editieren via Datum", command=lambda: self.parent.controller.edit_selected_data(mode="date", infoview=True))
+        self.addi_popup_menu.add_command(label="Gesamte aktuelle Tablle editieren", command=lambda: self.parent.controller.edit_selected_data(mode="delta",all=True, infoview=True))
 
         # Treeview style
         self.style = ttk.Style()
@@ -83,6 +89,9 @@ class Content(tk.Frame):
     # Start popup menu
     def dateview_popup(self, e):
         self.popup_menu.tk_popup(e.x_root, e.y_root)
+
+    def addi_info_popup(self, e):
+        self.addi_popup_menu.tk_popup(e.x_root, e.y_root)
         
     # Change view label to show name of selected view
     def change_view_label(self, text):
@@ -90,7 +99,7 @@ class Content(tk.Frame):
 
     # Receives additional data and builds tabs and treeviews to show it
     def fill_info_section(self, data):
-        self.info_views = []
+        self.info_views = {}
         for tab in self.tab_control.tabs():
             self.tab_control.forget(tab)
 
@@ -120,7 +129,8 @@ class Content(tk.Frame):
                             infoview.item(insert, tags=("edited"))
                     infoview.tag_configure('edited', background='green') 
                     infoview.pack(expand=True, fill="both")
-                    self.info_views.append(infoview)
+                    infoview.bind("<Button-3>", self.addi_info_popup)
+                    self.info_views[info] = [infoview, str(data[info][0].__class__.__name__) + "Handler"]
                 else:
                     tab = ttk.Frame(self.tab_control)
                     self.tab_control.add(tab, text=info)
@@ -147,6 +157,7 @@ class Content(tk.Frame):
         self.dataview.heading("#0",text=headinglist[0],anchor=tk.W)
         for heading in headinglist[1:]:
             self.dataview.heading(heading, text=heading, anchor=tk.W)
+        self.selected_treeview_handler = str(data[0].__class__.__name__) + "Handler"
         for item in data:
             values = [attr.value for attr in item.attr_list[1:]]
             try:
@@ -168,7 +179,7 @@ class Content(tk.Frame):
 
     # Fill the main treeview (dataview) with history data. Extra method to load dependencies correctly
     def fillHistroyData(self, history_data):
-        self.dataview_mode="history"
+        self.dataview_mode="History"
         for child in self.dataview.get_children():
             self.dataview.delete(child)
 
@@ -200,6 +211,7 @@ class Content(tk.Frame):
                     lv_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
                 elif attr.name == "Besucht am":
                     v_date = attr.value.strftime("%d.%m.%Y %H:%M:%S")
+            self.selected_treeview_handler = str(entry.__class__.__name__) + "Handler"
             parent = self.dataview.insert("", "end",  text=entry.place.url, tags=("bg"), values=(v_date, lv_date, str(entry.__class__.__name__) + "Handler", entry.id))
             if entry.is_date_changed:
                             self.dataview.item(parent, tags=("edited"))               

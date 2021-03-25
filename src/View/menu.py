@@ -15,8 +15,7 @@ class MainMenu(tk.Menu):
         self.add_cascade(label="Datei", menu=filemenu)
 
         editmenu = tk.Menu(self, tearoff=0)
-        editmenu.add_command(label="Undo")
-        editmenu.add_command(label="Löschen")
+        editmenu.add_command(label="Undo", command=self.parent.controller.rollback_all_data)
         editmenu.add_command(label="Alle Daten editieren", command=self.parent.controller.edit_all_data)
         editmenu.add_command(label="Ausgewählte Daten editieren", command=self.parent.controller.edit_selected_data)
         editmenu.add_command(label="Dateisystem-Zeit anpassen", command=self.parent.controller.change_filesystem_time)

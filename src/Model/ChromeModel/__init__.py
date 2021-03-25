@@ -142,7 +142,7 @@ class ChromeModel:
                             other_item.reload_attributes()
                 except:
                     pass
-            if selected[2]:
+            if len(selected) > 2:
                 for child in selected[2]:
                     for c_item in self.data_dict[child[0]]:
                         if c_item.id == child[1]:
@@ -170,7 +170,7 @@ class ChromeModel:
                                 other_item.reload_attributes()
                     except:
                         pass
-            if selected[2]:
+            if len(selected) > 2:
                 for child in selected[2]:
                     for c_item in self.data_dict[child[0]]:
                         if c_item.id == child[1]:

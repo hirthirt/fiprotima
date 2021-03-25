@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, orm
+from sqlalchemy import Column, Integer, String, orm, ForeignKey
+from sqlalchemy.orm import relationship
 import random
 
 from Model.util import log_message
@@ -52,19 +53,18 @@ class Login(BaseSession, BaseSQLiteClass):
 
 
 class CompromisedCredetial(BaseSession, BaseSQLiteClass):
-    __tablename__ = "compromised_credentials"
+    __tablename__ = "insecure_credentials"
 
-    url = Column("url", String)
-    username = Column("username", String)
+    login_id = Column("parent_id", Integer, ForeignKey("logins.id"))
     date_created = Column("create_time", Integer, primary_key=True)
+    login = relationship("Login")
 
     @orm.reconstructor
     def init(self):
         self.is_date_changed = False
         self.id = random.randint(0, 9999999999999)
         self.attr_list = []
-        self.attr_list.append(BaseAttribute(URL, OTHER, self.url))
-        self.attr_list.append(BaseAttribute(USERNAME, OTHER, self.username))
+        self.attr_list.append(BaseAttribute(URL, OTHER, self.login.origin_url))
         self.attr_list.append(BaseAttribute(CREATEDAT, DT_WEBKIT, self.date_created))
 
 

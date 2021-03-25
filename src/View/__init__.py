@@ -11,6 +11,7 @@ class View(tk.Tk):
     def __init__(self, controller):
         super().__init__()
         self.geometry("1500x900")
+        self.title("FiProTiMa")
         icon = tk.PhotoImage(file=resource_path("View/icons/Logo.png"))
         self.iconphoto(False, icon)
 
