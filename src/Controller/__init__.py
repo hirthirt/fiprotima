@@ -225,8 +225,9 @@ class Controller:
                 self.logger.error("Fehler beim editieren")
                 return
         else:
+            self.model.edit_selected_data_delta(delta, selected_list)
             try:
-                self.model.edit_selected_data_delta(delta, selected_list)
+                pass
             except:
                 self.logger.error("Fehler beim editieren")
                 return

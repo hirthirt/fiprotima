@@ -1,6 +1,8 @@
 import tkinter as tk
 import webbrowser
 
+from View.Dialogs.guide_dialog import GuideDialog
+
 class MainMenu(tk.Menu):
 
     def __init__(self, parent):
@@ -11,7 +13,6 @@ class MainMenu(tk.Menu):
     def body(self):
         filemenu = tk.Menu(self, tearoff=0)
         filemenu.add_command(label="Alle Änderungen speichern", command=self.parent.controller.commit_all_data)
-        filemenu.add_command(label="Änderungen dieser Tabelle speichern", command=self.parent.controller.commit_selected_data)
         filemenu.add_command(label="Beenden", command=self.parent.quit)
         self.add_cascade(label="Datei", menu=filemenu)
 
@@ -36,7 +37,7 @@ class MainMenu(tk.Menu):
         self.add_cascade(label="Ansicht", menu=viewmenu)
 
         helpmenu = tk.Menu(self, tearoff=0)
-        helpmenu.add_command(label="Hilfe")
+        helpmenu.add_command(label="Hilfe", command=lambda: GuideDialog(self.parent, self.parent.controller).show())
         helpmenu.add_command(label="Über...", command=lambda: webbrowser.open_new("https://github.com/hirthirt/fiprotima"))
         self.add_cascade(label="Hilfe", menu=helpmenu)
 
